@@ -118,14 +118,14 @@ export function BotForm({ bot, onSaved, onCancel }: BotFormProps) {
               <Select
                 value={form.welcome_media_type ?? ''}
                 onValueChange={(v) =>
-                  setForm({ ...form, welcome_media_type: (v || undefined) as 'image' | 'video' | undefined })
+                  setForm({ ...form, welcome_media_type: (v === 'none' ? undefined : v) as 'image' | 'video' | undefined })
                 }
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Selecionar..." />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">Nenhuma</SelectItem>
+                  <SelectItem value="none">Nenhuma</SelectItem>
                   <SelectItem value="image">Imagem</SelectItem>
                   <SelectItem value="video">Vídeo</SelectItem>
                 </SelectContent>
