@@ -116,7 +116,7 @@ export function BotForm({ bot, onSaved, onCancel }: BotFormProps) {
             <div className="space-y-1.5">
               <Label>Tipo de Mídia</Label>
               <Select
-                value={form.welcome_media_type ?? ''}
+                value={form.welcome_media_type ?? 'none'}
                 onValueChange={(v) =>
                   setForm({ ...form, welcome_media_type: (v === 'none' ? undefined : v) as 'image' | 'video' | undefined })
                 }
