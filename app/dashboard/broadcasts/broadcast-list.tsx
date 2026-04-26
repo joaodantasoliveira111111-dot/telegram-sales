@@ -5,7 +5,7 @@ import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { Plus, Send, Megaphone, Loader2, Users, UserX, Clock, UserCheck } from 'lucide-react'
+import { Plus, Send, Megaphone, Loader2, Users, UserX, Clock, UserCheck, RefreshCw } from 'lucide-react'
 import { BroadcastForm } from './broadcast-form'
 import { formatDate } from '@/lib/utils'
 
@@ -49,6 +49,27 @@ export function BroadcastList({ initialBroadcasts, bots }: BroadcastListProps) {
   const [broadcasts, setBroadcasts] = useState(initialBroadcasts)
   const [showForm, setShowForm] = useState(false)
   const [sending, setSending] = useState<string | null>(null)
+  const [runningCron, setRunningCron] = useState(false)
+
+  async function handleRunScheduled() {
+    setRunningCron(true)
+    try {
+      const res = await fetch('/api/cron/send-broadcasts')
+      const data = await res.json()
+      if (res.ok) {
+        if (data.processed === 0) {
+          toast.info('Nenhum agendamento pendente no momento.')
+        } else {
+          toast.success(`${data.processed} transmissão(ões) enviada(s) — ${data.sent} mensagens no total.`)
+          window.location.reload()
+        }
+      } else {
+        toast.error('Erro ao processar agendamentos')
+      }
+    } finally {
+      setRunningCron(false)
+    }
+  }
 
   async function handleSend(id: string) {
     if (!confirm('Confirma o envio desta transmissão?')) return
@@ -76,7 +97,11 @@ export function BroadcastList({ initialBroadcasts, bots }: BroadcastListProps) {
 
   return (
     <div>
-      <div className="mb-4 flex justify-end">
+      <div className="mb-4 flex justify-end gap-2">
+        <Button variant="outline" onClick={handleRunScheduled} disabled={runningCron}>
+          {runningCron ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <RefreshCw className="mr-2 h-4 w-4" />}
+          Processar Agendados
+        </Button>
         <Button onClick={() => setShowForm(true)}>
           <Plus className="mr-2 h-4 w-4" />
           Nova Transmissão
