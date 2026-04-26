@@ -38,7 +38,7 @@ async function getData(days: number) {
   const botList = bots.data ?? []
 
   // Summary
-  const totalRevenue = paid.reduce((acc, p) => acc + Number((p.plan as { price: number } | null)?.price ?? 0), 0)
+  const totalRevenue = paid.reduce((acc, p) => acc + Number((p.plan as unknown as { price: number } | null)?.price ?? 0), 0)
   const totalSales = paid.length
   const avgTicket = totalSales > 0 ? totalRevenue / totalSales : 0
 
@@ -46,8 +46,8 @@ async function getData(days: number) {
   const planMap: Record<string, { name: string; revenue: number; sales: number }> = {}
   for (const p of paid) {
     const id = p.plan_id as string
-    const name = (p.plan as { name: string } | null)?.name ?? 'Sem nome'
-    const price = Number((p.plan as { price: number } | null)?.price ?? 0)
+    const name = (p.plan as unknown as { name: string } | null)?.name ?? 'Sem nome'
+    const price = Number((p.plan as unknown as { price: number } | null)?.price ?? 0)
     if (!planMap[id]) planMap[id] = { name, revenue: 0, sales: 0 }
     planMap[id].revenue += price
     planMap[id].sales++
