@@ -153,12 +153,20 @@ async function handleCallbackQuery(bot: Record<string, unknown>, update: Telegra
     .maybeSingle()
 
   if (existingPayment?.pix_code) {
+    const priceFormatted = `R$ ${Number(plan.price).toFixed(2).replace('.', ',')}`
     const msg = await getBotMessage(bot.id as string, 'payment_pending', {
       nome: from.first_name ?? '',
       plano: plan.name,
       codigo: existingPayment.pix_code,
     })
     await sendMessage(token, chatId, msg)
+    try {
+      const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(existingPayment.pix_code)}`
+      await sendPhoto(token, chatId, qrUrl, `📷 Escaneie o QR Code com o app do seu banco para pagar ${priceFormatted}`)
+    } catch {
+      // QR code send failed — continue
+    }
+    await sendMessage(token, chatId, `<code>${existingPayment.pix_code}</code>`)
     return
   }
 
