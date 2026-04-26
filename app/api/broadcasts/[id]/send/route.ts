@@ -26,52 +26,57 @@ export async function POST(
 
   const botToken = broadcast.bot.telegram_token as string
 
-  // Get target users
-  let telegramIds: string[] = []
+  // Get target users based on target_type
+  let allIds: string[] = []
 
   if (broadcast.target_type === 'all') {
     const { data } = await supabaseAdmin
       .from('telegram_users')
       .select('telegram_id')
       .eq('bot_id', broadcast.bot_id)
-    telegramIds = (data ?? []).map((u) => u.telegram_id)
+    allIds = (data ?? []).map((u) => u.telegram_id)
   } else if (broadcast.target_type === 'active') {
     const { data } = await supabaseAdmin
       .from('subscriptions')
       .select('telegram_id')
       .eq('bot_id', broadcast.bot_id)
       .eq('status', 'active')
-    telegramIds = [...new Set((data ?? []).map((u) => u.telegram_id))]
+    allIds = [...new Set((data ?? []).map((u) => u.telegram_id))]
   } else if (broadcast.target_type === 'expired') {
     const { data } = await supabaseAdmin
       .from('subscriptions')
       .select('telegram_id')
       .eq('bot_id', broadcast.bot_id)
       .eq('status', 'expired')
-    telegramIds = [...new Set((data ?? []).map((u) => u.telegram_id))]
+    allIds = [...new Set((data ?? []).map((u) => u.telegram_id))]
   } else if (broadcast.target_type === 'unpaid') {
-    // Users who started but never completed a payment
     const { data: allUsers } = await supabaseAdmin
       .from('telegram_users')
       .select('telegram_id')
       .eq('bot_id', broadcast.bot_id)
-
     const { data: paidUsers } = await supabaseAdmin
       .from('payments')
       .select('telegram_id')
       .eq('bot_id', broadcast.bot_id)
       .eq('status', 'paid')
-
-    const paidIds = new Set((paidUsers ?? []).map((p) => p.telegram_id))
-    telegramIds = (allUsers ?? [])
-      .map((u) => u.telegram_id)
-      .filter((id) => !paidIds.has(id))
+    const paidSet = new Set((paidUsers ?? []).map((p) => p.telegram_id))
+    allIds = (allUsers ?? []).map((u) => u.telegram_id).filter((id) => !paidSet.has(id))
   }
 
-  // Remove duplicates
-  telegramIds = [...new Set(telegramIds)]
+  allIds = [...new Set(allIds)]
+
+  // Exclude users who already received this broadcast
+  const { data: alreadySent } = await supabaseAdmin
+    .from('broadcast_recipients')
+    .select('telegram_id')
+    .eq('broadcast_id', id)
+
+  const alreadySentSet = new Set((alreadySent ?? []).map((r) => r.telegram_id))
+  const telegramIds = allIds.filter((tid) => !alreadySentSet.has(tid))
 
   let sent = 0
+  const newRecipients: { broadcast_id: string; telegram_id: string }[] = []
+
   for (const chatId of telegramIds) {
     try {
       if (broadcast.media_url && broadcast.media_type === 'image') {
@@ -82,17 +87,24 @@ export async function POST(
         await sendMessage(botToken, chatId, broadcast.message_text)
       }
       sent++
+      newRecipients.push({ broadcast_id: id, telegram_id: chatId })
     } catch {
-      // Skip users who blocked the bot
+      // User blocked the bot — skip
     }
-    // Respect Telegram rate limit
     await new Promise((r) => setTimeout(r, 50))
   }
 
+  // Record new recipients
+  if (newRecipients.length > 0) {
+    await supabaseAdmin.from('broadcast_recipients').insert(newRecipients)
+  }
+
+  const totalSent = (broadcast.sent_count ?? 0) + sent
+
   await supabaseAdmin
     .from('broadcasts')
-    .update({ status: 'sent', sent_count: sent })
+    .update({ status: 'sent', sent_count: totalSent })
     .eq('id', id)
 
-  return NextResponse.json({ ok: true, sent, total: telegramIds.length })
+  return NextResponse.json({ ok: true, sent, skipped: alreadySentSet.size, total: telegramIds.length + alreadySentSet.size })
 }

@@ -4,9 +4,10 @@ import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { Plus, Trash2, TrendingUp, TrendingDown, Zap } from 'lucide-react'
+import { Plus, Trash2, TrendingUp, TrendingDown, Zap, Send, Loader2 } from 'lucide-react'
 import { OfferForm } from './offer-form'
 import { formatCurrency } from '@/lib/utils'
+import { toast } from 'sonner'
 
 interface Offer {
   id: string
@@ -29,6 +30,27 @@ interface OfferListProps {
 export function OfferList({ initialOffers, bots, plans }: OfferListProps) {
   const [offers, setOffers] = useState(initialOffers)
   const [showForm, setShowForm] = useState(false)
+  const [sending, setSending] = useState<string | null>(null)
+
+  async function handleSendDownsell(id: string) {
+    if (!confirm('Disparar downsell para todos que ainda não receberam e não compraram?')) return
+    setSending(id)
+    try {
+      const res = await fetch(`/api/offers/${id}/send`, { method: 'POST' })
+      const data = await res.json()
+      if (res.ok) {
+        if (data.sent === 0) {
+          toast.info(`Nenhum usuário novo para enviar.${data.skipped > 0 ? ` (${data.skipped} já receberam)` : ''}`)
+        } else {
+          toast.success(`Downsell enviado para ${data.sent} usuário(s)!${data.skipped > 0 ? ` (${data.skipped} já tinham recebido)` : ''}`)
+        }
+      } else {
+        toast.error(data.error ?? 'Erro ao enviar')
+      }
+    } finally {
+      setSending(null)
+    }
+  }
 
   async function handleDelete(id: string) {
     if (!confirm('Excluir esta oferta?')) return
@@ -116,6 +138,21 @@ export function OfferList({ initialOffers, bots, plans }: OfferListProps) {
                     {offer.is_active ? 'Ativa' : 'Inativa'}
                   </Badge>
                   <div className="flex gap-2">
+                    {offer.type === 'downsell' && (
+                      <Button
+                        size="sm"
+                        onClick={() => handleSendDownsell(offer.id)}
+                        disabled={sending === offer.id}
+                        className="bg-orange-600 hover:bg-orange-700"
+                      >
+                        {sending === offer.id ? (
+                          <Loader2 className="mr-1.5 h-3 w-3 animate-spin" />
+                        ) : (
+                          <Send className="mr-1.5 h-3 w-3" />
+                        )}
+                        Disparar
+                      </Button>
+                    )}
                     <Button size="sm" variant="outline" onClick={() => handleToggle(offer)}>
                       {offer.is_active ? 'Desativar' : 'Ativar'}
                     </Button>

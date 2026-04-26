@@ -71,16 +71,23 @@ export function BroadcastList({ initialBroadcasts, bots }: BroadcastListProps) {
     }
   }
 
-  async function handleSend(id: string) {
-    if (!confirm('Confirma o envio desta transmissão?')) return
+  async function handleSend(id: string, isResend = false) {
+    const msg = isResend
+      ? 'Reenviar para usuários que ainda não receberam?'
+      : 'Confirma o envio desta transmissão?'
+    if (!confirm(msg)) return
     setSending(id)
     try {
       const res = await fetch(`/api/broadcasts/${id}/send`, { method: 'POST' })
       const data = await res.json()
       if (res.ok) {
-        toast.success(`Transmissão enviada para ${data.sent} usuário(s)!`)
+        if (data.sent === 0) {
+          toast.info('Nenhum usuário novo para enviar. Todos já receberam esta transmissão.')
+        } else {
+          toast.success(`Enviado para ${data.sent} usuário(s) novo(s)!${data.skipped > 0 ? ` (${data.skipped} já tinham recebido)` : ''}`)
+        }
         setBroadcasts((prev) =>
-          prev.map((b) => (b.id === id ? { ...b, status: 'sent', sent_count: data.sent } : b))
+          prev.map((b) => (b.id === id ? { ...b, status: 'sent', sent_count: data.sent_count ?? b.sent_count } : b))
         )
       } else {
         toast.error(data.error ?? 'Erro ao enviar')
@@ -164,21 +171,38 @@ export function BroadcastList({ initialBroadcasts, bots }: BroadcastListProps) {
 
                   <div className="flex items-center justify-between">
                     <span className="text-xs text-zinc-600">{formatDate(b.created_at)}</span>
-                    {b.status === 'draft' && (
-                      <Button
-                        size="sm"
-                        onClick={() => handleSend(b.id)}
-                        disabled={isSending}
-                        className="bg-blue-600 hover:bg-blue-700"
-                      >
-                        {isSending ? (
-                          <Loader2 className="mr-1.5 h-3 w-3 animate-spin" />
-                        ) : (
-                          <Send className="mr-1.5 h-3 w-3" />
-                        )}
-                        Enviar
-                      </Button>
-                    )}
+                    <div className="flex gap-2">
+                      {b.status === 'draft' && (
+                        <Button
+                          size="sm"
+                          onClick={() => handleSend(b.id)}
+                          disabled={isSending}
+                          className="bg-blue-600 hover:bg-blue-700"
+                        >
+                          {isSending ? (
+                            <Loader2 className="mr-1.5 h-3 w-3 animate-spin" />
+                          ) : (
+                            <Send className="mr-1.5 h-3 w-3" />
+                          )}
+                          Enviar
+                        </Button>
+                      )}
+                      {b.status === 'sent' && (
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => handleSend(b.id, true)}
+                          disabled={isSending}
+                        >
+                          {isSending ? (
+                            <Loader2 className="mr-1.5 h-3 w-3 animate-spin" />
+                          ) : (
+                            <RefreshCw className="mr-1.5 h-3 w-3" />
+                          )}
+                          Reenviar para novos
+                        </Button>
+                      )}
+                    </div>
                   </div>
                 </CardContent>
               </Card>
