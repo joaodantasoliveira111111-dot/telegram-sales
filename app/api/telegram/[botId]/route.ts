@@ -105,7 +105,7 @@ async function handleStart(bot: Record<string, unknown>, update: TelegramUpdate)
     },
   ])
 
-  await sendButtons(token, chatId, '👇', buttons)
+  await sendButtons(token, chatId, 'Escolha seu plano:', buttons)
 }
 
 async function handleCallbackQuery(bot: Record<string, unknown>, update: TelegramUpdate) {
