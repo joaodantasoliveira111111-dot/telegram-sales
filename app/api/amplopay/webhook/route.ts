@@ -3,6 +3,7 @@ import { supabaseAdmin } from '@/lib/supabase'
 import { sendMessage, createInviteLink } from '@/lib/telegram'
 import { validateWebhookToken } from '@/lib/amplopay'
 import { addDays } from '@/lib/utils'
+import { sendPurchaseEvent } from '@/lib/meta'
 
 interface AmplopayWebhookPayload {
   transactionId: string
@@ -64,6 +65,16 @@ export async function POST(request: NextRequest) {
     const plan = payment.plan
     const bot = payment.bot
     const expiresAt = addDays(new Date(), plan.duration_days)
+
+    // Dispara evento Purchase no Meta CAPI
+    sendPurchaseEvent({
+      eventId: `payment_${payment.id}`,
+      value: Number(plan.price),
+      planName: plan.name,
+      telegramId: payment.telegram_id,
+      email: `telegram_${payment.telegram_id}@cliente.com`,
+      phone: '11999999999',
+    }).catch((err) => console.error('[Meta CAPI] erro:', err))
 
     await supabaseAdmin.from('subscriptions').insert({
       bot_id: payment.bot_id,
