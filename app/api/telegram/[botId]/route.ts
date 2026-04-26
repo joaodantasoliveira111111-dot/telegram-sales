@@ -102,7 +102,7 @@ async function handleStart(bot: Record<string, unknown>, update: TelegramUpdate)
     },
   ])
 
-  await sendButtons(token, chatId, '📦 Escolha um plano:', buttons)
+  await sendButtons(token, chatId, '👇', buttons)
 }
 
 async function handleCallbackQuery(bot: Record<string, unknown>, update: TelegramUpdate) {
@@ -205,6 +205,12 @@ async function handleCallbackQuery(bot: Record<string, unknown>, update: Telegra
         `⏰ Corre porque expira rápido…\n` +
         `assim que pagar, eu libero tudo pra você na hora.\n\n` +
         `💋 Não me deixa esperando…`
+    )
+
+    await sendMessage(
+      token,
+      chatId,
+      `👆 Clica no código abaixo que ele copia automaticamente:`
     )
 
     await sendMessage(
