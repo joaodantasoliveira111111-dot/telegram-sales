@@ -16,7 +16,8 @@ export interface CreatePixRequest {
   callbackUrl?: string
   client: {
     name: string
-    email?: string
+    email: string
+    phone: string
     document?: string
   }
 }
