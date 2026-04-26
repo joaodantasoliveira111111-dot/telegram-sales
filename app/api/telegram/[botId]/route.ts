@@ -163,7 +163,7 @@ async function handleCallbackQuery(bot: Record<string, unknown>, update: Telegra
     // Step 2 — QR code image
     try {
       const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(existingPayment.pix_code)}`
-      await sendPhoto(token, chatId, qrUrl, `📷 Escaneie o QR Code com o app do seu banco para pagar ${priceFormatted}`)
+      await sendPhoto(token, chatId, qrUrl)
     } catch {
       // QR code send failed — continue
     }
@@ -231,7 +231,7 @@ async function handleCallbackQuery(bot: Record<string, unknown>, update: Telegra
     if (pixResponse.pix?.code) {
       try {
         const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(pixResponse.pix.code)}`
-        await sendPhoto(token, chatId, qrUrl, `📷 Escaneie o QR Code com o app do seu banco para pagar ${priceFormatted}`)
+        await sendPhoto(token, chatId, qrUrl)
       } catch {
         // QR code send failed — continue with copia e cola only
       }
