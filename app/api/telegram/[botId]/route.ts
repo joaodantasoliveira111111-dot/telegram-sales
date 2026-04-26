@@ -154,18 +154,23 @@ async function handleCallbackQuery(bot: Record<string, unknown>, update: Telegra
 
   if (existingPayment?.pix_code) {
     const priceFormatted = `R$ ${Number(plan.price).toFixed(2).replace('.', ',')}`
-    const msg = await getBotMessage(bot.id as string, 'payment_pending', {
+    // Step 1 — pending notice
+    const pendingMsg = await getBotMessage(bot.id as string, 'payment_pending', {
       nome: from.first_name ?? '',
       plano: plan.name,
-      codigo: existingPayment.pix_code,
     })
-    await sendMessage(token, chatId, msg)
+    await sendMessage(token, chatId, pendingMsg)
+    // Step 2 — QR code image
     try {
       const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(existingPayment.pix_code)}`
       await sendPhoto(token, chatId, qrUrl, `📷 Escaneie o QR Code com o app do seu banco para pagar ${priceFormatted}`)
     } catch {
       // QR code send failed — continue
     }
+    // Step 3 — copia e cola instructions
+    const pixMsg = await getBotMessage(bot.id as string, 'pix_instructions')
+    await sendMessage(token, chatId, pixMsg)
+    // Step 4 — the code itself
     await sendMessage(token, chatId, `<code>${existingPayment.pix_code}</code>`)
     return
   }
@@ -214,6 +219,7 @@ async function handleCallbackQuery(bot: Record<string, unknown>, update: Telegra
 
     const priceFormatted = `R$ ${Number(plan.price).toFixed(2).replace('.', ',')}`
 
+    // Step 1 — payment intro
     const introMsg = await getBotMessage(bot.id as string, 'payment_intro', {
       nome: from.first_name ?? '',
       plano: plan.name,
@@ -221,23 +227,21 @@ async function handleCallbackQuery(bot: Record<string, unknown>, update: Telegra
     })
     await sendMessage(token, chatId, introMsg)
 
-    // Send QR code image generated from Pix code string
+    // Step 2 — QR code image
     if (pixResponse.pix?.code) {
       try {
         const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(pixResponse.pix.code)}`
-        await sendPhoto(
-          token,
-          chatId,
-          qrUrl,
-          `📷 Escaneie o QR Code com o app do seu banco para pagar ${priceFormatted}`
-        )
+        await sendPhoto(token, chatId, qrUrl, `📷 Escaneie o QR Code com o app do seu banco para pagar ${priceFormatted}`)
       } catch {
         // QR code send failed — continue with copia e cola only
       }
     }
 
+    // Step 3 — copia e cola instructions
     const pixMsg = await getBotMessage(bot.id as string, 'pix_instructions')
     await sendMessage(token, chatId, pixMsg)
+
+    // Step 4 — the code itself
     await sendMessage(token, chatId, `<code>${pixResponse.pix?.code}</code>`)
   } catch (err) {
     console.error('[Telegram] createPix error:', err)

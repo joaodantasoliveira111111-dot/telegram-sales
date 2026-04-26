@@ -24,20 +24,20 @@ export const MESSAGE_KEYS: Record<string, MessageMeta> = {
     description: 'Enviada junto com o código Pix, explicando como pagar',
     vars: [],
     default:
-      `<b>Ou pague com Pix Copia e Cola:</b>\n\n` +
+      `<b>Ou use o Pix Copia e Cola:</b>\n\n` +
       `1️⃣ Abra o app do seu banco\n` +
       `2️⃣ Vá em <b>Pix → Pagar</b>\n` +
       `3️⃣ Escolha <b>Copia e Cola</b>\n` +
-      `4️⃣ Cole o código abaixo e confirme\n\n` +
+      `4️⃣ Cole o código abaixo e confirme o pagamento\n\n` +
       `👇 <i>Toque no código para copiar:</i>`,
   },
   payment_pending: {
     label: 'Pagamento pendente',
     description: 'Quando o usuário já tem um Pix gerado aguardando pagamento',
-    vars: ['{nome}', '{plano}', '{codigo}'],
+    vars: ['{nome}', '{plano}'],
     default:
-      `⏳ Você já tem um pagamento pendente para este plano.\n\n` +
-      `<b>Código Pix (Copia e Cola):</b>\n<code>{codigo}</code>`,
+      `⏳ Você ainda tem um pagamento pendente para o plano <b>{plano}</b>.\n\n` +
+      `Finalize agora e seu acesso é liberado na hora! 👇`,
   },
   payment_confirmed_channel: {
     label: 'Pagamento confirmado — Canal do Telegram',
