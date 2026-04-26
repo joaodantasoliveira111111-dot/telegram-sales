@@ -5,6 +5,8 @@ import {
   sendPhoto,
   sendVideo,
   sendButtons,
+  sendPhotoWithButtons,
+  sendVideoWithButtons,
   sendPhotoBase64,
   answerCallbackQuery,
   createInviteLink,
@@ -75,16 +77,7 @@ async function handleStart(bot: Record<string, unknown>, update: TelegramUpdate)
   const mediaUrl = bot.welcome_media_url as string | null
   const mediaType = bot.welcome_media_type as string | null
 
-  // Send welcome media if configured
-  if (mediaUrl && mediaType === 'image') {
-    await sendPhoto(token, chatId, mediaUrl, welcomeMsg)
-  } else if (mediaUrl && mediaType === 'video') {
-    await sendVideo(token, chatId, mediaUrl, welcomeMsg)
-  } else {
-    await sendMessage(token, chatId, welcomeMsg)
-  }
-
-  // Fetch only main plans for this bot (upsell/downsell are sent via offers, not here)
+  // Fetch only main plans for this bot
   const { data: plans } = await supabaseAdmin
     .from('plans')
     .select('*')
@@ -93,11 +86,17 @@ async function handleStart(bot: Record<string, unknown>, update: TelegramUpdate)
     .order('price', { ascending: true })
 
   if (!plans || plans.length === 0) {
-    await sendMessage(token, chatId, 'Nenhum plano disponível no momento.')
+    if (mediaUrl && mediaType === 'image') {
+      await sendPhoto(token, chatId, mediaUrl, welcomeMsg)
+    } else if (mediaUrl && mediaType === 'video') {
+      await sendVideo(token, chatId, mediaUrl, welcomeMsg)
+    } else {
+      await sendMessage(token, chatId, welcomeMsg)
+    }
     return
   }
 
-  // Build inline keyboard buttons
+  // Build inline keyboard
   const buttons = plans.map((plan: Plan) => [
     {
       text: `${plan.button_text} — R$ ${Number(plan.price).toFixed(2).replace('.', ',')}`,
@@ -105,7 +104,14 @@ async function handleStart(bot: Record<string, unknown>, update: TelegramUpdate)
     },
   ])
 
-  await sendButtons(token, chatId, 'Escolha seu plano:', buttons)
+  // Send welcome + buttons as a single message (no extra text between them)
+  if (mediaUrl && mediaType === 'image') {
+    await sendPhotoWithButtons(token, chatId, mediaUrl, welcomeMsg, buttons)
+  } else if (mediaUrl && mediaType === 'video') {
+    await sendVideoWithButtons(token, chatId, mediaUrl, welcomeMsg, buttons)
+  } else {
+    await sendButtons(token, chatId, welcomeMsg, buttons)
+  }
 }
 
 async function handleCallbackQuery(bot: Record<string, unknown>, update: TelegramUpdate) {

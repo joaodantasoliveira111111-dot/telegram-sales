@@ -84,9 +84,39 @@ export async function sendButtons(
     chat_id: chatId,
     text,
     parse_mode: 'HTML',
-    reply_markup: {
-      inline_keyboard: buttons,
-    },
+    reply_markup: { inline_keyboard: buttons },
+  })
+}
+
+export async function sendPhotoWithButtons(
+  token: string,
+  chatId: string | number,
+  photoUrl: string,
+  caption: string,
+  buttons: TelegramInlineKeyboardButton[][]
+) {
+  return telegramFetch(token, 'sendPhoto', {
+    chat_id: chatId,
+    photo: photoUrl,
+    caption,
+    parse_mode: 'HTML',
+    reply_markup: { inline_keyboard: buttons },
+  })
+}
+
+export async function sendVideoWithButtons(
+  token: string,
+  chatId: string | number,
+  videoUrl: string,
+  caption: string,
+  buttons: TelegramInlineKeyboardButton[][]
+) {
+  return telegramFetch(token, 'sendVideo', {
+    chat_id: chatId,
+    video: videoUrl,
+    caption,
+    parse_mode: 'HTML',
+    reply_markup: { inline_keyboard: buttons },
   })
 }
 

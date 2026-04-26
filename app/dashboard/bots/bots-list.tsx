@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Plus, Pencil, Trash2, Bot } from 'lucide-react'
 import { BotForm } from './bot-form'
+import { BotMessagesInline } from './bot-messages-inline'
 import { formatDate } from '@/lib/utils'
 
 interface BotsListProps {
@@ -94,7 +95,7 @@ export function BotsList({ initialBots }: BotsListProps) {
               <CardContent>
                 <p className="mb-1 text-xs text-zinc-500">Criado em {formatDate(bot.created_at)}</p>
                 <p className="mb-4 text-sm text-zinc-400 line-clamp-2">{bot.welcome_message}</p>
-                <div className="flex gap-2">
+                <div className="flex gap-2 mb-0">
                   <Button size="sm" variant="outline" onClick={() => handleToggle(bot)}>
                     {bot.is_active ? 'Desativar' : 'Ativar'}
                   </Button>
@@ -112,6 +113,7 @@ export function BotsList({ initialBots }: BotsListProps) {
                     <Trash2 className="h-3 w-3" />
                   </Button>
                 </div>
+                <BotMessagesInline botId={bot.id} />
               </CardContent>
             </Card>
           ))}
