@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Bot, CreditCard, LayoutDashboard, ListOrdered, Users, Megaphone, Zap } from 'lucide-react'
+import { Bot, CreditCard, LayoutDashboard, ListOrdered, Users, Megaphone, Zap, TrendingUp } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 const navItems = [
@@ -10,6 +10,7 @@ const navItems = [
   { href: '/dashboard/bots', label: 'Bots', icon: Bot },
   { href: '/dashboard/plans', label: 'Planos', icon: ListOrdered },
   { href: '/dashboard/broadcasts', label: 'Transmissões', icon: Megaphone },
+  { href: '/dashboard/offers', label: 'Upsell & Downsell', icon: TrendingUp },
   { href: '/dashboard/payments', label: 'Pagamentos', icon: CreditCard },
   { href: '/dashboard/subscriptions', label: 'Assinaturas', icon: Users },
 ]
@@ -19,7 +20,6 @@ export function Sidebar() {
 
   return (
     <aside className="flex h-screen w-60 flex-col border-r border-zinc-800/60 bg-zinc-950 px-3 py-6">
-      {/* Logo */}
       <div className="mb-8 px-3">
         <div className="flex items-center gap-2">
           <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-600">
@@ -32,7 +32,6 @@ export function Sidebar() {
         </div>
       </div>
 
-      {/* Nav */}
       <nav className="flex flex-col gap-0.5">
         {navItems.map(({ href, label, icon: Icon, exact }) => {
           const active = exact ? pathname === href : pathname.startsWith(href)
@@ -47,24 +46,18 @@ export function Sidebar() {
                   : 'text-zinc-500 hover:bg-zinc-800/60 hover:text-zinc-200'
               )}
             >
-              <Icon className={cn('h-4 w-4 shrink-0 transition-transform group-hover:scale-110', active && 'text-blue-400')} />
+              <Icon className={cn('h-4 w-4 shrink-0', active && 'text-blue-400')} />
               {label}
-              {href === '/dashboard/broadcasts' && (
-                <span className="ml-auto rounded-full bg-blue-600/20 px-1.5 py-0.5 text-xs text-blue-400">
-                  Novo
-                </span>
-              )}
             </Link>
           )
         })}
       </nav>
 
-      {/* Footer */}
       <div className="mt-auto px-3">
         <div className="rounded-lg border border-zinc-800 bg-zinc-900/60 p-3">
           <p className="text-xs font-medium text-zinc-400">Webhook AmploPay</p>
-          <p className="mt-1 break-all text-xs text-zinc-600 select-all">
-            {typeof window !== 'undefined' ? `${window.location.origin}/api/amplopay/webhook` : '/api/amplopay/webhook'}
+          <p className="mt-1 break-all text-xs text-zinc-600">
+            /api/amplopay/webhook
           </p>
         </div>
       </div>

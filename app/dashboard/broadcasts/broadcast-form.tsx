@@ -7,7 +7,8 @@ import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Loader2 } from 'lucide-react'
+import { MediaUpload } from '@/components/media-upload'
+import { Loader2, Calendar } from 'lucide-react'
 
 interface BroadcastFormProps {
   bots: { id: string; name: string }[]
@@ -24,8 +25,9 @@ export function BroadcastForm({ bots, onSaved, onCancel }: BroadcastFormProps) {
     name: '',
     message_text: '',
     media_url: '',
-    media_type: 'none',
+    media_type: '',
     target_type: 'unpaid',
+    scheduled_at: '',
   })
 
   async function handleSubmit(e: React.FormEvent) {
@@ -39,7 +41,9 @@ export function BroadcastForm({ bots, onSaved, onCancel }: BroadcastFormProps) {
         body: JSON.stringify({
           ...form,
           media_url: form.media_url || null,
-          media_type: form.media_type === 'none' ? null : form.media_type,
+          media_type: form.media_type || null,
+          scheduled_at: form.scheduled_at || null,
+          status: form.scheduled_at ? 'scheduled' : 'draft',
         }),
       })
       const data = await res.json()
@@ -56,6 +60,9 @@ export function BroadcastForm({ bots, onSaved, onCancel }: BroadcastFormProps) {
     { value: 'active', label: '✅ Assinantes ativos — quem está pagando' },
     { value: 'all', label: '👥 Todos os usuários do bot' },
   ]
+
+  // Min date = now (for datetime-local input)
+  const minDate = new Date().toISOString().slice(0, 16)
 
   return (
     <Card className="border-zinc-800 bg-zinc-900/60">
@@ -104,43 +111,48 @@ export function BroadcastForm({ bots, onSaved, onCancel }: BroadcastFormProps) {
             <Label htmlFor="bc-msg">Mensagem</Label>
             <Textarea
               id="bc-msg"
-              placeholder="Escreva sua mensagem aqui... Suporta HTML do Telegram: <b>negrito</b>, <i>itálico</i>, <code>código</code>"
+              placeholder="Escreva sua mensagem... Suporta HTML: <b>negrito</b>, <i>itálico</i>"
               className="min-h-[120px]"
               value={form.message_text}
               onChange={(e) => setForm({ ...form, message_text: e.target.value })}
               required
             />
-            <p className="text-xs text-zinc-600">Suporta HTML: &lt;b&gt;negrito&lt;/b&gt;, &lt;i&gt;itálico&lt;/i&gt;</p>
+            <p className="text-xs text-zinc-600">HTML: &lt;b&gt;negrito&lt;/b&gt; • &lt;i&gt;itálico&lt;/i&gt; • &lt;code&gt;código&lt;/code&gt;</p>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-1.5">
-              <Label htmlFor="bc-media">URL de Mídia (opcional)</Label>
-              <Input
-                id="bc-media"
-                placeholder="https://..."
-                value={form.media_url}
-                onChange={(e) => setForm({ ...form, media_url: e.target.value })}
-              />
-            </div>
-            <div className="space-y-1.5">
-              <Label>Tipo de Mídia</Label>
-              <Select value={form.media_type} onValueChange={(v) => setForm({ ...form, media_type: v })}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="none">Só texto</SelectItem>
-                  <SelectItem value="image">📷 Imagem</SelectItem>
-                  <SelectItem value="video">🎥 Vídeo</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+          <div className="space-y-1.5">
+            <Label>Mídia (opcional)</Label>
+            <MediaUpload
+              value={form.media_url}
+              mediaType={form.media_type}
+              onChange={(url, type) => setForm({ ...form, media_url: url, media_type: type })}
+              onClear={() => setForm({ ...form, media_url: '', media_type: '' })}
+            />
+          </div>
+
+          <div className="space-y-1.5">
+            <Label htmlFor="bc-schedule" className="flex items-center gap-2">
+              <Calendar className="h-3.5 w-3.5 text-blue-400" />
+              Agendar envio (opcional)
+            </Label>
+            <Input
+              id="bc-schedule"
+              type="datetime-local"
+              min={minDate}
+              value={form.scheduled_at}
+              onChange={(e) => setForm({ ...form, scheduled_at: e.target.value })}
+              className="text-zinc-300"
+            />
+            <p className="text-xs text-zinc-600">
+              Deixe vazio para salvar como rascunho e enviar manualmente
+            </p>
           </div>
 
           <div className="flex justify-end gap-3 pt-2">
             <Button type="button" variant="outline" onClick={onCancel}>Cancelar</Button>
             <Button type="submit" disabled={loading}>
               {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              Salvar Transmissão
+              {form.scheduled_at ? 'Agendar Envio' : 'Salvar Rascunho'}
             </Button>
           </div>
         </form>

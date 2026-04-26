@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase'
-import { sendMessage, createInviteLink } from '@/lib/telegram'
+import { sendMessage, createInviteLink, sendButtons } from '@/lib/telegram'
 import { validateWebhookToken } from '@/lib/amplopay'
 import { addDays } from '@/lib/utils'
 import { sendPurchaseEvent } from '@/lib/meta'
@@ -121,6 +121,29 @@ export async function POST(request: NextRequest) {
         `✅ <b>Pagamento confirmado!</b>\n\nSeu acesso ao plano <b>${plan.name}</b> foi liberado!`
       )
     }
+    // Fire upsell offer if configured
+    const { data: upsellOffer } = await supabaseAdmin
+      .from('offers')
+      .select('*, offer_plan:plans!offers_offer_plan_id_fkey(*)')
+      .eq('bot_id', payment.bot_id)
+      .eq('trigger_plan_id', payment.plan_id)
+      .eq('type', 'upsell')
+      .eq('is_active', true)
+      .maybeSingle()
+
+    if (upsellOffer) {
+      const offerPlan = upsellOffer.offer_plan
+      await sendButtons(
+        botToken,
+        chatId,
+        upsellOffer.message,
+        [[{
+          text: `${offerPlan.button_text || offerPlan.name} — R$ ${Number(offerPlan.price).toFixed(2).replace('.', ',')}`,
+          callback_data: `buy_${offerPlan.id}`,
+        }]]
+      )
+    }
+
   } else if (status === 'FAILED') {
     await supabaseAdmin.from('payments').update({ status: 'canceled' }).eq('id', payment.id)
 
