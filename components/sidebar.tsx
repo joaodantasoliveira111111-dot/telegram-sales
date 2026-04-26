@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Bot, CreditCard, LayoutDashboard, ListOrdered, Users, Megaphone, Zap, TrendingUp } from 'lucide-react'
+import { Bot, CreditCard, LayoutDashboard, ListOrdered, Users, Megaphone, Zap, TrendingUp, Package } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 const navItems = [
@@ -11,6 +11,7 @@ const navItems = [
   { href: '/dashboard/plans', label: 'Planos', icon: ListOrdered },
   { href: '/dashboard/broadcasts', label: 'Transmissões', icon: Megaphone },
   { href: '/dashboard/offers', label: 'Upsell & Downsell', icon: TrendingUp },
+  { href: '/dashboard/account-stock', label: 'Estoque de Contas', icon: Package },
   { href: '/dashboard/payments', label: 'Pagamentos', icon: CreditCard },
   { href: '/dashboard/subscriptions', label: 'Assinaturas', icon: Users },
 ]

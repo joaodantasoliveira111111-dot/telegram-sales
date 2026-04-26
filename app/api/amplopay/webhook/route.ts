@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase'
 import { sendMessage, createInviteLink, sendButtons } from '@/lib/telegram'
+import { reserveAccountForPlan, markAccountDelivered } from '@/lib/accounts'
 import { validateWebhookToken } from '@/lib/amplopay'
 import { addDays } from '@/lib/utils'
 import { sendPurchaseEvent } from '@/lib/meta'
@@ -87,7 +88,50 @@ export async function POST(request: NextRequest) {
     const botToken = bot.telegram_token as string
     const chatId = payment.telegram_id
 
-    if (plan.content_type === 'telegram_channel' && plan.telegram_chat_id) {
+    if (plan.content_type === 'account_stock') {
+      // Deliver account from stock
+      let account = null
+      try {
+        account = await reserveAccountForPlan(payment.plan_id, payment.id, String(payment.telegram_id))
+      } catch (err) {
+        console.error('[Account Stock] reserve error:', err)
+      }
+
+      if (account) {
+        const warrantyDays = account.warranty_until
+          ? Math.ceil((new Date(account.warranty_until).getTime() - Date.now()) / 86400000)
+          : null
+
+        const msg =
+          `✅ <b>Pagamento confirmado!</b>\n\n` +
+          `Seu acesso foi liberado:\n\n` +
+          `📧 Login: <code>${account.login}</code>\n` +
+          `🔑 Senha: <code>${account.password}</code>` +
+          (account.extra_info ? `\n📋 Extra: <code>${account.extra_info}</code>` : '') +
+          `\n\n⚠️ <b>Importante:</b>\n` +
+          `- Não altere a senha\n` +
+          `- Use apenas no seu dispositivo\n` +
+          `- Não compartilhe o acesso` +
+          (warrantyDays ? `\n- Garantia de funcionamento por <b>${warrantyDays} dias</b>` : '') +
+          `\n\nQualquer problema, chame o suporte.`
+
+        try {
+          await sendMessage(botToken, chatId, msg)
+          await markAccountDelivered(account.id)
+        } catch (err) {
+          console.error('[Account Stock] send message error:', err)
+          // Keep status as reserved — admin can resend manually
+        }
+      } else {
+        // Stock empty
+        await sendMessage(
+          botToken,
+          chatId,
+          `✅ <b>Pagamento confirmado!</b>\n\nSeu acesso foi aprovado, mas estamos preparando sua conta.\nO suporte vai te enviar os dados em breve. 🙏`
+        )
+        console.warn(`[Account Stock] No available account for plan ${payment.plan_id}`)
+      }
+    } else if (plan.content_type === 'telegram_channel' && plan.telegram_chat_id) {
       try {
         const inviteLink = await createInviteLink(botToken, plan.telegram_chat_id)
         await sendMessage(

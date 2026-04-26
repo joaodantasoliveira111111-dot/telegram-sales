@@ -168,14 +168,15 @@ export function PlanForm({ plan, bots, onSaved, onCancel }: PlanFormProps) {
             <Label>Tipo de Conteúdo</Label>
             <Select
               value={form.content_type}
-              onValueChange={(v) => setForm({ ...form, content_type: v as 'link' | 'telegram_channel' })}
+              onValueChange={(v) => setForm({ ...form, content_type: v as 'link' | 'telegram_channel' | 'account_stock' })}
             >
               <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="link">Link externo</SelectItem>
-                <SelectItem value="telegram_channel">Canal do Telegram</SelectItem>
+                <SelectItem value="link">🔗 Link externo</SelectItem>
+                <SelectItem value="telegram_channel">📢 Canal do Telegram</SelectItem>
+                <SelectItem value="account_stock">📦 Estoque de Contas (login/senha)</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -204,6 +205,12 @@ export function PlanForm({ plan, bots, onSaved, onCancel }: PlanFormProps) {
               <p className="text-xs text-zinc-500">
                 Use @userinfobot para descobrir o ID do canal
               </p>
+            </div>
+          )}
+
+          {form.content_type === 'account_stock' && (
+            <div className="rounded-lg border border-blue-500/20 bg-blue-500/5 px-4 py-3 text-sm text-blue-300">
+              📦 Após o pagamento, o sistema entregará automaticamente uma conta disponível do estoque vinculada a este plano. Cadastre as contas em <b>Estoque de Contas</b>.
             </div>
           )}
 

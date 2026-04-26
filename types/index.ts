@@ -1,5 +1,5 @@
 export type MediaType = 'image' | 'video' | null
-export type ContentType = 'link' | 'telegram_channel'
+export type ContentType = 'link' | 'telegram_channel' | 'account_stock'
 export type PaymentStatus = 'pending' | 'paid' | 'canceled' | 'refunded' | 'chargeback'
 export type SubscriptionStatus = 'active' | 'expired' | 'canceled'
 export type PlanRole = 'main' | 'upsell' | 'downsell'
@@ -62,6 +62,28 @@ export interface Subscription {
   created_at: string
   plan?: Plan
   bot?: Bot
+}
+
+export type AccountStatus = 'available' | 'reserved' | 'delivered' | 'replaced' | 'blocked'
+
+export interface AccountStock {
+  id: string
+  bot_id: string | null
+  plan_id: string | null
+  product_name: string
+  login: string
+  password: string
+  extra_info: string | null
+  status: AccountStatus
+  delivered_to_telegram_id: string | null
+  delivered_payment_id: string | null
+  delivered_at: string | null
+  warranty_until: string | null
+  notes: string | null
+  created_at: string
+  updated_at: string
+  bot?: { name: string }
+  plan?: { name: string }
 }
 
 export interface WebhookLog {
