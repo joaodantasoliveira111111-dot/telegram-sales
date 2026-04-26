@@ -4,6 +4,7 @@ import { supabaseAdmin } from '@/lib/supabase'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { RevenueChart } from '@/components/revenue-chart'
+import { ConversionFunnel } from '@/components/conversion-funnel'
 import { Bot, CreditCard, TrendingUp, Users, ArrowUpRight } from 'lucide-react'
 import { formatCurrency, formatDate } from '@/lib/utils'
 import { PaymentStatus } from '@/types'
@@ -17,7 +18,7 @@ const statusConfig: Record<PaymentStatus, { label: string; variant: 'success' | 
 }
 
 async function getStats() {
-  const [bots, payments, subscriptions, revenue, recentPayments] = await Promise.all([
+  const [bots, payments, subscriptions, revenue, recentPayments, started, initiated] = await Promise.all([
     supabaseAdmin.from('bots').select('id', { count: 'exact', head: true }).eq('is_active', true),
     supabaseAdmin.from('payments').select('id', { count: 'exact', head: true }).eq('status', 'paid'),
     supabaseAdmin.from('subscriptions').select('id', { count: 'exact', head: true }).eq('status', 'active'),
@@ -27,6 +28,8 @@ async function getStats() {
       .select('*, plan:plans(name, price), bot:bots(name)')
       .order('created_at', { ascending: false })
       .limit(5),
+    supabaseAdmin.from('telegram_users').select('id', { count: 'exact', head: true }),
+    supabaseAdmin.from('payments').select('telegram_id', { count: 'exact', head: true }),
   ])
 
   const totalRevenue = (revenue.data ?? []).reduce((acc, p) => {
@@ -40,6 +43,11 @@ async function getStats() {
     activeSubscriptions: subscriptions.count ?? 0,
     totalRevenue,
     recentPayments: recentPayments.data ?? [],
+    funnel: {
+      started: started.count ?? 0,
+      initiated: initiated.count ?? 0,
+      paid: payments.count ?? 0,
+    },
   }
 }
 
@@ -105,8 +113,22 @@ export default async function DashboardPage() {
         ))}
       </div>
 
-      {/* Revenue Chart */}
-      <RevenueChart />
+      {/* Conversion Funnel + Revenue Chart */}
+      <div className="grid gap-4 lg:grid-cols-2">
+        <Card className="border-zinc-800 bg-zinc-900/60">
+          <CardHeader className="pb-4">
+            <CardTitle className="text-base text-zinc-100">Funil de Conversão</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ConversionFunnel
+              started={stats.funnel.started}
+              initiated={stats.funnel.initiated}
+              paid={stats.funnel.paid}
+            />
+          </CardContent>
+        </Card>
+        <RevenueChart />
+      </div>
 
       {/* Recent Payments */}
       <Card className="border-zinc-800 bg-zinc-900/60">
