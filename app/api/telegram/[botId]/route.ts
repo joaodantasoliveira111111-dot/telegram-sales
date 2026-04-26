@@ -5,6 +5,7 @@ import {
   sendPhoto,
   sendVideo,
   sendButtons,
+  sendPhotoBase64,
   answerCallbackQuery,
   createInviteLink,
 } from '@/lib/telegram'
@@ -196,22 +197,41 @@ async function handleCallbackQuery(bot: Record<string, unknown>, update: Telegra
       })
       .eq('id', payment.id)
 
+    const priceFormatted = `R$ ${Number(plan.price).toFixed(2).replace('.', ',')}`
+
     await sendMessage(
       token,
       chatId,
       `💳 Pronto… seu acesso já tá quase liberado 😈\n\n` +
         `📦 Plano: <b>${plan.name}</b>\n` +
-        `💰 Valor: <b>R$ ${Number(plan.price).toFixed(2).replace('.', ',')}</b>\n\n` +
-        `Agora é só fazer o pagamento via Pix…\n\n` +
+        `💰 Valor: <b>${priceFormatted}</b>\n\n` +
         `⏰ Corre porque expira rápido…\n` +
-        `assim que pagar, eu libero tudo pra você na hora.\n\n` +
-        `💋 Não me deixa esperando…`
+        `Assim que pagar, eu libero tudo pra você na hora. 💋`
     )
+
+    // Send QR code image if available
+    if (pixResponse.pix?.qrCode) {
+      try {
+        await sendPhotoBase64(
+          token,
+          chatId,
+          pixResponse.pix.qrCode,
+          `📷 Escaneie o QR Code com o app do seu banco para pagar ${priceFormatted}`
+        )
+      } catch {
+        // QR code send failed — continue with copia e cola only
+      }
+    }
 
     await sendMessage(
       token,
       chatId,
-      `👆 Clica no código abaixo que ele copia automaticamente:`
+      `<b>Ou pague com Pix Copia e Cola:</b>\n\n` +
+        `1️⃣ Abra o app do seu banco\n` +
+        `2️⃣ Vá em <b>Pix → Pagar</b>\n` +
+        `3️⃣ Escolha <b>Copia e Cola</b>\n` +
+        `4️⃣ Cole o código abaixo e confirme\n\n` +
+        `👇 <i>Toque no código para copiar:</i>`
     )
 
     await sendMessage(

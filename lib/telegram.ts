@@ -37,6 +37,29 @@ export async function sendPhoto(
   })
 }
 
+// Send photo from base64 string (e.g. QR code from payment gateways)
+export async function sendPhotoBase64(
+  token: string,
+  chatId: string | number,
+  base64: string,
+  caption?: string
+) {
+  const clean = base64.replace(/^data:image\/\w+;base64,/, '')
+  const buffer = Buffer.from(clean, 'base64')
+  const form = new FormData()
+  form.append('chat_id', String(chatId))
+  form.append('photo', new Blob([buffer], { type: 'image/png' }), 'qrcode.png')
+  if (caption) { form.append('caption', caption); form.append('parse_mode', 'HTML') }
+
+  const res = await fetch(`https://api.telegram.org/bot${token}/sendPhoto`, {
+    method: 'POST',
+    body: form,
+  })
+  const data = await res.json()
+  if (!data.ok) console.error('[Telegram] sendPhotoBase64 failed:', data.description)
+  return data
+}
+
 export async function sendVideo(
   token: string,
   chatId: string | number,
