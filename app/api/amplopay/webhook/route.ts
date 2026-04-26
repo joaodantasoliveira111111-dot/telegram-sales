@@ -85,7 +85,7 @@ export async function POST(request: NextRequest) {
           `✅ <b>Pagamento confirmado!</b>\n\n` +
             `🎉 Seu acesso ao plano <b>${plan.name}</b> foi liberado!\n\n` +
             `📲 Clique no link para entrar:\n${inviteLink}\n\n` +
-            `⏳ Acesso válido até: <b>${expiresAt.toLocaleDateString('pt-BR')}</b>`
+            `⏳ Acesso válido até: <b>${expiresAt.toLocaleDateString('pt-BR', { timeZone: 'America/Recife' })}</b>`
         )
       } catch {
         await sendMessage(
@@ -101,7 +101,7 @@ export async function POST(request: NextRequest) {
         `✅ <b>Pagamento confirmado!</b>\n\n` +
           `🎉 Seu acesso ao plano <b>${plan.name}</b> foi liberado!\n\n` +
           `🔗 Acesse aqui: ${plan.content_url}\n\n` +
-          `⏳ Acesso válido até: <b>${expiresAt.toLocaleDateString('pt-BR')}</b>`
+          `⏳ Acesso válido até: <b>${expiresAt.toLocaleDateString('pt-BR', { timeZone: 'America/Recife' })}</b>`
       )
     } else {
       await sendMessage(
