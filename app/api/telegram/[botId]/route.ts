@@ -174,22 +174,21 @@ async function handleCallbackQuery(bot: Record<string, unknown>, update: Telegra
   try {
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL
     const pixResponse = await createPix({
-      external_id: `payment_${payment.id}_telegram_${from.id}`,
+      identifier: `payment_${payment.id}_telegram_${from.id}`,
       amount: Number(plan.price),
-      description: `${plan.name} — ${bot.name}`,
-      customer: {
+      client: {
         name: from.first_name || 'Cliente',
       },
-      webhook_url: baseUrl ? `${baseUrl}/api/amplopay/webhook` : undefined,
+      callbackUrl: baseUrl ? `${baseUrl}/api/amplopay/webhook` : undefined,
     })
 
     // Update payment with pix data
     await supabaseAdmin
       .from('payments')
       .update({
-        transaction_id: pixResponse.id,
-        pix_code: pixResponse.pix_code,
-        qr_code: pixResponse.qr_code,
+        transaction_id: pixResponse.transactionId,
+        pix_code: pixResponse.pix?.code,
+        qr_code: pixResponse.pix?.qrCode,
       })
       .eq('id', payment.id)
 
@@ -199,7 +198,7 @@ async function handleCallbackQuery(bot: Record<string, unknown>, update: Telegra
       `💳 <b>Pagamento gerado!</b>\n\n` +
         `📦 Plano: <b>${plan.name}</b>\n` +
         `💰 Valor: <b>R$ ${Number(plan.price).toFixed(2).replace('.', ',')}</b>\n\n` +
-        `<b>Código Pix (Copia e Cola):</b>\n<code>${pixResponse.pix_code}</code>\n\n` +
+        `<b>Código Pix (Copia e Cola):</b>\n<code>${pixResponse.pix?.code}</code>\n\n` +
         `⏰ O código expira em breve. Após o pagamento, o acesso é liberado automaticamente.`
     )
   } catch (err) {
