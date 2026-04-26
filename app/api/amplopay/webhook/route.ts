@@ -5,6 +5,7 @@ import { reserveAccountForPlan, markAccountDelivered } from '@/lib/accounts'
 import { validateWebhookToken } from '@/lib/amplopay'
 import { addDays } from '@/lib/utils'
 import { sendPurchaseEvent } from '@/lib/meta'
+import { getBotMessage } from '@/lib/messages'
 
 interface AmplopayWebhookPayload {
   transactionId: string
@@ -102,68 +103,51 @@ export async function POST(request: NextRequest) {
           ? Math.ceil((new Date(account.warranty_until).getTime() - Date.now()) / 86400000)
           : null
 
-        const msg =
-          `✅ <b>Pagamento confirmado!</b>\n\n` +
-          `Seu acesso foi liberado:\n\n` +
-          `📧 Login: <code>${account.login}</code>\n` +
-          `🔑 Senha: <code>${account.password}</code>` +
-          (account.extra_info ? `\n📋 Extra: <code>${account.extra_info}</code>` : '') +
-          `\n\n⚠️ <b>Importante:</b>\n` +
-          `- Não altere a senha\n` +
-          `- Use apenas no seu dispositivo\n` +
-          `- Não compartilhe o acesso` +
-          (warrantyDays ? `\n- Garantia de funcionamento por <b>${warrantyDays} dias</b>` : '') +
-          `\n\nQualquer problema, chame o suporte.`
+        const msg = await getBotMessage(payment.bot_id, 'payment_confirmed_account', {
+          nome: '',
+          plano: plan.name,
+          login: account.login,
+          senha: account.password,
+          extra: account.extra_info ? `📋 Extra: <code>${account.extra_info}</code>` : '',
+          garantia: warrantyDays ? `- Garantia de funcionamento por <b>${warrantyDays} dias</b>` : '',
+        })
 
         try {
           await sendMessage(botToken, chatId, msg)
           await markAccountDelivered(account.id)
         } catch (err) {
           console.error('[Account Stock] send message error:', err)
-          // Keep status as reserved — admin can resend manually
         }
       } else {
-        // Stock empty
-        await sendMessage(
-          botToken,
-          chatId,
-          `✅ <b>Pagamento confirmado!</b>\n\nSeu acesso foi aprovado, mas estamos preparando sua conta.\nO suporte vai te enviar os dados em breve. 🙏`
-        )
+        const msg = await getBotMessage(payment.bot_id, 'stock_empty', { nome: '', plano: plan.name })
+        await sendMessage(botToken, chatId, msg)
         console.warn(`[Account Stock] No available account for plan ${payment.plan_id}`)
       }
     } else if (plan.content_type === 'telegram_channel' && plan.telegram_chat_id) {
       try {
         const inviteLink = await createInviteLink(botToken, plan.telegram_chat_id)
-        await sendMessage(
-          botToken,
-          chatId,
-          `✅ <b>Pagamento confirmado!</b>\n\n` +
-            `🎉 Seu acesso ao plano <b>${plan.name}</b> foi liberado!\n\n` +
-            `📲 Clique no link para entrar:\n${inviteLink}\n\n` +
-            `⏳ Acesso válido até: <b>${expiresAt.toLocaleDateString('pt-BR', { timeZone: 'America/Recife' })}</b>`
-        )
+        const msg = await getBotMessage(payment.bot_id, 'payment_confirmed_channel', {
+          nome: '',
+          plano: plan.name,
+          link: inviteLink ?? '',
+          expira: expiresAt.toLocaleDateString('pt-BR', { timeZone: 'America/Recife' }),
+        })
+        await sendMessage(botToken, chatId, msg)
       } catch {
-        await sendMessage(
-          botToken,
-          chatId,
-          `✅ <b>Pagamento confirmado!</b>\n\nSeu acesso foi liberado. Entre em contato com o suporte para receber o link.`
-        )
+        const msg = await getBotMessage(payment.bot_id, 'payment_confirmed_generic', { nome: '', plano: plan.name })
+        await sendMessage(botToken, chatId, msg)
       }
     } else if (plan.content_type === 'link' && plan.content_url) {
-      await sendMessage(
-        botToken,
-        chatId,
-        `✅ <b>Pagamento confirmado!</b>\n\n` +
-          `🎉 Seu acesso ao plano <b>${plan.name}</b> foi liberado!\n\n` +
-          `🔗 Acesse aqui: ${plan.content_url}\n\n` +
-          `⏳ Acesso válido até: <b>${expiresAt.toLocaleDateString('pt-BR', { timeZone: 'America/Recife' })}</b>`
-      )
+      const msg = await getBotMessage(payment.bot_id, 'payment_confirmed_link', {
+        nome: '',
+        plano: plan.name,
+        link: plan.content_url,
+        expira: expiresAt.toLocaleDateString('pt-BR', { timeZone: 'America/Recife' }),
+      })
+      await sendMessage(botToken, chatId, msg)
     } else {
-      await sendMessage(
-        botToken,
-        chatId,
-        `✅ <b>Pagamento confirmado!</b>\n\nSeu acesso ao plano <b>${plan.name}</b> foi liberado!`
-      )
+      const msg = await getBotMessage(payment.bot_id, 'payment_confirmed_generic', { nome: '', plano: plan.name })
+      await sendMessage(botToken, chatId, msg)
     }
     // Fire upsell offer if configured
     const { data: upsellOffer } = await supabaseAdmin
@@ -192,11 +176,8 @@ export async function POST(request: NextRequest) {
     await supabaseAdmin.from('payments').update({ status: 'canceled' }).eq('id', payment.id)
 
     const bot = payment.bot
-    await sendMessage(
-      bot.telegram_token,
-      payment.telegram_id,
-      `❌ Seu pagamento falhou. Para tentar novamente, envie /start.`
-    )
+    const failMsg = await getBotMessage(payment.bot_id, 'payment_failed', { nome: '' })
+    await sendMessage(bot.telegram_token, payment.telegram_id, failMsg)
   } else if (status === 'REFUNDED') {
     await supabaseAdmin.from('payments').update({ status: 'refunded' }).eq('id', payment.id)
 

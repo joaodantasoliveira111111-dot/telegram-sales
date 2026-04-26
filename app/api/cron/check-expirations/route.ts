@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase'
 import { sendMessage } from '@/lib/telegram'
+import { getBotMessage } from '@/lib/messages'
 
 // Protect with CRON_SECRET header
 export async function GET(request: NextRequest) {
@@ -32,11 +33,11 @@ export async function GET(request: NextRequest) {
     if (!botToken) continue
 
     notifications.push(
-      sendMessage(
-        botToken,
-        sub.telegram_id,
-        `⚠️ Seu acesso ao plano <b>${sub.plan?.name ?? 'Premium'}</b> expirou.\n\nPara renovar, clique em /start.`
-      ).catch((err) => console.error('[Cron] notify error:', err))
+      getBotMessage(sub.bot?.id, 'subscription_expired', {
+        nome: '',
+        plano: sub.plan?.name ?? 'Premium',
+      }).then((msg) => sendMessage(botToken, sub.telegram_id, msg))
+        .catch((err) => console.error('[Cron] notify error:', err))
     )
   }
 

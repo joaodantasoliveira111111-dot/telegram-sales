@@ -12,6 +12,7 @@ import {
 import { createPix } from '@/lib/amplopay'
 import { TelegramUpdate, Plan } from '@/types'
 import { addDays } from '@/lib/utils'
+import { getBotMessage } from '@/lib/messages'
 
 export async function POST(
   request: NextRequest,
@@ -147,11 +148,12 @@ async function handleCallbackQuery(bot: Record<string, unknown>, update: Telegra
     .maybeSingle()
 
   if (existingPayment?.pix_code) {
-    await sendMessage(
-      token,
-      chatId,
-      `⏳ Você já tem um pagamento pendente para este plano.\n\n<b>Código Pix (Copia e Cola):</b>\n<code>${existingPayment.pix_code}</code>`
-    )
+    const msg = await getBotMessage(bot.id as string, 'payment_pending', {
+      nome: from.first_name ?? '',
+      plano: plan.name,
+      codigo: existingPayment.pix_code,
+    })
+    await sendMessage(token, chatId, msg)
     return
   }
 
@@ -199,15 +201,12 @@ async function handleCallbackQuery(bot: Record<string, unknown>, update: Telegra
 
     const priceFormatted = `R$ ${Number(plan.price).toFixed(2).replace('.', ',')}`
 
-    await sendMessage(
-      token,
-      chatId,
-      `💳 Pronto… seu acesso já tá quase liberado 😈\n\n` +
-        `📦 Plano: <b>${plan.name}</b>\n` +
-        `💰 Valor: <b>${priceFormatted}</b>\n\n` +
-        `⏰ Corre porque expira rápido…\n` +
-        `Assim que pagar, eu libero tudo pra você na hora. 💋`
-    )
+    const introMsg = await getBotMessage(bot.id as string, 'payment_intro', {
+      nome: from.first_name ?? '',
+      plano: plan.name,
+      valor: priceFormatted,
+    })
+    await sendMessage(token, chatId, introMsg)
 
     // Send QR code image if available
     if (pixResponse.pix?.qrCode) {
@@ -223,22 +222,9 @@ async function handleCallbackQuery(bot: Record<string, unknown>, update: Telegra
       }
     }
 
-    await sendMessage(
-      token,
-      chatId,
-      `<b>Ou pague com Pix Copia e Cola:</b>\n\n` +
-        `1️⃣ Abra o app do seu banco\n` +
-        `2️⃣ Vá em <b>Pix → Pagar</b>\n` +
-        `3️⃣ Escolha <b>Copia e Cola</b>\n` +
-        `4️⃣ Cole o código abaixo e confirme\n\n` +
-        `👇 <i>Toque no código para copiar:</i>`
-    )
-
-    await sendMessage(
-      token,
-      chatId,
-      `<code>${pixResponse.pix?.code}</code>`
-    )
+    const pixMsg = await getBotMessage(bot.id as string, 'pix_instructions')
+    await sendMessage(token, chatId, pixMsg)
+    await sendMessage(token, chatId, `<code>${pixResponse.pix?.code}</code>`)
   } catch (err) {
     console.error('[Telegram] createPix error:', err)
     // Clean up the pending payment
