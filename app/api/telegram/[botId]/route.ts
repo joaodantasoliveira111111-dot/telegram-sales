@@ -82,11 +82,12 @@ async function handleStart(bot: Record<string, unknown>, update: TelegramUpdate)
     await sendMessage(token, chatId, welcomeMsg)
   }
 
-  // Fetch plans for this bot
+  // Fetch only main plans for this bot (upsell/downsell are sent via offers, not here)
   const { data: plans } = await supabaseAdmin
     .from('plans')
     .select('*')
     .eq('bot_id', bot.id)
+    .eq('plan_role', 'main')
     .order('price', { ascending: true })
 
   if (!plans || plans.length === 0) {

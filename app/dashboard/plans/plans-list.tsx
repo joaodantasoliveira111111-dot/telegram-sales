@@ -87,6 +87,9 @@ export function PlansList({ initialPlans, bots }: PlansListProps) {
                   <Badge variant="outline">
                     {plan.content_type === 'link' ? 'Link' : 'Canal Telegram'}
                   </Badge>
+                  {plan.plan_role === 'main' && <Badge variant="success">Principal</Badge>}
+                  {plan.plan_role === 'upsell' && <Badge variant="warning">Upsell</Badge>}
+                  {plan.plan_role === 'downsell' && <Badge variant="secondary">Downsell</Badge>}
                 </div>
                 <p className="mb-4 text-xs text-zinc-500">Botão: &quot;{plan.button_text}&quot;</p>
                 <div className="flex gap-2">

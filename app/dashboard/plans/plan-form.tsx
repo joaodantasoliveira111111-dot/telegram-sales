@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { Plan, CreatePlanForm } from '@/types'
+import { Plan, CreatePlanForm, PlanRole } from '@/types'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -28,6 +28,7 @@ export function PlanForm({ plan, bots, onSaved, onCancel }: PlanFormProps) {
     content_type: plan?.content_type ?? 'link',
     content_url: plan?.content_url ?? '',
     telegram_chat_id: plan?.telegram_chat_id ?? '',
+    plan_role: plan?.plan_role ?? 'main',
   })
 
   async function handleSubmit(e: React.FormEvent) {
@@ -139,6 +140,28 @@ export function PlanForm({ plan, bots, onSaved, onCancel }: PlanFormProps) {
                 required
               />
             </div>
+          </div>
+
+          <div className="space-y-1.5">
+            <Label>Função do Plano</Label>
+            <Select
+              value={form.plan_role}
+              onValueChange={(v) => setForm({ ...form, plan_role: v as PlanRole })}
+            >
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="main">🏠 Principal — aparece no bot para todos</SelectItem>
+                <SelectItem value="upsell">📈 Upsell — apenas via oferta pós-compra</SelectItem>
+                <SelectItem value="downsell">📉 Downsell — apenas via oferta para quem não comprou</SelectItem>
+              </SelectContent>
+            </Select>
+            <p className="text-xs text-zinc-500">
+              {form.plan_role === 'main' && 'Este plano será exibido na mensagem inicial do bot.'}
+              {form.plan_role === 'upsell' && 'Este plano não aparece no bot — só é enviado automaticamente após uma compra.'}
+              {form.plan_role === 'downsell' && 'Este plano não aparece no bot — só é oferecido para quem não finalizou a compra.'}
+            </p>
           </div>
 
           <div className="space-y-1.5">

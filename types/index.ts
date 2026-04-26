@@ -2,6 +2,7 @@ export type MediaType = 'image' | 'video' | null
 export type ContentType = 'link' | 'telegram_channel'
 export type PaymentStatus = 'pending' | 'paid' | 'canceled' | 'refunded' | 'chargeback'
 export type SubscriptionStatus = 'active' | 'expired' | 'canceled'
+export type PlanRole = 'main' | 'upsell' | 'downsell'
 
 export interface Bot {
   id: string
@@ -24,6 +25,7 @@ export interface Plan {
   content_type: ContentType
   content_url: string | null
   telegram_chat_id: string | null
+  plan_role: PlanRole
   created_at: string
 }
 
@@ -162,4 +164,5 @@ export interface CreatePlanForm {
   content_type: ContentType
   content_url?: string
   telegram_chat_id?: string
+  plan_role: PlanRole
 }
