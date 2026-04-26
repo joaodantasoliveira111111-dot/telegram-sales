@@ -180,6 +180,7 @@ async function handleCallbackQuery(bot: Record<string, unknown>, update: Telegra
         name: from.first_name || 'Cliente',
         email: `telegram_${from.id}@cliente.com`,
         phone: '11999999999',
+        document: '78189144472',
       },
       callbackUrl: baseUrl ? `${baseUrl}/api/amplopay/webhook` : undefined,
     })
