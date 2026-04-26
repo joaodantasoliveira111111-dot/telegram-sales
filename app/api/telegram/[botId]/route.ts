@@ -7,7 +7,6 @@ import {
   sendButtons,
   sendPhotoWithButtons,
   sendVideoWithButtons,
-  sendPhotoBase64,
   answerCallbackQuery,
   createInviteLink,
 } from '@/lib/telegram'
@@ -214,13 +213,14 @@ async function handleCallbackQuery(bot: Record<string, unknown>, update: Telegra
     })
     await sendMessage(token, chatId, introMsg)
 
-    // Send QR code image if available
-    if (pixResponse.pix?.qrCode) {
+    // Send QR code image generated from Pix code string
+    if (pixResponse.pix?.code) {
       try {
-        await sendPhotoBase64(
+        const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(pixResponse.pix.code)}`
+        await sendPhoto(
           token,
           chatId,
-          pixResponse.pix.qrCode,
+          qrUrl,
           `📷 Escaneie o QR Code com o app do seu banco para pagar ${priceFormatted}`
         )
       } catch {
