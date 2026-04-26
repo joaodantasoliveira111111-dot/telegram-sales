@@ -198,11 +198,19 @@ async function handleCallbackQuery(bot: Record<string, unknown>, update: Telegra
     await sendMessage(
       token,
       chatId,
-      `💳 <b>Pagamento gerado!</b>\n\n` +
+      `💳 Pronto… seu acesso já tá quase liberado 😈\n\n` +
         `📦 Plano: <b>${plan.name}</b>\n` +
         `💰 Valor: <b>R$ ${Number(plan.price).toFixed(2).replace('.', ',')}</b>\n\n` +
-        `<b>Código Pix (Copia e Cola):</b>\n<code>${pixResponse.pix?.code}</code>\n\n` +
-        `⏰ O código expira em breve. Após o pagamento, o acesso é liberado automaticamente.`
+        `Agora é só fazer o pagamento via Pix…\n\n` +
+        `⏰ Corre porque expira rápido…\n` +
+        `assim que pagar, eu libero tudo pra você na hora.\n\n` +
+        `💋 Não me deixa esperando…`
+    )
+
+    await sendMessage(
+      token,
+      chatId,
+      `<code>${pixResponse.pix?.code}</code>`
     )
   } catch (err) {
     console.error('[Telegram] createPix error:', err)
