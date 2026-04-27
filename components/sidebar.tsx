@@ -3,8 +3,8 @@
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import {
-  Bot, CreditCard, LayoutDashboard, ListOrdered, Users,
-  Megaphone, Zap, TrendingUp, Package, BarChart2, MessageSquare, X,
+  Bot, CreditCard, LayoutDashboard, Users,
+  Megaphone, Zap, TrendingUp, BarChart2, X,
   Settings, LogOut, ChevronRight, Link2,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
@@ -21,10 +21,8 @@ const navGroups = [
     label: 'Produtos',
     items: [
       { href: '/dashboard/bots', label: 'Bots', icon: Bot },
-      { href: '/dashboard/telegram-connect', label: 'Conectar Telegram', icon: Link2 },
-      { href: '/dashboard/plans', label: 'Planos', icon: ListOrdered },
-      { href: '/dashboard/account-stock', label: 'Estoque de Contas', icon: Package },
-      { href: '/dashboard/messages', label: 'Mensagens do Bot', icon: MessageSquare },
+      { href: '/dashboard/groups', label: 'Grupos & Canais', icon: Users },
+      { href: '/dashboard/telegram-connect', label: 'Conta Telegram', icon: Link2 },
     ],
   },
   {

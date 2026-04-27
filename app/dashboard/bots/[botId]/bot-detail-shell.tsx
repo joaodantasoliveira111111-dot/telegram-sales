@@ -6,25 +6,26 @@ import { Bot, ListOrdered, MessageSquare, Package, Sparkles, ArrowLeft, Cpu } fr
 import { cn } from '@/lib/utils'
 
 interface BotDetailShellProps {
-  bot: { id: string; name: string; is_active: boolean }
+  bot: { id: string; name: string; is_active: boolean; bot_type?: string }
   children: React.ReactNode
 }
 
 export function BotDetailShell({ bot, children }: BotDetailShellProps) {
   const pathname = usePathname()
   const base = `/dashboard/bots/${bot.id}`
+  const isAccountBot = bot.bot_type === 'account_stock'
 
   const tabs = [
-    { href: base,                  label: 'Configurações', icon: Bot,          exact: true },
-    { href: `${base}/plans`,       label: 'Planos',        icon: ListOrdered,  exact: false },
-    { href: `${base}/messages`,    label: 'Mensagens',     icon: MessageSquare,exact: false },
-    { href: `${base}/accounts`,    label: 'Estoque',       icon: Package,      exact: false },
-    { href: `${base}/pixel`,       label: 'Pixel',         icon: Sparkles,     exact: false },
+    { href: base,               label: 'Configurações', icon: Bot,           exact: true },
+    { href: `${base}/plans`,    label: 'Planos',         icon: ListOrdered,   exact: false },
+    { href: `${base}/messages`, label: 'Mensagens',      icon: MessageSquare, exact: false },
+    ...(isAccountBot ? [{ href: `${base}/accounts`, label: 'Estoque', icon: Package, exact: false }] : []),
+    { href: `${base}/pixel`,    label: 'Pixel',          icon: Sparkles,      exact: false },
   ]
 
   return (
     <div className="space-y-6 animate-fade-up">
-      {/* Back + Bot Header */}
+      {/* Back + Header */}
       <div>
         <Link
           href="/dashboard/bots"
@@ -48,7 +49,17 @@ export function BotDetailShell({ bot, children }: BotDetailShellProps) {
             <Cpu className={`h-6 w-6 ${bot.is_active ? 'text-blue-400' : 'text-slate-600'}`} />
           </div>
           <div>
-            <h1 className="text-xl font-bold text-slate-100">{bot.name}</h1>
+            <div className="flex items-center gap-2">
+              <h1 className="text-xl font-bold text-slate-100">{bot.name}</h1>
+              {isAccountBot && (
+                <span
+                  className="rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-violet-300"
+                  style={{ background: 'rgba(139,92,246,0.15)', border: '1px solid rgba(139,92,246,0.25)' }}
+                >
+                  Contas
+                </span>
+              )}
+            </div>
             <div className="flex items-center gap-1.5 mt-0.5">
               <div
                 className={`h-1.5 w-1.5 rounded-full ${bot.is_active ? 'bg-emerald-400' : 'bg-slate-600'}`}
@@ -62,7 +73,7 @@ export function BotDetailShell({ bot, children }: BotDetailShellProps) {
         </div>
       </div>
 
-      {/* Tab navigation */}
+      {/* Tabs */}
       <div
         className="flex gap-1 overflow-x-auto rounded-2xl p-1.5"
         style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)' }}
@@ -75,9 +86,7 @@ export function BotDetailShell({ bot, children }: BotDetailShellProps) {
               href={href}
               className={cn(
                 'flex shrink-0 items-center gap-2 rounded-xl px-4 py-2 text-sm font-medium transition-all duration-150 whitespace-nowrap',
-                active
-                  ? 'text-white'
-                  : 'text-slate-500 hover:text-slate-200'
+                active ? 'text-white' : 'text-slate-500 hover:text-slate-200'
               )}
               style={active ? {
                 background: 'linear-gradient(135deg, rgba(59,130,246,0.25), rgba(99,102,241,0.15))',
@@ -92,7 +101,6 @@ export function BotDetailShell({ bot, children }: BotDetailShellProps) {
         })}
       </div>
 
-      {/* Tab content */}
       <div>{children}</div>
     </div>
   )

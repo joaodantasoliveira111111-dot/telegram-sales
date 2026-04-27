@@ -211,16 +211,15 @@ export function BroadcastList({ initialBroadcasts, bots }: BroadcastListProps) {
                 <div className="flex items-center justify-between gap-2">
                   <span className="text-xs text-slate-600">{formatDate(b.created_at)}</span>
                   <div className="flex gap-1.5">
-                    {/* Edit (draft/scheduled only) */}
-                    {(b.status === 'draft' || b.status === 'scheduled') && (
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => { setEditingBroadcast(b); setShowForm(false) }}
-                      >
-                        <Pencil className="h-3.5 w-3.5" />
-                      </Button>
-                    )}
+                    {/* Edit — always available */}
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => { setEditingBroadcast(b); setShowForm(false) }}
+                      title="Editar"
+                    >
+                      <Pencil className="h-3.5 w-3.5" />
+                    </Button>
 
                     {/* Send draft */}
                     {b.status === 'draft' && (

@@ -12,7 +12,7 @@ export default async function BotDetailLayout({ children, params }: LayoutProps)
 
   const { data: bot } = await supabaseAdmin
     .from('bots')
-    .select('id, name, is_active')
+    .select('id, name, is_active, bot_type')
     .eq('id', botId)
     .single()
 
