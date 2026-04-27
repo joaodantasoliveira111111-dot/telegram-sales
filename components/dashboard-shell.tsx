@@ -65,10 +65,10 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
             <Menu className="h-4 w-4" />
           </button>
           <div className="flex items-center gap-2.5">
-            <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br from-blue-500 to-blue-700 shadow-lg shadow-blue-500/30">
-              <Zap className="h-3.5 w-3.5 text-white" />
+            <div className="h-7 w-7 overflow-hidden rounded-lg">
+              <img src="/logo.svg" alt="FlowBot" className="h-7 w-7" />
             </div>
-            <span className="text-sm font-bold text-slate-100">TelegramSales</span>
+            <span className="text-sm font-bold text-slate-100">FlowBot</span>
           </div>
         </header>
 

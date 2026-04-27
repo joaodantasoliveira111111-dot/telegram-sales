@@ -46,10 +46,10 @@ export function LoginForm() {
       <div className="w-full max-w-sm">
         {/* Logo */}
         <div className="mb-8 flex flex-col items-center">
-          <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-blue-600 shadow-2xl shadow-blue-600/30">
-            <Zap className="h-7 w-7 text-white" />
+          <div className="mb-4 overflow-hidden rounded-2xl shadow-2xl shadow-blue-600/30">
+            <img src="/logo.svg" alt="FlowBot" className="h-14 w-14" />
           </div>
-          <h1 className="text-2xl font-bold tracking-tight text-zinc-100">TelegramSales</h1>
+          <h1 className="text-2xl font-bold tracking-tight text-zinc-100">FlowBot</h1>
           <p className="mt-1 text-sm text-zinc-500">Acesse o painel de controle</p>
         </div>
 

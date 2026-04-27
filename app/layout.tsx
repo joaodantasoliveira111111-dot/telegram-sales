@@ -5,7 +5,7 @@ import "./globals.css";
 const geist = Geist({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "TelegramSales — Painel de Controle",
+  title: "FlowBot — Painel de Controle",
   description: "Automatize vendas via Telegram com pagamento Pix",
 };
 

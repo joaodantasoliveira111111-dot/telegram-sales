@@ -79,17 +79,13 @@ export function Sidebar({ onClose }: SidebarProps) {
       {/* Logo */}
       <div className="flex h-16 shrink-0 items-center justify-between px-5">
         <div className="flex items-center gap-3">
-          <div
-            className="flex h-9 w-9 items-center justify-center rounded-xl shadow-lg"
-            style={{
-              background: 'linear-gradient(135deg, #3b82f6 0%, #6366f1 100%)',
-              boxShadow: '0 0 20px rgba(59,130,246,0.35), inset 0 1px 0 rgba(255,255,255,0.2)',
-            }}
+          <div className="h-9 w-9 overflow-hidden rounded-xl shadow-lg flex-shrink-0"
+            style={{ boxShadow: '0 0 20px rgba(59,130,246,0.35)' }}
           >
-            <Zap className="h-4.5 w-4.5 text-white" />
+            <img src="/logo.svg" alt="FlowBot" className="h-9 w-9" />
           </div>
           <div className="leading-tight">
-            <p className="text-sm font-bold text-slate-100 tracking-tight">TelegramSales</p>
+            <p className="text-sm font-bold text-slate-100 tracking-tight">FlowBot</p>
             <p className="text-[10px] text-slate-500 tracking-wide">Painel de Controle</p>
           </div>
         </div>
