@@ -7,9 +7,9 @@ import { Badge } from '@/components/ui/badge'
 import { RevenueChart } from '@/components/revenue-chart'
 import { ConversionFunnel } from '@/components/conversion-funnel'
 import { Bot, CreditCard, TrendingUp, Users, ArrowUpRight } from 'lucide-react'
-import { formatCurrency, formatDate } from '@/lib/utils'
+import { formatCurrency, formatDate, getPeriodRange } from '@/lib/utils'
 import { PaymentStatus } from '@/types'
-import { PeriodSelector, getPeriodRange } from '@/components/period-selector'
+import { PeriodSelector } from '@/components/period-selector'
 
 const statusConfig: Record<PaymentStatus, { label: string; variant: 'success' | 'warning' | 'destructive' | 'secondary' }> = {
   paid: { label: 'Pago', variant: 'success' },

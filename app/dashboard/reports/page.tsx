@@ -4,9 +4,9 @@ import { Suspense } from 'react'
 import { supabaseAdmin } from '@/lib/supabase'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { formatCurrency } from '@/lib/utils'
+import { formatCurrency, getPeriodRange } from '@/lib/utils'
 import { TrendingUp, ShoppingBag, DollarSign, Bot } from 'lucide-react'
-import { PeriodSelector, getPeriodRange } from '@/components/period-selector'
+import { PeriodSelector } from '@/components/period-selector'
 
 interface PageProps {
   searchParams: Promise<{ period?: string }>
