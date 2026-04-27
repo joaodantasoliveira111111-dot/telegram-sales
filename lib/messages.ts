@@ -97,6 +97,21 @@ export const MESSAGE_KEYS: Record<string, MessageMeta> = {
     vars: ['{nome}'],
     default: `❌ Seu pagamento falhou. Para tentar novamente, envie /start.`,
   },
+  how_it_works: {
+    label: 'Como funciona / Entrega',
+    description: 'Explicação do processo de entrega — exibida no fluxo Apresentação e Consultivo antes dos planos',
+    vars: [],
+    default:
+      `🛒 <b>Como funciona:</b>\n\n` +
+      `✅ Você escolhe o plano ideal\n` +
+      `✅ Paga via Pix em segundos\n` +
+      `✅ <b>Sua conta é entregue automaticamente</b> — sem precisar falar com ninguém\n\n` +
+      `⚡ <b>Entrega instantânea</b> após confirmação do pagamento\n` +
+      `🔒 Todas as contas são testadas antes da entrega\n` +
+      `🛡️ Garantia inclusa em todos os planos\n` +
+      `💬 Suporte disponível se precisar de ajuda\n\n` +
+      `👇 <b>Escolha seu plano:</b>`,
+  },
   subscription_expired: {
     label: 'Assinatura expirada',
     description: 'Enviada automaticamente quando a assinatura vence',

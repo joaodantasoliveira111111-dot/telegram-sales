@@ -8,7 +8,7 @@ import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Loader2, Zap, Package, Link as LinkIcon, Bot as BotIcon, Sparkles } from 'lucide-react'
+import { Loader2, Zap, Package, Link as LinkIcon, Bot as BotIcon, Sparkles, ArrowRight, Eye, MessageCircle } from 'lucide-react'
 import { MediaUpload } from '@/components/media-upload'
 
 interface BotFormProps {
@@ -18,20 +18,24 @@ interface BotFormProps {
 }
 
 type BotType = 'account_stock' | 'channel_link'
+type FlowType = 'direct' | 'presentation' | 'consultive'
 
 export function BotForm({ bot, onSaved, onCancel }: BotFormProps) {
   const isEdit = !!bot
   const [loading, setLoading] = useState(false)
   const [botfatherLoading, setBotfatherLoading] = useState(false)
   const [error, setError] = useState('')
-  const [botType, setBotType] = useState<BotType>((bot as Bot & { bot_type?: string })?.bot_type as BotType ?? 'channel_link')
-  const [form, setForm] = useState<CreateBotForm & { bot_type?: string }>({
+  const botAny = bot as Bot & { bot_type?: string; flow_type?: string }
+  const [botType, setBotType] = useState<BotType>(botAny?.bot_type as BotType ?? 'channel_link')
+  const [flowType, setFlowType] = useState<FlowType>(botAny?.flow_type as FlowType ?? 'direct')
+  const [form, setForm] = useState<CreateBotForm & { bot_type?: string; flow_type?: string }>({
     name: bot?.name ?? '',
     telegram_token: bot?.telegram_token ?? '',
     welcome_message: bot?.welcome_message ?? 'Olá! Seja bem-vindo(a). Escolha um plano abaixo:',
     welcome_media_url: bot?.welcome_media_url ?? '',
     welcome_media_type: bot?.welcome_media_type ?? undefined,
-    bot_type: (bot as Bot & { bot_type?: string })?.bot_type ?? 'channel_link',
+    bot_type: botAny?.bot_type ?? 'channel_link',
+    flow_type: botAny?.flow_type ?? 'direct',
   })
   const [botUsername, setBotUsername] = useState('')
   const [showBotFather, setShowBotFather] = useState(false)
@@ -71,6 +75,7 @@ export function BotForm({ bot, onSaved, onCancel }: BotFormProps) {
         body: JSON.stringify({
           ...form,
           bot_type: botType,
+          flow_type: flowType,
           welcome_media_url: form.welcome_media_url || null,
           welcome_media_type: form.welcome_media_type || null,
         }),
@@ -82,6 +87,33 @@ export function BotForm({ bot, onSaved, onCancel }: BotFormProps) {
       setLoading(false)
     }
   }
+
+  const flowOptions: { value: FlowType; label: string; desc: string; badge: string; icon: React.ReactNode; color: string }[] = [
+    {
+      value: 'direct',
+      label: 'Direto',
+      desc: 'Boas-vindas + planos na mesma mensagem. Rápido e simples.',
+      badge: 'Simples',
+      icon: <ArrowRight className="h-4 w-4" />,
+      color: 'slate',
+    },
+    {
+      value: 'presentation',
+      label: 'Apresentação',
+      desc: 'Boas-vindas → explica como funciona e entrega → planos. Recomendado para venda de contas.',
+      badge: 'Recomendado',
+      icon: <Eye className="h-4 w-4" />,
+      color: 'blue',
+    },
+    {
+      value: 'consultive',
+      label: 'Consultivo',
+      desc: 'Boas-vindas + botão "Como funciona?" → clica → explica entrega → planos.',
+      badge: 'Alta conversão',
+      icon: <MessageCircle className="h-4 w-4" />,
+      color: 'violet',
+    },
+  ]
 
   const typeOptions: { value: BotType; label: string; desc: string; icon: React.ReactNode }[] = [
     {
@@ -145,6 +177,53 @@ export function BotForm({ bot, onSaved, onCancel }: BotFormProps) {
               </div>
             </div>
           )}
+
+          {/* Flow Type */}
+          <div className="space-y-2">
+            <Label>Fluxo de venda</Label>
+            <p className="text-xs text-slate-500">Define a sequência de mensagens quando o usuário inicia o bot</p>
+            <div className="space-y-2">
+              {flowOptions.map((opt) => {
+                const active = flowType === opt.value
+                const colorMap: Record<string, { bg: string; border: string; text: string; badgeBg: string }> = {
+                  slate: { bg: 'rgba(100,116,139,0.10)', border: 'rgba(100,116,139,0.35)', text: 'text-slate-300', badgeBg: 'rgba(100,116,139,0.2)' },
+                  blue: { bg: 'rgba(59,130,246,0.10)', border: 'rgba(59,130,246,0.35)', text: 'text-blue-300', badgeBg: 'rgba(59,130,246,0.2)' },
+                  violet: { bg: 'rgba(139,92,246,0.10)', border: 'rgba(139,92,246,0.35)', text: 'text-violet-300', badgeBg: 'rgba(139,92,246,0.2)' },
+                }
+                const c = colorMap[opt.color]
+                return (
+                  <button
+                    key={opt.value}
+                    type="button"
+                    onClick={() => setFlowType(opt.value)}
+                    className="w-full rounded-xl p-3.5 text-left transition-all duration-150"
+                    style={active ? {
+                      background: c.bg,
+                      border: `1px solid ${c.border}`,
+                      boxShadow: `0 0 16px ${c.border}`,
+                    } : {
+                      background: 'rgba(255,255,255,0.02)',
+                      border: '1px solid rgba(255,255,255,0.06)',
+                    }}
+                  >
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2.5">
+                        <span className={active ? c.text : 'text-slate-500'}>{opt.icon}</span>
+                        <span className={`text-sm font-semibold ${active ? c.text : 'text-slate-400'}`}>{opt.label}</span>
+                      </div>
+                      <span
+                        className="text-[10px] font-semibold px-2 py-0.5 rounded-full"
+                        style={{ background: active ? c.badgeBg : 'rgba(255,255,255,0.05)', color: active ? undefined : '#64748b' }}
+                      >
+                        {opt.badge}
+                      </span>
+                    </div>
+                    <p className="mt-1 text-xs text-slate-500 pl-6.5">{opt.desc}</p>
+                  </button>
+                )
+              })}
+            </div>
+          </div>
 
           {/* Name */}
           <div className="space-y-1.5">

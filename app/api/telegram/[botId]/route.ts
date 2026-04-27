@@ -8,11 +8,9 @@ import {
   sendPhotoWithButtons,
   sendVideoWithButtons,
   answerCallbackQuery,
-  createInviteLink,
 } from '@/lib/telegram'
 import { createPix } from '@/lib/amplopay'
 import { TelegramUpdate, Plan } from '@/types'
-import { addDays } from '@/lib/utils'
 import { getBotMessage } from '@/lib/messages'
 import { sendInitiateCheckoutEvent, sendViewContentEvent } from '@/lib/meta'
 
@@ -22,7 +20,6 @@ export async function POST(
 ) {
   const { botId } = await params
 
-  // Fetch bot from DB
   const { data: bot, error: botError } = await supabaseAdmin
     .from('bots')
     .select('*')
@@ -41,13 +38,11 @@ export async function POST(
     return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 })
   }
 
-  // Handle /start command
   if (update.message?.text?.startsWith('/start')) {
     await handleStart(bot, update)
     return NextResponse.json({ ok: true })
   }
 
-  // Handle callback_query (button click)
   if (update.callback_query) {
     await handleCallbackQuery(bot, update)
     return NextResponse.json({ ok: true })
@@ -56,12 +51,57 @@ export async function POST(
   return NextResponse.json({ ok: true })
 }
 
+// ─── helpers ────────────────────────────────────────────────────────────────
+
+function buildPlanButtons(plans: Plan[]) {
+  return plans.map((plan: Plan) => [
+    {
+      text: `${plan.button_text} — R$ ${Number(plan.price).toFixed(2).replace('.', ',')}`,
+      callback_data: `buy_${plan.id}`,
+    },
+  ])
+}
+
+async function sendWelcomeOnly(
+  token: string,
+  chatId: number,
+  welcomeMsg: string,
+  mediaUrl: string | null,
+  mediaType: string | null,
+) {
+  if (mediaUrl && mediaType === 'image') {
+    await sendPhoto(token, chatId, mediaUrl, welcomeMsg)
+  } else if (mediaUrl && mediaType === 'video') {
+    await sendVideo(token, chatId, mediaUrl, welcomeMsg)
+  } else {
+    await sendMessage(token, chatId, welcomeMsg)
+  }
+}
+
+async function sendWelcomeWithButtons(
+  token: string,
+  chatId: number,
+  welcomeMsg: string,
+  mediaUrl: string | null,
+  mediaType: string | null,
+  buttons: { text: string; callback_data: string }[][],
+) {
+  if (mediaUrl && mediaType === 'image') {
+    await sendPhotoWithButtons(token, chatId, mediaUrl, welcomeMsg, buttons)
+  } else if (mediaUrl && mediaType === 'video') {
+    await sendVideoWithButtons(token, chatId, mediaUrl, welcomeMsg, buttons)
+  } else {
+    await sendButtons(token, chatId, welcomeMsg, buttons)
+  }
+}
+
+// ─── /start handler ─────────────────────────────────────────────────────────
+
 async function handleStart(bot: Record<string, unknown>, update: TelegramUpdate) {
   const msg = update.message!
   const from = msg.from
   const chatId = msg.chat.id
 
-  // Upsert telegram user
   await supabaseAdmin.from('telegram_users').upsert(
     {
       bot_id: bot.id,
@@ -78,7 +118,6 @@ async function handleStart(bot: Record<string, unknown>, update: TelegramUpdate)
     testEventCode: bot.meta_test_event_code as string | undefined,
   }
 
-  // Fire ViewContent event (non-blocking)
   sendViewContentEvent({
     eventId: `view_${bot.id}_${from.id}_${Date.now()}`,
     telegramId: String(from.id),
@@ -90,8 +129,8 @@ async function handleStart(bot: Record<string, unknown>, update: TelegramUpdate)
   const welcomeMsg = bot.welcome_message as string
   const mediaUrl = bot.welcome_media_url as string | null
   const mediaType = bot.welcome_media_type as string | null
+  const flowType = (bot.flow_type as string) ?? 'direct'
 
-  // Fetch only main plans for this bot
   const { data: plans } = await supabaseAdmin
     .from('plans')
     .select('*')
@@ -100,49 +139,70 @@ async function handleStart(bot: Record<string, unknown>, update: TelegramUpdate)
     .order('price', { ascending: true })
 
   if (!plans || plans.length === 0) {
-    if (mediaUrl && mediaType === 'image') {
-      await sendPhoto(token, chatId, mediaUrl, welcomeMsg)
-    } else if (mediaUrl && mediaType === 'video') {
-      await sendVideo(token, chatId, mediaUrl, welcomeMsg)
-    } else {
-      await sendMessage(token, chatId, welcomeMsg)
-    }
+    await sendWelcomeOnly(token, chatId, welcomeMsg, mediaUrl, mediaType)
     return
   }
 
-  // Build inline keyboard
-  const buttons = plans.map((plan: Plan) => [
-    {
-      text: `${plan.button_text} — R$ ${Number(plan.price).toFixed(2).replace('.', ',')}`,
-      callback_data: `buy_${plan.id}`,
-    },
-  ])
+  const planButtons = buildPlanButtons(plans)
 
-  // Send welcome + buttons as a single message (no extra text between them)
-  if (mediaUrl && mediaType === 'image') {
-    await sendPhotoWithButtons(token, chatId, mediaUrl, welcomeMsg, buttons)
-  } else if (mediaUrl && mediaType === 'video') {
-    await sendVideoWithButtons(token, chatId, mediaUrl, welcomeMsg, buttons)
-  } else {
-    await sendButtons(token, chatId, welcomeMsg, buttons)
+  // ── Fluxo Direto ────────────────────────────────────────────────────────
+  if (flowType === 'direct') {
+    await sendWelcomeWithButtons(token, chatId, welcomeMsg, mediaUrl, mediaType, planButtons)
+    return
   }
+
+  // ── Fluxo Apresentação ──────────────────────────────────────────────────
+  // 1. Welcome sem botões  2. "Como funciona" + planos
+  if (flowType === 'presentation') {
+    await sendWelcomeOnly(token, chatId, welcomeMsg, mediaUrl, mediaType)
+    const howMsg = await getBotMessage(bot.id as string, 'how_it_works')
+    await sendButtons(token, chatId, howMsg, planButtons)
+    return
+  }
+
+  // ── Fluxo Consultivo ────────────────────────────────────────────────────
+  // 1. Welcome + botão "Como funciona?"  2. Clica → "Como funciona" + planos
+  if (flowType === 'consultive') {
+    const consultiveButton = [[{ text: '🔍 Como funciona?', callback_data: 'show_how' }]]
+    await sendWelcomeWithButtons(token, chatId, welcomeMsg, mediaUrl, mediaType, consultiveButton)
+    return
+  }
+
+  // fallback: direct
+  await sendWelcomeWithButtons(token, chatId, welcomeMsg, mediaUrl, mediaType, planButtons)
 }
+
+// ─── callback_query handler ──────────────────────────────────────────────────
 
 async function handleCallbackQuery(bot: Record<string, unknown>, update: TelegramUpdate) {
   const cq = update.callback_query!
   const data = cq.data ?? ''
   const from = cq.from
   const chatId = cq.message?.chat.id ?? from.id
-
   const token = bot.telegram_token as string
 
   await answerCallbackQuery(token, cq.id)
 
+  // ── show_how: consultivo flow step 2 ─────────────────────────────────────
+  if (data === 'show_how') {
+    const { data: plans } = await supabaseAdmin
+      .from('plans')
+      .select('*')
+      .eq('bot_id', bot.id)
+      .eq('plan_role', 'main')
+      .order('price', { ascending: true })
+
+    const planButtons = plans ? buildPlanButtons(plans) : []
+    const howMsg = await getBotMessage(bot.id as string, 'how_it_works')
+    await sendButtons(token, chatId, howMsg, planButtons)
+    return
+  }
+
+  // ── buy_<planId> ──────────────────────────────────────────────────────────
   if (!data.startsWith('buy_')) return
 
   const planId = data.replace('buy_', '')
 
-  // Fetch plan
   const { data: plan, error: planError } = await supabaseAdmin
     .from('plans')
     .select('*')
@@ -155,7 +215,7 @@ async function handleCallbackQuery(bot: Record<string, unknown>, update: Telegra
     return
   }
 
-  // Check for pending payment already existing (idempotency)
+  // Re-send pending payment if it already exists
   const { data: existingPayment } = await supabaseAdmin
     .from('payments')
     .select('*')
@@ -168,29 +228,21 @@ async function handleCallbackQuery(bot: Record<string, unknown>, update: Telegra
     .maybeSingle()
 
   if (existingPayment?.pix_code) {
-    const priceFormatted = `R$ ${Number(plan.price).toFixed(2).replace('.', ',')}`
-    // Step 1 — pending notice
     const pendingMsg = await getBotMessage(bot.id as string, 'payment_pending', {
       nome: from.first_name ?? '',
       plano: plan.name,
     })
     await sendMessage(token, chatId, pendingMsg)
-    // Step 2 — QR code image
     try {
       const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(existingPayment.pix_code)}`
       await sendPhoto(token, chatId, qrUrl)
-    } catch {
-      // QR code send failed — continue
-    }
-    // Step 3 — copia e cola instructions
+    } catch { /* ignore */ }
     const pixMsg = await getBotMessage(bot.id as string, 'pix_instructions')
     await sendMessage(token, chatId, pixMsg)
-    // Step 4 — the code itself
     await sendMessage(token, chatId, `<code>${existingPayment.pix_code}</code>`)
     return
   }
 
-  // Instant feedback — user knows something is happening
   await sendMessage(token, chatId, '⏳ Um momento, estou gerando seu Pix...')
 
   const botPixelCq = {
@@ -199,7 +251,6 @@ async function handleCallbackQuery(bot: Record<string, unknown>, update: Telegra
     testEventCode: bot.meta_test_event_code as string | undefined,
   }
 
-  // Fire InitiateCheckout event (non-blocking)
   sendInitiateCheckoutEvent({
     eventId: `checkout_${planId}_${from.id}_${Date.now()}`,
     value: Number(plan.price),
@@ -209,7 +260,6 @@ async function handleCallbackQuery(bot: Record<string, unknown>, update: Telegra
     firstName: from.first_name,
   }, botPixelCq).catch(() => {})
 
-  // Create payment record (snapshot plan name/price so history survives plan deletion)
   const { data: payment, error: paymentError } = await supabaseAdmin
     .from('payments')
     .insert({
@@ -228,7 +278,6 @@ async function handleCallbackQuery(bot: Record<string, unknown>, update: Telegra
     return
   }
 
-  // Create Pix via AmploPay
   try {
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL
     const pixResponse = await createPix({
@@ -243,7 +292,6 @@ async function handleCallbackQuery(bot: Record<string, unknown>, update: Telegra
       callbackUrl: baseUrl ? `${baseUrl}/api/amplopay/webhook` : undefined,
     })
 
-    // Update payment with pix data
     await supabaseAdmin
       .from('payments')
       .update({
@@ -255,7 +303,6 @@ async function handleCallbackQuery(bot: Record<string, unknown>, update: Telegra
 
     const priceFormatted = `R$ ${Number(plan.price).toFixed(2).replace('.', ',')}`
 
-    // Step 1 — payment intro
     const introMsg = await getBotMessage(bot.id as string, 'payment_intro', {
       nome: from.first_name ?? '',
       plano: plan.name,
@@ -263,30 +310,19 @@ async function handleCallbackQuery(bot: Record<string, unknown>, update: Telegra
     })
     await sendMessage(token, chatId, introMsg)
 
-    // Step 2 — QR code image
     if (pixResponse.pix?.code) {
       try {
         const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(pixResponse.pix.code)}`
         await sendPhoto(token, chatId, qrUrl)
-      } catch {
-        // QR code send failed — continue with copia e cola only
-      }
+      } catch { /* ignore */ }
     }
 
-    // Step 3 — copia e cola instructions
     const pixMsg = await getBotMessage(bot.id as string, 'pix_instructions')
     await sendMessage(token, chatId, pixMsg)
-
-    // Step 4 — the code itself
     await sendMessage(token, chatId, `<code>${pixResponse.pix?.code}</code>`)
   } catch (err) {
     console.error('[Telegram] createPix error:', err)
-    // Clean up the pending payment
     await supabaseAdmin.from('payments').delete().eq('id', payment.id)
-    await sendMessage(
-      token,
-      chatId,
-      '❌ Erro ao gerar pagamento Pix. Por favor, tente novamente em instantes.'
-    )
+    await sendMessage(token, chatId, '❌ Erro ao gerar pagamento Pix. Por favor, tente novamente em instantes.')
   }
 }

@@ -22,6 +22,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Token do Telegram inválido.' }, { status: 400 })
   }
 
+  const bodyAny = body as unknown as Record<string, unknown>
   const { data, error } = await supabaseAdmin
     .from('bots')
     .insert({
@@ -30,6 +31,8 @@ export async function POST(request: NextRequest) {
       welcome_message: body.welcome_message,
       welcome_media_url: body.welcome_media_url ?? null,
       welcome_media_type: body.welcome_media_type ?? null,
+      bot_type: bodyAny.bot_type ?? 'channel_link',
+      flow_type: bodyAny.flow_type ?? 'direct',
     })
     .select()
     .single()
