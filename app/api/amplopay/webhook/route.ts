@@ -21,7 +21,7 @@ export async function POST(request: NextRequest) {
     request.headers.get('x-webhook-token') ??
     request.nextUrl.searchParams.get('token')
 
-  if (!validateWebhookToken(token)) {
+  if (!await validateWebhookToken(token)) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
