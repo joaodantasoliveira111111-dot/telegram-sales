@@ -73,9 +73,9 @@ export async function POST(request: NextRequest) {
       eventId: `payment_${payment.id}`,
       value: Number(plan.price),
       planName: plan.name,
-      telegramId: payment.telegram_id,
-      email: `telegram_${payment.telegram_id}@cliente.com`,
-      phone: '11999999999',
+      planId: String(payment.plan_id ?? plan.id),
+      paymentId: String(payment.id),
+      telegramId: String(payment.telegram_id),
     }).catch((err) => console.error('[Meta CAPI] erro:', err))
 
     await supabaseAdmin.from('subscriptions').insert({

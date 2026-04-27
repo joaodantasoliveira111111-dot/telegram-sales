@@ -76,6 +76,7 @@ async function handleStart(bot: Record<string, unknown>, update: TelegramUpdate)
   sendViewContentEvent({
     eventId: `view_${bot.id}_${from.id}_${Date.now()}`,
     telegramId: String(from.id),
+    firstName: from.first_name,
     botName: bot.name as string,
   }).catch(() => {})
 
@@ -188,7 +189,9 @@ async function handleCallbackQuery(bot: Record<string, unknown>, update: Telegra
     eventId: `checkout_${planId}_${from.id}_${Date.now()}`,
     value: Number(plan.price),
     planName: plan.name,
+    planId: planId,
     telegramId: String(from.id),
+    firstName: from.first_name,
   }).catch(() => {})
 
   // Create payment record (snapshot plan name/price so history survives plan deletion)
