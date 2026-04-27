@@ -2,19 +2,13 @@
 
 import { useEffect, useState } from 'react'
 import {
-  AreaChart,
-  Area,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
+  AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
 } from 'recharts'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
 import { formatCurrency } from '@/lib/utils'
+import { cn } from '@/lib/utils'
 
-type Period = '7d' | '30d' | '90d'
+type Period = 'today' | '7d' | '30d'
 
 interface DataPoint {
   date: string
@@ -22,23 +16,30 @@ interface DataPoint {
   count: number
 }
 
-function formatLabel(date: string) {
-  const [, month, day] = date.split('-')
-  return `${day}/${month}`
-}
-
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function CustomTooltip({ active, payload, label }: any) {
   if (!active || !payload?.length) return null
   return (
-    <div className="rounded-lg border border-zinc-700 bg-zinc-900 px-4 py-3 shadow-xl">
-      <p className="mb-1 text-xs text-zinc-400">{label}</p>
-      <p className="text-sm font-bold text-green-400">
+    <div className="rounded-xl border border-zinc-700/60 bg-zinc-900 px-4 py-3 shadow-xl">
+      <p className="mb-1.5 text-xs text-zinc-400">{label}</p>
+      <p className="text-sm font-bold text-emerald-400">
         {formatCurrency(payload[0]?.value ?? 0)}
       </p>
-      <p className="text-xs text-zinc-400">{payload[1]?.value ?? 0} venda(s)</p>
+      <p className="text-xs text-zinc-500">{payload[1]?.value ?? 0} venda(s)</p>
     </div>
   )
+}
+
+const periods: { label: string; value: Period }[] = [
+  { label: 'Hoje', value: 'today' },
+  { label: '7 dias', value: '7d' },
+  { label: '30 dias', value: '30d' },
+]
+
+function formatLabel(date: string) {
+  if (date.includes(':')) return date // hourly label already formatted
+  const [, month, day] = date.split('-')
+  return `${day}/${month}`
 }
 
 export function RevenueChart() {
@@ -57,75 +58,75 @@ export function RevenueChart() {
   const totalRevenue = data.reduce((a, b) => a + b.revenue, 0)
   const totalSales = data.reduce((a, b) => a + b.count, 0)
 
-  const periods: { label: string; value: Period }[] = [
-    { label: '7 dias', value: '7d' },
-    { label: '30 dias', value: '30d' },
-    { label: '90 dias', value: '90d' },
-  ]
-
   return (
-    <Card className="col-span-full border-zinc-800 bg-zinc-900/60">
-      <CardHeader className="flex flex-row items-center justify-between pb-4">
-        <div>
-          <CardTitle className="text-zinc-100">Receita</CardTitle>
-          <div className="mt-1 flex items-baseline gap-3">
-            <span className="text-2xl font-bold text-green-400">
-              {formatCurrency(totalRevenue)}
-            </span>
-            <span className="text-sm text-zinc-500">{totalSales} vendas no período</span>
+    <Card>
+      <CardHeader className="pb-4">
+        <div className="flex items-start justify-between gap-3">
+          <div>
+            <CardTitle className="text-sm font-semibold text-zinc-100">Receita</CardTitle>
+            <div className="mt-1.5 flex items-baseline gap-2">
+              <span className="text-2xl font-bold text-emerald-400">
+                {formatCurrency(totalRevenue)}
+              </span>
+              <span className="text-xs text-zinc-500">{totalSales} vendas</span>
+            </div>
+          </div>
+          <div className="flex gap-0.5 rounded-xl border border-zinc-800/60 bg-zinc-900/60 p-1">
+            {periods.map((p) => (
+              <button
+                key={p.value}
+                onClick={() => setPeriod(p.value)}
+                className={cn(
+                  'rounded-lg px-3 py-1.5 text-xs font-medium transition-all duration-150',
+                  period === p.value
+                    ? 'bg-zinc-700 text-zinc-100 shadow-sm'
+                    : 'text-zinc-500 hover:text-zinc-200'
+                )}
+              >
+                {p.label}
+              </button>
+            ))}
           </div>
         </div>
-        <div className="flex gap-1">
-          {periods.map((p) => (
-            <Button
-              key={p.value}
-              size="sm"
-              variant={period === p.value ? 'default' : 'ghost'}
-              onClick={() => setPeriod(p.value)}
-              className="text-xs"
-            >
-              {p.label}
-            </Button>
-          ))}
-        </div>
       </CardHeader>
-      <CardContent className="pb-2">
+      <CardContent className="pb-3">
         {loading ? (
-          <div className="flex h-48 items-center justify-center text-zinc-500">
+          <div className="flex h-48 items-center justify-center text-sm text-zinc-600">
             Carregando...
           </div>
         ) : (
           <ResponsiveContainer width="100%" height={220}>
-            <AreaChart data={data} margin={{ top: 5, right: 5, bottom: 0, left: 0 }}>
+            <AreaChart data={data} margin={{ top: 4, right: 4, bottom: 0, left: 0 }}>
               <defs>
                 <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#22c55e" stopOpacity={0.3} />
-                  <stop offset="95%" stopColor="#22c55e" stopOpacity={0} />
+                  <stop offset="5%" stopColor="#10b981" stopOpacity={0.25} />
+                  <stop offset="95%" stopColor="#10b981" stopOpacity={0} />
                 </linearGradient>
               </defs>
-              <CartesianGrid strokeDasharray="3 3" stroke="#27272a" />
+              <CartesianGrid strokeDasharray="3 3" stroke="#27272a" vertical={false} />
               <XAxis
                 dataKey="date"
                 tickFormatter={formatLabel}
-                tick={{ fontSize: 11, fill: '#71717a' }}
+                tick={{ fontSize: 10, fill: '#52525b' }}
                 axisLine={false}
                 tickLine={false}
-                interval={period === '7d' ? 0 : period === '30d' ? 4 : 9}
+                interval={period === 'today' ? 2 : period === '7d' ? 0 : 4}
               />
               <YAxis
                 tickFormatter={(v) => `R$${v}`}
-                tick={{ fontSize: 11, fill: '#71717a' }}
+                tick={{ fontSize: 10, fill: '#52525b' }}
                 axisLine={false}
                 tickLine={false}
-                width={55}
+                width={52}
               />
               <Tooltip content={<CustomTooltip />} />
               <Area
                 type="monotone"
                 dataKey="revenue"
-                stroke="#22c55e"
+                stroke="#10b981"
                 strokeWidth={2}
                 fill="url(#colorRevenue)"
+                dot={false}
               />
               <Area
                 type="monotone"
@@ -134,6 +135,7 @@ export function RevenueChart() {
                 strokeWidth={1.5}
                 fill="none"
                 strokeDasharray="4 2"
+                dot={false}
               />
             </AreaChart>
           </ResponsiveContainer>

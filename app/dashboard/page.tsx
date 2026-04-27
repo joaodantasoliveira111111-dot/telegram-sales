@@ -1,5 +1,6 @@
 export const dynamic = 'force-dynamic'
 
+import { Suspense } from 'react'
 import { supabaseAdmin } from '@/lib/supabase'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -8,6 +9,7 @@ import { ConversionFunnel } from '@/components/conversion-funnel'
 import { Bot, CreditCard, TrendingUp, Users, ArrowUpRight } from 'lucide-react'
 import { formatCurrency, formatDate } from '@/lib/utils'
 import { PaymentStatus } from '@/types'
+import { PeriodSelector, getPeriodRange } from '@/components/period-selector'
 
 const statusConfig: Record<PaymentStatus, { label: string; variant: 'success' | 'warning' | 'destructive' | 'secondary' }> = {
   paid: { label: 'Pago', variant: 'success' },
@@ -17,19 +19,36 @@ const statusConfig: Record<PaymentStatus, { label: string; variant: 'success' | 
   chargeback: { label: 'Chargeback', variant: 'destructive' },
 }
 
-async function getStats() {
-  const [bots, payments, subscriptions, revenue, recentPayments, started, initiated] = await Promise.all([
+const periodLabel: Record<string, string> = {
+  today: 'hoje',
+  yesterday: 'ontem',
+  '7d': 'nos últimos 7 dias',
+  '30d': 'neste mês',
+}
+
+async function getStats(period: string) {
+  const { since, until } = getPeriodRange(period)
+
+  function addUntil<T extends { lt: (col: string, val: string) => T }>(q: T): T {
+    return until ? q.lt('created_at', until) : q
+  }
+
+  const [bots, revenue, paidCount, subscriptions, recentPayments, started, initiated] = await Promise.all([
     supabaseAdmin.from('bots').select('id', { count: 'exact', head: true }).eq('is_active', true),
-    supabaseAdmin.from('payments').select('id', { count: 'exact', head: true }).eq('status', 'paid'),
+    addUntil(supabaseAdmin.from('payments').select('plan:plans(price)').eq('status', 'paid').gte('created_at', since)),
+    addUntil(supabaseAdmin.from('payments').select('id', { count: 'exact', head: true }).eq('status', 'paid').gte('created_at', since)),
     supabaseAdmin.from('subscriptions').select('id', { count: 'exact', head: true }).eq('status', 'active'),
-    supabaseAdmin.from('payments').select('plan:plans(price)').eq('status', 'paid'),
-    supabaseAdmin
-      .from('payments')
-      .select('*, plan:plans(name, price), bot:bots(name)')
-      .order('created_at', { ascending: false })
-      .limit(5),
-    supabaseAdmin.from('telegram_users').select('id', { count: 'exact', head: true }),
-    supabaseAdmin.from('payments').select('telegram_id', { count: 'exact', head: true }),
+    addUntil(
+      supabaseAdmin
+        .from('payments')
+        .select('*, plan:plans(name, price), bot:bots(name)')
+        .eq('status', 'paid')
+        .gte('created_at', since)
+        .order('created_at', { ascending: false })
+        .limit(5)
+    ),
+    addUntil(supabaseAdmin.from('telegram_users').select('id', { count: 'exact', head: true }).gte('created_at', since)),
+    addUntil(supabaseAdmin.from('payments').select('telegram_id', { count: 'exact', head: true }).gte('created_at', since)),
   ])
 
   const totalRevenue = (revenue.data ?? []).reduce((acc, p) => {
@@ -39,85 +58,101 @@ async function getStats() {
 
   return {
     bots: bots.count ?? 0,
-    paidPayments: payments.count ?? 0,
+    paidPayments: paidCount.count ?? 0,
     activeSubscriptions: subscriptions.count ?? 0,
     totalRevenue,
     recentPayments: recentPayments.data ?? [],
     funnel: {
       started: started.count ?? 0,
       initiated: initiated.count ?? 0,
-      paid: payments.count ?? 0,
+      paid: paidCount.count ?? 0,
     },
   }
 }
 
-export default async function DashboardPage() {
-  const stats = await getStats()
+interface PageProps {
+  searchParams: Promise<{ period?: string }>
+}
+
+export default async function DashboardPage({ searchParams }: PageProps) {
+  const { period: periodParam } = await searchParams
+  const period = periodParam ?? '30d'
+  const stats = await getStats(period)
 
   const cards = [
     {
       title: 'Receita Total',
       value: formatCurrency(stats.totalRevenue),
       icon: TrendingUp,
-      color: 'text-green-400',
-      bg: 'from-green-500/10 to-transparent',
-      border: 'border-green-500/20',
+      color: 'text-emerald-400',
+      iconBg: 'bg-emerald-500/10',
+      topBorder: 'border-t-emerald-500',
     },
     {
       title: 'Vendas Aprovadas',
-      value: stats.paidPayments,
+      value: String(stats.paidPayments),
       icon: CreditCard,
       color: 'text-blue-400',
-      bg: 'from-blue-500/10 to-transparent',
-      border: 'border-blue-500/20',
+      iconBg: 'bg-blue-500/10',
+      topBorder: 'border-t-blue-500',
     },
     {
       title: 'Assinantes Ativos',
-      value: stats.activeSubscriptions,
+      value: String(stats.activeSubscriptions),
       icon: Users,
-      color: 'text-purple-400',
-      bg: 'from-purple-500/10 to-transparent',
-      border: 'border-purple-500/20',
+      color: 'text-violet-400',
+      iconBg: 'bg-violet-500/10',
+      topBorder: 'border-t-violet-500',
     },
     {
       title: 'Bots Ativos',
-      value: stats.bots,
+      value: String(stats.bots),
       icon: Bot,
       color: 'text-orange-400',
-      bg: 'from-orange-500/10 to-transparent',
-      border: 'border-orange-500/20',
+      iconBg: 'bg-orange-500/10',
+      topBorder: 'border-t-orange-500',
     },
   ]
 
   return (
     <div className="space-y-6">
-      <div>
-        <h2 className="text-2xl font-bold tracking-tight text-zinc-100">Dashboard</h2>
-        <p className="text-sm text-zinc-500">Visão geral do seu negócio</p>
+      {/* Header */}
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <h2 className="text-xl font-bold tracking-tight text-zinc-100">Dashboard</h2>
+          <p className="text-sm text-zinc-500">
+            Resultados {periodLabel[period] ?? ''}
+          </p>
+        </div>
+        <Suspense>
+          <PeriodSelector />
+        </Suspense>
       </div>
 
-      {/* Stats */}
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {cards.map(({ title, value, icon: Icon, color, bg, border }) => (
-          <Card key={title} className={`border ${border} bg-gradient-to-br ${bg} bg-zinc-900/80`}>
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium text-zinc-400">{title}</CardTitle>
-              <div className={`rounded-lg bg-zinc-800/80 p-2 ${color}`}>
-                <Icon className="h-4 w-4" />
+      {/* Stat cards */}
+      <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+        {cards.map(({ title, value, icon: Icon, color, iconBg, topBorder }) => (
+          <Card key={title} className={`border-t-2 ${topBorder}`}>
+            <CardContent className="p-4 sm:p-5">
+              <div className="flex items-start justify-between gap-2">
+                <div className="min-w-0 flex-1">
+                  <p className="truncate text-xs font-medium text-zinc-500">{title}</p>
+                  <p className="mt-2 text-2xl font-bold tracking-tight text-zinc-100">{value}</p>
+                </div>
+                <div className={`shrink-0 rounded-xl p-2.5 ${iconBg}`}>
+                  <Icon className={`h-4 w-4 ${color}`} />
+                </div>
               </div>
-            </CardHeader>
-            <CardContent>
-              <p className="text-2xl font-bold text-zinc-100">{value}</p>
             </CardContent>
           </Card>
         ))}
       </div>
 
-      {/* Conversion Funnel + Revenue Chart */}
+      {/* Funnel + Chart */}
       <div className="grid gap-4 lg:grid-cols-2">
-        <Card className="border-zinc-800 bg-zinc-900/60">
-          <CardHeader className="pb-4">
-            <CardTitle className="text-base text-zinc-100">Funil de Conversão</CardTitle>
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-sm font-semibold text-zinc-100">Funil de Conversão</CardTitle>
           </CardHeader>
           <CardContent>
             <ConversionFunnel
@@ -130,13 +165,13 @@ export default async function DashboardPage() {
         <RevenueChart />
       </div>
 
-      {/* Recent Payments */}
-      <Card className="border-zinc-800 bg-zinc-900/60">
-        <CardHeader className="flex flex-row items-center justify-between pb-4">
-          <CardTitle className="text-base text-zinc-100">Últimas Vendas</CardTitle>
+      {/* Recent sales */}
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between pb-3">
+          <CardTitle className="text-sm font-semibold text-zinc-100">Últimas Vendas</CardTitle>
           <a
             href="/dashboard/payments"
-            className="flex items-center gap-1 text-xs text-blue-400 hover:text-blue-300"
+            className="flex items-center gap-1 text-xs text-blue-400 transition-colors hover:text-blue-300"
           >
             Ver todas <ArrowUpRight className="h-3 w-3" />
           </a>
@@ -146,11 +181,11 @@ export default async function DashboardPage() {
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-zinc-800">
-                  <th className="px-6 py-3 text-left text-xs font-medium text-zinc-500">Telegram ID</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-zinc-500">Plano</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-zinc-500">Valor</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-zinc-500">Status</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-zinc-500">Data</th>
+                  <th className="px-5 py-3 text-left text-xs font-medium text-zinc-500">Telegram ID</th>
+                  <th className="hidden px-5 py-3 text-left text-xs font-medium text-zinc-500 sm:table-cell">Plano</th>
+                  <th className="px-5 py-3 text-left text-xs font-medium text-zinc-500">Valor</th>
+                  <th className="hidden px-5 py-3 text-left text-xs font-medium text-zinc-500 sm:table-cell">Status</th>
+                  <th className="hidden px-5 py-3 text-left text-xs font-medium text-zinc-500 md:table-cell">Data</th>
                 </tr>
               </thead>
               <tbody>
@@ -158,25 +193,27 @@ export default async function DashboardPage() {
                   const status = p.status as PaymentStatus
                   const cfg = statusConfig[status] ?? { label: status, variant: 'outline' as const }
                   return (
-                    <tr key={p.id} className="border-b border-zinc-800/50 hover:bg-zinc-800/30 transition-colors">
-                      <td className="px-6 py-3 font-mono text-xs text-zinc-400">{p.telegram_id}</td>
-                      <td className="px-6 py-3 text-zinc-300">
-                        {(p.plan as { name: string } | null)?.name ?? '—'}
+                    <tr key={p.id} className="border-b border-zinc-800/40 transition-colors hover:bg-zinc-800/20">
+                      <td className="px-5 py-3.5 font-mono text-xs text-zinc-400">{p.telegram_id}</td>
+                      <td className="hidden px-5 py-3.5 text-zinc-300 sm:table-cell">
+                        {(p.plan as unknown as { name: string } | null)?.name ?? '—'}
                       </td>
-                      <td className="px-6 py-3 font-semibold text-green-400">
-                        {formatCurrency((p.plan as { price: number } | null)?.price ?? 0)}
+                      <td className="px-5 py-3.5 font-semibold text-emerald-400">
+                        {formatCurrency((p.plan as unknown as { price: number } | null)?.price ?? 0)}
                       </td>
-                      <td className="px-6 py-3">
+                      <td className="hidden px-5 py-3.5 sm:table-cell">
                         <Badge variant={cfg.variant}>{cfg.label}</Badge>
                       </td>
-                      <td className="px-6 py-3 text-zinc-500 text-xs">{formatDate(p.created_at)}</td>
+                      <td className="hidden px-5 py-3.5 text-xs text-zinc-500 md:table-cell">
+                        {formatDate(p.created_at)}
+                      </td>
                     </tr>
                   )
                 })}
                 {stats.recentPayments.length === 0 && (
                   <tr>
-                    <td colSpan={5} className="px-6 py-8 text-center text-zinc-600">
-                      Nenhuma venda ainda
+                    <td colSpan={5} className="px-5 py-12 text-center text-sm text-zinc-600">
+                      Nenhuma venda no período selecionado
                     </td>
                   </tr>
                 )}
