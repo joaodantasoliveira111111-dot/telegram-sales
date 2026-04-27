@@ -91,11 +91,28 @@ export const MESSAGE_KEYS: Record<string, MessageMeta> = {
       `Seu acesso foi aprovado, mas estamos preparando sua conta.\n` +
       `O suporte vai te enviar os dados em breve. 🙏`,
   },
+  pix_reminder: {
+    label: 'Lembrete de Pix pendente',
+    description: 'Enviada automaticamente para quem gerou Pix mas não pagou ainda',
+    vars: ['{nome}', '{plano}', '{valor}'],
+    default:
+      `⏰ <b>Ei, seu Pix ainda está esperando!</b>\n\n` +
+      `📦 Plano: <b>{plano}</b>\n` +
+      `💰 Valor: <b>{valor}</b>\n\n` +
+      `O código abaixo ainda é válido — pague agora e libero seu acesso na hora:\n\n` +
+      `👇 <i>Toque para copiar o código:</i>`,
+  },
   payment_failed: {
     label: 'Pagamento falhou',
     description: 'Quando o pagamento é recusado ou expirado',
     vars: ['{nome}'],
     default: `❌ Seu pagamento falhou. Para tentar novamente, envie /start.`,
+  },
+  consultive_button_text: {
+    label: 'Texto do botão "Como funciona?"',
+    description: 'Texto exibido no botão que o usuário clica para ver a explicação (fluxo Consultivo)',
+    vars: [],
+    default: '🔍 Como funciona?',
   },
   how_it_works: {
     label: 'Como funciona / Entrega',

@@ -27,9 +27,7 @@ export async function POST(
     .eq('is_active', true)
     .single()
 
-  if (botError || !bot) {
-    return NextResponse.json({ error: 'Bot not found' }, { status: 404 })
-  }
+  if (botError || !bot) return NextResponse.json({ error: 'Bot not found' }, { status: 404 })
 
   let update: TelegramUpdate
   try {
@@ -51,56 +49,62 @@ export async function POST(
   return NextResponse.json({ ok: true })
 }
 
-// ─── helpers ────────────────────────────────────────────────────────────────
+// ─── helpers ─────────────────────────────────────────────────────────────────
 
 function buildPlanButtons(plans: Plan[]) {
-  return plans.map((plan: Plan) => [
-    {
-      text: `${plan.button_text} — R$ ${Number(plan.price).toFixed(2).replace('.', ',')}`,
-      callback_data: `buy_${plan.id}`,
-    },
-  ])
+  return plans.map((plan: Plan) => [{
+    text: `${plan.button_text} — R$ ${Number(plan.price).toFixed(2).replace('.', ',')}`,
+    callback_data: `buy_${plan.id}`,
+  }])
 }
 
 async function sendWelcomeOnly(
-  token: string,
-  chatId: number,
-  welcomeMsg: string,
-  mediaUrl: string | null,
-  mediaType: string | null,
+  token: string, chatId: number,
+  welcomeMsg: string, mediaUrl: string | null, mediaType: string | null,
 ) {
-  if (mediaUrl && mediaType === 'image') {
-    await sendPhoto(token, chatId, mediaUrl, welcomeMsg)
-  } else if (mediaUrl && mediaType === 'video') {
-    await sendVideo(token, chatId, mediaUrl, welcomeMsg)
-  } else {
-    await sendMessage(token, chatId, welcomeMsg)
-  }
+  if (mediaUrl && mediaType === 'image') await sendPhoto(token, chatId, mediaUrl, welcomeMsg)
+  else if (mediaUrl && mediaType === 'video') await sendVideo(token, chatId, mediaUrl, welcomeMsg)
+  else await sendMessage(token, chatId, welcomeMsg)
 }
 
 async function sendWelcomeWithButtons(
-  token: string,
-  chatId: number,
-  welcomeMsg: string,
-  mediaUrl: string | null,
-  mediaType: string | null,
+  token: string, chatId: number,
+  welcomeMsg: string, mediaUrl: string | null, mediaType: string | null,
   buttons: { text: string; callback_data: string }[][],
 ) {
-  if (mediaUrl && mediaType === 'image') {
-    await sendPhotoWithButtons(token, chatId, mediaUrl, welcomeMsg, buttons)
-  } else if (mediaUrl && mediaType === 'video') {
-    await sendVideoWithButtons(token, chatId, mediaUrl, welcomeMsg, buttons)
-  } else {
-    await sendButtons(token, chatId, welcomeMsg, buttons)
-  }
+  if (mediaUrl && mediaType === 'image') await sendPhotoWithButtons(token, chatId, mediaUrl, welcomeMsg, buttons)
+  else if (mediaUrl && mediaType === 'video') await sendVideoWithButtons(token, chatId, mediaUrl, welcomeMsg, buttons)
+  else await sendButtons(token, chatId, welcomeMsg, buttons)
 }
 
-// ─── /start handler ─────────────────────────────────────────────────────────
+function recordEvent(
+  botId: string,
+  telegramId: string,
+  eventType: string,
+  opts?: { planId?: string; abVariant?: string }
+) {
+  void supabaseAdmin.from('bot_events').insert({
+    bot_id: botId,
+    telegram_id: telegramId,
+    event_type: eventType,
+    plan_id: opts?.planId ?? null,
+    ab_variant: opts?.abVariant ?? null,
+  })
+}
+
+// ─── /start ──────────────────────────────────────────────────────────────────
 
 async function handleStart(bot: Record<string, unknown>, update: TelegramUpdate) {
   const msg = update.message!
   const from = msg.from
   const chatId = msg.chat.id
+
+  // A/B test: deterministic assignment by telegram_id parity
+  const abEnabled = bot.ab_test_enabled as boolean
+  const flowTypeA = (bot.flow_type as string) ?? 'direct'
+  const flowTypeB = (bot.flow_type_b as string) ?? 'direct'
+  const abVariant: 'a' | 'b' = abEnabled ? (from.id % 2 === 0 ? 'a' : 'b') : 'a'
+  const effectiveFlowType = abEnabled && abVariant === 'b' ? flowTypeB : flowTypeA
 
   await supabaseAdmin.from('telegram_users').upsert(
     {
@@ -108,16 +112,18 @@ async function handleStart(bot: Record<string, unknown>, update: TelegramUpdate)
       telegram_id: String(from.id),
       username: from.username ?? null,
       first_name: from.first_name ?? null,
+      ab_variant: abEnabled ? abVariant : null,
     },
     { onConflict: 'bot_id,telegram_id' }
   )
+
+  recordEvent(bot.id as string, String(from.id), 'start', { abVariant: abEnabled ? abVariant : undefined })
 
   const botPixel = {
     pixelId: bot.meta_pixel_id as string | undefined,
     accessToken: bot.meta_access_token as string | undefined,
     testEventCode: bot.meta_test_event_code as string | undefined,
   }
-
   sendViewContentEvent({
     eventId: `view_${bot.id}_${from.id}_${Date.now()}`,
     telegramId: String(from.id),
@@ -129,7 +135,6 @@ async function handleStart(bot: Record<string, unknown>, update: TelegramUpdate)
   const welcomeMsg = bot.welcome_message as string
   const mediaUrl = bot.welcome_media_url as string | null
   const mediaType = bot.welcome_media_type as string | null
-  const flowType = (bot.flow_type as string) ?? 'direct'
 
   const { data: plans } = await supabaseAdmin
     .from('plans')
@@ -145,34 +150,22 @@ async function handleStart(bot: Record<string, unknown>, update: TelegramUpdate)
 
   const planButtons = buildPlanButtons(plans)
 
-  // ── Fluxo Direto ────────────────────────────────────────────────────────
-  if (flowType === 'direct') {
+  if (effectiveFlowType === 'direct') {
     await sendWelcomeWithButtons(token, chatId, welcomeMsg, mediaUrl, mediaType, planButtons)
-    return
-  }
-
-  // ── Fluxo Apresentação ──────────────────────────────────────────────────
-  // 1. Welcome sem botões  2. "Como funciona" + planos
-  if (flowType === 'presentation') {
+  } else if (effectiveFlowType === 'presentation') {
     await sendWelcomeOnly(token, chatId, welcomeMsg, mediaUrl, mediaType)
     const howMsg = await getBotMessage(bot.id as string, 'how_it_works')
     await sendButtons(token, chatId, howMsg, planButtons)
-    return
-  }
-
-  // ── Fluxo Consultivo ────────────────────────────────────────────────────
-  // 1. Welcome + botão "Como funciona?"  2. Clica → "Como funciona" + planos
-  if (flowType === 'consultive') {
-    const consultiveButton = [[{ text: '🔍 Como funciona?', callback_data: 'show_how' }]]
+  } else if (effectiveFlowType === 'consultive') {
+    const btnText = await getBotMessage(bot.id as string, 'consultive_button_text')
+    const consultiveButton = [[{ text: btnText, callback_data: `show_how_${abVariant}` }]]
     await sendWelcomeWithButtons(token, chatId, welcomeMsg, mediaUrl, mediaType, consultiveButton)
-    return
+  } else {
+    await sendWelcomeWithButtons(token, chatId, welcomeMsg, mediaUrl, mediaType, planButtons)
   }
-
-  // fallback: direct
-  await sendWelcomeWithButtons(token, chatId, welcomeMsg, mediaUrl, mediaType, planButtons)
 }
 
-// ─── callback_query handler ──────────────────────────────────────────────────
+// ─── callback_query ───────────────────────────────────────────────────────────
 
 async function handleCallbackQuery(bot: Record<string, unknown>, update: TelegramUpdate) {
   const cq = update.callback_query!
@@ -183,55 +176,46 @@ async function handleCallbackQuery(bot: Record<string, unknown>, update: Telegra
 
   await answerCallbackQuery(token, cq.id)
 
-  // ── show_how: consultivo flow step 2 ─────────────────────────────────────
-  if (data === 'show_how') {
+  // show_how — consultive flow step 2 (variant encoded in callback data)
+  if (data.startsWith('show_how')) {
+    const variant = data.includes('_b') ? 'b' : 'a'
     const { data: plans } = await supabaseAdmin
-      .from('plans')
-      .select('*')
-      .eq('bot_id', bot.id)
-      .eq('plan_role', 'main')
-      .order('price', { ascending: true })
-
+      .from('plans').select('*').eq('bot_id', bot.id).eq('plan_role', 'main').order('price', { ascending: true })
     const planButtons = plans ? buildPlanButtons(plans) : []
     const howMsg = await getBotMessage(bot.id as string, 'how_it_works')
     await sendButtons(token, chatId, howMsg, planButtons)
+    recordEvent(bot.id as string, String(from.id), 'plan_view', { abVariant: variant })
     return
   }
 
-  // ── buy_<planId> ──────────────────────────────────────────────────────────
   if (!data.startsWith('buy_')) return
 
   const planId = data.replace('buy_', '')
 
-  const { data: plan, error: planError } = await supabaseAdmin
-    .from('plans')
-    .select('*')
-    .eq('id', planId)
+  // Record plan click
+  const userRecord = await supabaseAdmin
+    .from('telegram_users')
+    .select('ab_variant')
     .eq('bot_id', bot.id)
-    .single()
-
-  if (planError || !plan) {
-    await sendMessage(token, chatId, '❌ Plano não encontrado.')
-    return
-  }
-
-  // Re-send pending payment if it already exists
-  const { data: existingPayment } = await supabaseAdmin
-    .from('payments')
-    .select('*')
-    .eq('bot_id', bot.id)
-    .eq('plan_id', planId)
     .eq('telegram_id', String(from.id))
-    .eq('status', 'pending')
-    .order('created_at', { ascending: false })
-    .limit(1)
     .maybeSingle()
+  const abVariant = userRecord?.data?.ab_variant ?? undefined
+
+  recordEvent(bot.id as string, String(from.id), 'plan_click', { planId, abVariant })
+
+  const { data: plan, error: planError } = await supabaseAdmin
+    .from('plans').select('*').eq('id', planId).eq('bot_id', bot.id).single()
+
+  if (planError || !plan) { await sendMessage(token, chatId, '❌ Plano não encontrado.'); return }
+
+  // Re-send pending payment
+  const { data: existingPayment } = await supabaseAdmin
+    .from('payments').select('*').eq('bot_id', bot.id).eq('plan_id', planId)
+    .eq('telegram_id', String(from.id)).eq('status', 'pending')
+    .order('created_at', { ascending: false }).limit(1).maybeSingle()
 
   if (existingPayment?.pix_code) {
-    const pendingMsg = await getBotMessage(bot.id as string, 'payment_pending', {
-      nome: from.first_name ?? '',
-      plano: plan.name,
-    })
+    const pendingMsg = await getBotMessage(bot.id as string, 'payment_pending', { nome: from.first_name ?? '', plano: plan.name })
     await sendMessage(token, chatId, pendingMsg)
     try {
       const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(existingPayment.pix_code)}`
@@ -250,33 +234,27 @@ async function handleCallbackQuery(bot: Record<string, unknown>, update: Telegra
     accessToken: bot.meta_access_token as string | undefined,
     testEventCode: bot.meta_test_event_code as string | undefined,
   }
-
   sendInitiateCheckoutEvent({
     eventId: `checkout_${planId}_${from.id}_${Date.now()}`,
     value: Number(plan.price),
     planName: plan.name,
-    planId: planId,
+    planId,
     telegramId: String(from.id),
     firstName: from.first_name,
   }, botPixelCq).catch(() => {})
 
   const { data: payment, error: paymentError } = await supabaseAdmin
-    .from('payments')
-    .insert({
+    .from('payments').insert({
       bot_id: bot.id,
       plan_id: planId,
       plan_name: plan.name,
       plan_price: plan.price,
       telegram_id: String(from.id),
+      ab_variant: abVariant ?? null,
       status: 'pending',
-    })
-    .select()
-    .single()
+    }).select().single()
 
-  if (paymentError || !payment) {
-    await sendMessage(token, chatId, '❌ Erro ao criar pagamento. Tente novamente.')
-    return
-  }
+  if (paymentError || !payment) { await sendMessage(token, chatId, '❌ Erro ao criar pagamento. Tente novamente.'); return }
 
   try {
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL
@@ -292,17 +270,15 @@ async function handleCallbackQuery(bot: Record<string, unknown>, update: Telegra
       callbackUrl: baseUrl ? `${baseUrl}/api/amplopay/webhook` : undefined,
     })
 
-    await supabaseAdmin
-      .from('payments')
-      .update({
-        transaction_id: pixResponse.transactionId,
-        pix_code: pixResponse.pix?.code,
-        qr_code: pixResponse.pix?.qrCode,
-      })
-      .eq('id', payment.id)
+    await supabaseAdmin.from('payments').update({
+      transaction_id: pixResponse.transactionId,
+      pix_code: pixResponse.pix?.code,
+      qr_code: pixResponse.pix?.qrCode,
+    }).eq('id', payment.id)
+
+    recordEvent(bot.id as string, String(from.id), 'pix_generated', { planId, abVariant })
 
     const priceFormatted = `R$ ${Number(plan.price).toFixed(2).replace('.', ',')}`
-
     const introMsg = await getBotMessage(bot.id as string, 'payment_intro', {
       nome: from.first_name ?? '',
       plano: plan.name,

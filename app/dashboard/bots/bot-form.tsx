@@ -8,7 +8,7 @@ import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Loader2, Zap, Package, Link as LinkIcon, Bot as BotIcon, Sparkles, ArrowRight, Eye, MessageCircle } from 'lucide-react'
+import { Loader2, Zap, Package, Link as LinkIcon, Bot as BotIcon, Sparkles, ArrowRight, Eye, MessageCircle, FlaskConical } from 'lucide-react'
 import { MediaUpload } from '@/components/media-upload'
 
 interface BotFormProps {
@@ -25,9 +25,11 @@ export function BotForm({ bot, onSaved, onCancel }: BotFormProps) {
   const [loading, setLoading] = useState(false)
   const [botfatherLoading, setBotfatherLoading] = useState(false)
   const [error, setError] = useState('')
-  const botAny = bot as Bot & { bot_type?: string; flow_type?: string }
+  const botAny = bot as Bot & { bot_type?: string; flow_type?: string; ab_test_enabled?: boolean; flow_type_b?: string }
   const [botType, setBotType] = useState<BotType>(botAny?.bot_type as BotType ?? 'channel_link')
   const [flowType, setFlowType] = useState<FlowType>(botAny?.flow_type as FlowType ?? 'direct')
+  const [abEnabled, setAbEnabled] = useState<boolean>(botAny?.ab_test_enabled ?? false)
+  const [flowTypeB, setFlowTypeB] = useState<FlowType>(botAny?.flow_type_b as FlowType ?? 'presentation')
   const [form, setForm] = useState<CreateBotForm & { bot_type?: string; flow_type?: string }>({
     name: bot?.name ?? '',
     telegram_token: bot?.telegram_token ?? '',
@@ -76,6 +78,8 @@ export function BotForm({ bot, onSaved, onCancel }: BotFormProps) {
           ...form,
           bot_type: botType,
           flow_type: flowType,
+          ab_test_enabled: abEnabled,
+          flow_type_b: flowTypeB,
           welcome_media_url: form.welcome_media_url || null,
           welcome_media_type: form.welcome_media_type || null,
         }),
@@ -223,6 +227,70 @@ export function BotForm({ bot, onSaved, onCancel }: BotFormProps) {
                 )
               })}
             </div>
+          </div>
+
+          {/* A/B Test */}
+          <div
+            className="rounded-xl p-4 space-y-3"
+            style={{ background: 'rgba(139,92,246,0.05)', border: '1px solid rgba(139,92,246,0.15)' }}
+          >
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <FlaskConical className="h-4 w-4 text-violet-400" />
+                <p className="text-sm font-medium text-slate-200">Teste A/B de fluxo</p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setAbEnabled((s) => !s)}
+                className="relative h-5 w-9 rounded-full transition-colors duration-200 flex-shrink-0"
+                style={{ background: abEnabled ? 'rgba(139,92,246,0.6)' : 'rgba(255,255,255,0.1)' }}
+              >
+                <span
+                  className="absolute top-0.5 left-0.5 h-4 w-4 rounded-full bg-white transition-transform duration-200"
+                  style={{ transform: abEnabled ? 'translateX(16px)' : 'translateX(0)' }}
+                />
+              </button>
+            </div>
+            <p className="text-xs text-slate-500">
+              Divide os usuários 50/50 entre dois fluxos para medir qual converte mais. Veja os resultados em <b className="text-slate-400">Funil</b>.
+            </p>
+            {abEnabled && (
+              <div className="space-y-2 pt-1">
+                <div className="flex items-center gap-2 text-xs text-slate-500">
+                  <span className="rounded px-1.5 py-0.5 font-semibold" style={{ background: 'rgba(96,165,250,0.15)', color: '#93c5fd' }}>A</span>
+                  <span>Variante A: <span className="text-slate-300 font-medium">{flowType === 'direct' ? 'Direto' : flowType === 'presentation' ? 'Apresentação' : 'Consultivo'}</span> (fluxo principal acima)</span>
+                </div>
+                <div className="space-y-1.5">
+                  <div className="flex items-center gap-2 text-xs text-slate-500 mb-1">
+                    <span className="rounded px-1.5 py-0.5 font-semibold" style={{ background: 'rgba(167,139,250,0.15)', color: '#c4b5fd' }}>B</span>
+                    <span>Variante B:</span>
+                  </div>
+                  <div className="space-y-1.5 pl-5">
+                    {flowOptions.filter((o) => o.value !== flowType).map((opt) => (
+                      <button
+                        key={opt.value}
+                        type="button"
+                        onClick={() => setFlowTypeB(opt.value)}
+                        className="w-full rounded-lg p-2.5 text-left flex items-center gap-2.5 transition-all duration-150"
+                        style={flowTypeB === opt.value ? {
+                          background: 'rgba(139,92,246,0.12)',
+                          border: '1px solid rgba(139,92,246,0.3)',
+                        } : {
+                          background: 'rgba(255,255,255,0.02)',
+                          border: '1px solid rgba(255,255,255,0.06)',
+                        }}
+                      >
+                        <span className={flowTypeB === opt.value ? 'text-violet-400' : 'text-slate-500'}>{opt.icon}</span>
+                        <div>
+                          <p className={`text-xs font-semibold ${flowTypeB === opt.value ? 'text-violet-300' : 'text-slate-400'}`}>{opt.label}</p>
+                          <p className="text-[10px] text-slate-600">{opt.desc}</p>
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Name */}

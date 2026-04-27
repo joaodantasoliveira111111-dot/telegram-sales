@@ -8,7 +8,7 @@ import { MessageSquare } from 'lucide-react'
 async function getData() {
   const { data: bots } = await supabaseAdmin
     .from('bots')
-    .select('id, name')
+    .select('id, name, bot_type, flow_type')
     .eq('is_active', true)
     .order('name')
 
@@ -73,6 +73,8 @@ export default async function MessagesPage() {
         <MessagesEditor
           botId={bots[0].id}
           botName={bots[0].name}
+          botType={(bots[0] as Record<string, unknown>).bot_type as string ?? 'channel_link'}
+          flowType={(bots[0] as Record<string, unknown>).flow_type as string ?? 'direct'}
           initialMessages={bots[0].messages}
         />
       ) : (
@@ -85,6 +87,8 @@ export default async function MessagesPage() {
               <MessagesEditor
                 botId={bot.id}
                 botName={bot.name}
+                botType={(bot as Record<string, unknown>).bot_type as string ?? 'channel_link'}
+                flowType={(bot as Record<string, unknown>).flow_type as string ?? 'direct'}
                 initialMessages={bot.messages}
               />
             </div>

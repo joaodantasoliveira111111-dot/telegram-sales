@@ -57,12 +57,18 @@ export async function POST(request: NextRequest) {
   }
 
   if (status === 'COMPLETED') {
-    // Idempotency — skip if already paid
-    if (payment.status === 'paid') {
-      return NextResponse.json({ ok: true })
-    }
+    if (payment.status === 'paid') return NextResponse.json({ ok: true })
 
     await supabaseAdmin.from('payments').update({ status: 'paid' }).eq('id', payment.id)
+
+    // Record conversion event for funnel
+    void supabaseAdmin.from('bot_events').insert({
+      bot_id: payment.bot_id,
+      telegram_id: String(payment.telegram_id),
+      event_type: 'payment_confirmed',
+      plan_id: payment.plan_id,
+      ab_variant: payment.ab_variant ?? null,
+    })
 
     const plan = payment.plan
     const bot = payment.bot

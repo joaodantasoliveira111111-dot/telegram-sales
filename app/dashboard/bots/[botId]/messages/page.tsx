@@ -13,7 +13,7 @@ export default async function BotMessagesPage({ params }: PageProps) {
   const { botId } = await params
 
   const [{ data: bot }, { data: saved }] = await Promise.all([
-    supabaseAdmin.from('bots').select('id, name').eq('id', botId).single(),
+    supabaseAdmin.from('bots').select('id, name, bot_type, flow_type').eq('id', botId).single(),
     supabaseAdmin.from('bot_messages').select('message_key, content').eq('bot_id', botId),
   ])
 
@@ -31,5 +31,13 @@ export default async function BotMessagesPage({ params }: PageProps) {
     customized: !!customMap[key],
   }))
 
-  return <MessagesEditor botId={bot.id} botName={bot.name} initialMessages={messages} />
+  return (
+    <MessagesEditor
+      botId={bot.id}
+      botName={bot.name}
+      botType={(bot as Record<string, unknown>).bot_type as string ?? 'channel_link'}
+      flowType={(bot as Record<string, unknown>).flow_type as string ?? 'direct'}
+      initialMessages={messages}
+    />
+  )
 }

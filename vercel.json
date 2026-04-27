@@ -3,6 +3,5 @@
     {
       "path": "/api/cron/check-expirations",
       "schedule": "0 3 * * *"
-    }
   ]
 }
