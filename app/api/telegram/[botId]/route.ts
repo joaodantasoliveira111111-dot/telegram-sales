@@ -14,6 +14,7 @@ import { createPix } from '@/lib/amplopay'
 import { TelegramUpdate, Plan } from '@/types'
 import { addDays } from '@/lib/utils'
 import { getBotMessage } from '@/lib/messages'
+import { sendInitiateCheckoutEvent, sendViewContentEvent } from '@/lib/meta'
 
 export async function POST(
   request: NextRequest,
@@ -70,6 +71,13 @@ async function handleStart(bot: Record<string, unknown>, update: TelegramUpdate)
     },
     { onConflict: 'bot_id,telegram_id' }
   )
+
+  // Fire ViewContent event (non-blocking)
+  sendViewContentEvent({
+    eventId: `view_${bot.id}_${from.id}_${Date.now()}`,
+    telegramId: String(from.id),
+    botName: bot.name as string,
+  }).catch(() => {})
 
   const token = bot.telegram_token as string
   const welcomeMsg = bot.welcome_message as string
@@ -174,6 +182,14 @@ async function handleCallbackQuery(bot: Record<string, unknown>, update: Telegra
     await sendMessage(token, chatId, `<code>${existingPayment.pix_code}</code>`)
     return
   }
+
+  // Fire InitiateCheckout event (non-blocking)
+  sendInitiateCheckoutEvent({
+    eventId: `checkout_${planId}_${from.id}_${Date.now()}`,
+    value: Number(plan.price),
+    planName: plan.name,
+    telegramId: String(from.id),
+  }).catch(() => {})
 
   // Create payment record (snapshot plan name/price so history survives plan deletion)
   const { data: payment, error: paymentError } = await supabaseAdmin

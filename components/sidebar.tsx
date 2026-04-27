@@ -1,10 +1,11 @@
 'use client'
 
 import Link from 'next/link'
-import { usePathname } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import {
   Bot, CreditCard, LayoutDashboard, ListOrdered, Users,
   Megaphone, Zap, TrendingUp, Package, BarChart2, MessageSquare, X,
+  Settings, LogOut,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
@@ -47,6 +48,13 @@ interface SidebarProps {
 
 export function Sidebar({ onClose }: SidebarProps) {
   const pathname = usePathname()
+  const router = useRouter()
+
+  async function handleLogout() {
+    await fetch('/api/auth/logout', { method: 'POST' })
+    router.push('/login')
+    router.refresh()
+  }
 
   return (
     <aside className="flex h-full w-64 flex-col border-r border-zinc-800/60 bg-zinc-900">
@@ -114,7 +122,28 @@ export function Sidebar({ onClose }: SidebarProps) {
       </nav>
 
       {/* Footer */}
-      <div className="shrink-0 p-4">
+      <div className="shrink-0 space-y-2 p-4">
+        <Link
+          href="/dashboard/settings"
+          className={cn(
+            'flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all',
+            pathname.startsWith('/dashboard/settings')
+              ? 'bg-blue-600/15 text-blue-400'
+              : 'text-zinc-500 hover:bg-zinc-800/70 hover:text-zinc-200'
+          )}
+        >
+          <Settings className={cn('h-4 w-4 shrink-0', pathname.startsWith('/dashboard/settings') ? 'text-blue-400' : 'text-zinc-600')} />
+          Configurações
+        </Link>
+
+        <button
+          onClick={handleLogout}
+          className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-zinc-500 transition-all hover:bg-red-500/10 hover:text-red-400"
+        >
+          <LogOut className="h-4 w-4 shrink-0" />
+          Sair
+        </button>
+
         <div className="rounded-xl border border-zinc-800/60 bg-zinc-950/60 px-3 py-2.5">
           <p className="text-[10px] font-semibold uppercase tracking-wider text-zinc-600">Webhook AmploPay</p>
           <p className="mt-0.5 break-all font-mono text-[10px] text-zinc-700">
