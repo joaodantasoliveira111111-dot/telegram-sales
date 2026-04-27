@@ -35,7 +35,7 @@ async function getStats(period: string) {
 
   const [bots, revenue, paidCount, subscriptions, recentPayments, started, initiated] = await Promise.all([
     supabaseAdmin.from('bots').select('id', { count: 'exact', head: true }).eq('is_active', true),
-    addUntil(supabaseAdmin.from('payments').select('plan:plans(price)').eq('status', 'paid').gte('created_at', since)),
+    addUntil(supabaseAdmin.from('payments').select('plan_price, plan:plans(price)').eq('status', 'paid').gte('created_at', since)),
     addUntil(supabaseAdmin.from('payments').select('id', { count: 'exact', head: true }).eq('status', 'paid').gte('created_at', since)),
     supabaseAdmin.from('subscriptions').select('id', { count: 'exact', head: true }).eq('status', 'active'),
     addUntil(
@@ -52,7 +52,9 @@ async function getStats(period: string) {
   ])
 
   const totalRevenue = (revenue.data ?? []).reduce((acc, p) => {
-    const price = (p.plan as unknown as { price: number } | null)?.price ?? 0
+    const price = (p.plan as unknown as { price: number } | null)?.price
+      ?? (p as unknown as { plan_price?: number }).plan_price
+      ?? 0
     return acc + Number(price)
   }, 0)
 

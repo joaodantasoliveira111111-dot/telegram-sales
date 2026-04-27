@@ -23,7 +23,7 @@ async function getData(period: string) {
     addUntil(
       supabaseAdmin
         .from('payments')
-        .select('plan_id, bot_id, created_at, plan:plans(name, price)')
+        .select('plan_id, bot_id, created_at, plan_name, plan_price, plan:plans(name, price)')
         .eq('status', 'paid')
         .gte('created_at', since)
     ),
@@ -47,15 +47,19 @@ async function getData(period: string) {
   const users = telegramUsers.data ?? []
   const botList = bots.data ?? []
 
-  const totalRevenue = paid.reduce((acc, p) => acc + Number((p.plan as unknown as { price: number } | null)?.price ?? 0), 0)
+  const totalRevenue = paid.reduce((acc, p) => {
+    const price = (p.plan as unknown as { price: number } | null)?.price ?? (p as unknown as { plan_price: number }).plan_price ?? 0
+    return acc + Number(price)
+  }, 0)
   const totalSales = paid.length
   const avgTicket = totalSales > 0 ? totalRevenue / totalSales : 0
 
   const planMap: Record<string, { name: string; revenue: number; sales: number }> = {}
   for (const p of paid) {
-    const id = p.plan_id as string
-    const name = (p.plan as unknown as { name: string } | null)?.name ?? 'Sem nome'
-    const price = Number((p.plan as unknown as { price: number } | null)?.price ?? 0)
+    const id = (p.plan_id ?? 'deleted') as string
+    const snap = p as unknown as { plan_name?: string; plan_price?: number }
+    const name = (p.plan as unknown as { name: string } | null)?.name ?? snap.plan_name ?? '(plano excluído)'
+    const price = Number((p.plan as unknown as { price: number } | null)?.price ?? snap.plan_price ?? 0)
     if (!planMap[id]) planMap[id] = { name, revenue: 0, sales: 0 }
     planMap[id].revenue += price
     planMap[id].sales++

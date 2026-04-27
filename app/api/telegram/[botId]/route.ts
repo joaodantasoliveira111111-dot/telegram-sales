@@ -175,12 +175,14 @@ async function handleCallbackQuery(bot: Record<string, unknown>, update: Telegra
     return
   }
 
-  // Create payment record
+  // Create payment record (snapshot plan name/price so history survives plan deletion)
   const { data: payment, error: paymentError } = await supabaseAdmin
     .from('payments')
     .insert({
       bot_id: bot.id,
       plan_id: planId,
+      plan_name: plan.name,
+      plan_price: plan.price,
       telegram_id: String(from.id),
       status: 'pending',
     })
