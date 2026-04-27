@@ -12,11 +12,28 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
   useEffect(() => { setOpen(false) }, [pathname])
 
   return (
-    <div className="flex h-screen bg-zinc-950 text-zinc-100">
+    <div className="relative flex h-screen overflow-hidden" style={{ background: '#07071a' }}>
+      {/* Background blobs */}
+      <div className="pointer-events-none fixed inset-0 overflow-hidden">
+        <div
+          className="blob-1 absolute -top-40 -left-40 h-[600px] w-[600px] rounded-full opacity-[0.12]"
+          style={{ background: 'radial-gradient(circle, #3b82f6 0%, transparent 70%)' }}
+        />
+        <div
+          className="blob-2 absolute top-1/2 -right-60 h-[500px] w-[500px] rounded-full opacity-[0.08]"
+          style={{ background: 'radial-gradient(circle, #8b5cf6 0%, transparent 70%)' }}
+        />
+        <div
+          className="blob-3 absolute -bottom-32 left-1/3 h-[400px] w-[400px] rounded-full opacity-[0.07]"
+          style={{ background: 'radial-gradient(circle, #06b6d4 0%, transparent 70%)' }}
+        />
+      </div>
+
       {/* Mobile overlay */}
       {open && (
         <div
-          className="fixed inset-0 z-40 bg-black/70 backdrop-blur-sm lg:hidden"
+          className="fixed inset-0 z-40 backdrop-blur-sm lg:hidden"
+          style={{ background: 'rgba(7,7,26,0.75)' }}
           onClick={() => setOpen(false)}
         />
       )}
@@ -35,19 +52,23 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
       {/* Content */}
       <div className="flex min-w-0 flex-1 flex-col overflow-hidden">
         {/* Mobile header */}
-        <header className="flex h-14 shrink-0 items-center gap-3 border-b border-zinc-800/60 bg-zinc-950/95 px-4 backdrop-blur lg:hidden">
+        <header
+          className="flex h-14 shrink-0 items-center gap-3 border-b px-4 backdrop-blur-2xl lg:hidden"
+          style={{ borderColor: 'rgba(255,255,255,0.07)', background: 'rgba(7,7,26,0.85)' }}
+        >
           <button
             onClick={() => setOpen(true)}
-            className="rounded-lg p-1.5 text-zinc-400 transition-colors hover:bg-zinc-800 hover:text-zinc-200"
+            className="rounded-xl p-2 text-slate-400 transition-all hover:text-slate-200"
+            style={{ background: 'rgba(255,255,255,0.06)' }}
             aria-label="Abrir menu"
           >
-            <Menu className="h-5 w-5" />
+            <Menu className="h-4 w-4" />
           </button>
-          <div className="flex items-center gap-2">
-            <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-blue-600">
+          <div className="flex items-center gap-2.5">
+            <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br from-blue-500 to-blue-700 shadow-lg shadow-blue-500/30">
               <Zap className="h-3.5 w-3.5 text-white" />
             </div>
-            <span className="text-sm font-bold text-zinc-100">TelegramSales</span>
+            <span className="text-sm font-bold text-slate-100">TelegramSales</span>
           </div>
         </header>
 

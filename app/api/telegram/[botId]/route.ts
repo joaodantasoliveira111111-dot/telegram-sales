@@ -72,13 +72,19 @@ async function handleStart(bot: Record<string, unknown>, update: TelegramUpdate)
     { onConflict: 'bot_id,telegram_id' }
   )
 
+  const botPixel = {
+    pixelId: bot.meta_pixel_id as string | undefined,
+    accessToken: bot.meta_access_token as string | undefined,
+    testEventCode: bot.meta_test_event_code as string | undefined,
+  }
+
   // Fire ViewContent event (non-blocking)
   sendViewContentEvent({
     eventId: `view_${bot.id}_${from.id}_${Date.now()}`,
     telegramId: String(from.id),
     firstName: from.first_name,
     botName: bot.name as string,
-  }).catch(() => {})
+  }, botPixel).catch(() => {})
 
   const token = bot.telegram_token as string
   const welcomeMsg = bot.welcome_message as string
@@ -184,6 +190,15 @@ async function handleCallbackQuery(bot: Record<string, unknown>, update: Telegra
     return
   }
 
+  // Instant feedback — user knows something is happening
+  await sendMessage(token, chatId, '⏳ Um momento, estou gerando seu Pix...')
+
+  const botPixelCq = {
+    pixelId: bot.meta_pixel_id as string | undefined,
+    accessToken: bot.meta_access_token as string | undefined,
+    testEventCode: bot.meta_test_event_code as string | undefined,
+  }
+
   // Fire InitiateCheckout event (non-blocking)
   sendInitiateCheckoutEvent({
     eventId: `checkout_${planId}_${from.id}_${Date.now()}`,
@@ -192,7 +207,7 @@ async function handleCallbackQuery(bot: Record<string, unknown>, update: Telegra
     planId: planId,
     telegramId: String(from.id),
     firstName: from.first_name,
-  }).catch(() => {})
+  }, botPixelCq).catch(() => {})
 
   // Create payment record (snapshot plan name/price so history survives plan deletion)
   const { data: payment, error: paymentError } = await supabaseAdmin

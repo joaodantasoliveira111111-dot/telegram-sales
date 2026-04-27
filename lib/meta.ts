@@ -15,7 +15,13 @@ function hashPhone(phone: string): string {
   return hash(normalized)
 }
 
-async function getPixelConfig() {
+interface BotPixelOverride {
+  pixelId?: string
+  accessToken?: string
+  testEventCode?: string
+}
+
+async function getPixelConfig(botOverride?: BotPixelOverride) {
   const s = await getSettings([
     'meta_pixel_id',
     'meta_access_token',
@@ -25,9 +31,9 @@ async function getPixelConfig() {
     'meta_track_view_content',
   ])
   return {
-    pixelId: s.meta_pixel_id || process.env.META_PIXEL_ID || '',
-    accessToken: s.meta_access_token || process.env.META_ACCESS_TOKEN || '',
-    testEventCode: s.meta_test_event_code || process.env.META_TEST_EVENT_CODE || '',
+    pixelId: botOverride?.pixelId || s.meta_pixel_id || process.env.META_PIXEL_ID || '',
+    accessToken: botOverride?.accessToken || s.meta_access_token || process.env.META_ACCESS_TOKEN || '',
+    testEventCode: botOverride?.testEventCode || s.meta_test_event_code || process.env.META_TEST_EVENT_CODE || '',
     trackPurchase: s.meta_track_purchase !== 'false',
     trackInitiateCheckout: s.meta_track_initiate_checkout !== 'false',
     trackViewContent: s.meta_track_view_content === 'true',
@@ -101,8 +107,8 @@ interface PurchaseEventData {
   phone?: string
 }
 
-export async function sendPurchaseEvent(data: PurchaseEventData) {
-  const cfg = await getPixelConfig()
+export async function sendPurchaseEvent(data: PurchaseEventData, botPixel?: BotPixelOverride) {
+  const cfg = await getPixelConfig(botPixel)
   if (!cfg.pixelId || !cfg.accessToken || !cfg.trackPurchase) return
 
   await sendEvent(cfg.pixelId, cfg.accessToken, cfg.testEventCode, {
@@ -141,8 +147,8 @@ interface InitiateCheckoutData {
   firstName?: string
 }
 
-export async function sendInitiateCheckoutEvent(data: InitiateCheckoutData) {
-  const cfg = await getPixelConfig()
+export async function sendInitiateCheckoutEvent(data: InitiateCheckoutData, botPixel?: BotPixelOverride) {
+  const cfg = await getPixelConfig(botPixel)
   if (!cfg.pixelId || !cfg.accessToken || !cfg.trackInitiateCheckout) return
 
   await sendEvent(cfg.pixelId, cfg.accessToken, cfg.testEventCode, {
@@ -176,8 +182,8 @@ interface ViewContentData {
   botName?: string
 }
 
-export async function sendViewContentEvent(data: ViewContentData) {
-  const cfg = await getPixelConfig()
+export async function sendViewContentEvent(data: ViewContentData, botPixel?: BotPixelOverride) {
+  const cfg = await getPixelConfig(botPixel)
   if (!cfg.pixelId || !cfg.accessToken || !cfg.trackViewContent) return
 
   await sendEvent(cfg.pixelId, cfg.accessToken, cfg.testEventCode, {

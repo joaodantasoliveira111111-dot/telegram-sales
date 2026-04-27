@@ -14,5 +14,5 @@ INSERT INTO settings (key, value) VALUES
   ('meta_test_event_code', ''),
   ('meta_track_purchase', 'true'),
   ('meta_track_initiate_checkout', 'true'),
-  ('meta_track_view_content', 'false')
+  ('meta_track_view_content', 'true')
 ON CONFLICT (key) DO NOTHING;

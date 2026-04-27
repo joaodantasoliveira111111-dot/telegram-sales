@@ -3,33 +3,35 @@
 import { useState } from 'react'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { Plus, Send, Megaphone, Loader2, Users, UserX, Clock, UserCheck, RefreshCw } from 'lucide-react'
+import { Plus, Send, Megaphone, Loader2, Users, UserX, Clock, UserCheck, RefreshCw, Pencil, Trash2 } from 'lucide-react'
 import { BroadcastForm } from './broadcast-form'
 import { formatDate } from '@/lib/utils'
 
 const targetLabels: Record<string, { label: string; icon: typeof Users }> = {
-  all: { label: 'Todos os usuários', icon: Users },
-  unpaid: { label: 'Não pagaram', icon: UserX },
-  expired: { label: 'Expirados', icon: Clock },
-  active: { label: 'Assinantes ativos', icon: UserCheck },
+  all:     { label: 'Todos os usuários',   icon: Users },
+  unpaid:  { label: 'Não pagaram',         icon: UserX },
+  expired: { label: 'Expirados',           icon: Clock },
+  active:  { label: 'Assinantes ativos',   icon: UserCheck },
 }
 
 const statusVariants: Record<string, 'secondary' | 'warning' | 'success'> = {
-  draft: 'secondary',
-  sending: 'warning',
-  sent: 'success',
+  draft:     'secondary',
+  scheduled: 'warning',
+  sending:   'warning',
+  sent:      'success',
 }
 
 const statusLabels: Record<string, string> = {
-  draft: 'Rascunho',
-  sending: 'Enviando...',
-  sent: 'Enviado',
+  draft:     'Rascunho',
+  scheduled: 'Agendado',
+  sending:   'Enviando...',
+  sent:      'Enviado',
 }
 
 interface Broadcast {
   id: string
+  bot_id?: string
   name: string
   message_text: string
   target_type: string
@@ -45,9 +47,16 @@ interface BroadcastListProps {
   bots: { id: string; name: string; telegram_token: string }[]
 }
 
+const cardStyle: React.CSSProperties = {
+  background: 'rgba(255,255,255,0.03)',
+  border: '1px solid rgba(255,255,255,0.08)',
+  backdropFilter: 'blur(20px)',
+}
+
 export function BroadcastList({ initialBroadcasts, bots }: BroadcastListProps) {
   const [broadcasts, setBroadcasts] = useState(initialBroadcasts)
   const [showForm, setShowForm] = useState(false)
+  const [editingBroadcast, setEditingBroadcast] = useState<Broadcast | null>(null)
   const [sending, setSending] = useState<string | null>(null)
   const [runningCron, setRunningCron] = useState(false)
 
@@ -97,39 +106,66 @@ export function BroadcastList({ initialBroadcasts, bots }: BroadcastListProps) {
     }
   }
 
+  async function handleDelete(id: string) {
+    if (!confirm('Excluir esta transmissão?')) return
+    const res = await fetch(`/api/broadcasts/${id}`, { method: 'DELETE' })
+    if (res.ok) {
+      setBroadcasts((prev) => prev.filter((b) => b.id !== id))
+      toast.success('Transmissão excluída')
+    }
+  }
+
   function handleSaved(broadcast: Broadcast) {
-    setBroadcasts((prev) => [broadcast, ...prev])
-    setShowForm(false)
+    if (editingBroadcast) {
+      setBroadcasts((prev) => prev.map((b) => (b.id === broadcast.id ? broadcast : b)))
+      setEditingBroadcast(null)
+    } else {
+      setBroadcasts((prev) => [broadcast, ...prev])
+      setShowForm(false)
+    }
   }
 
   return (
     <div>
-      <div className="mb-4 flex justify-end gap-2">
-        <Button variant="outline" onClick={handleRunScheduled} disabled={runningCron}>
+      <div className="mb-5 flex justify-end gap-2">
+        <Button variant="outline" onClick={handleRunScheduled} disabled={runningCron} size="sm">
           {runningCron ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <RefreshCw className="mr-2 h-4 w-4" />}
           Processar Agendados
         </Button>
-        <Button onClick={() => setShowForm(true)}>
-          <Plus className="mr-2 h-4 w-4" />
+        <Button onClick={() => { setEditingBroadcast(null); setShowForm(true) }} size="sm">
+          <Plus className="h-4 w-4" />
           Nova Transmissão
         </Button>
       </div>
 
-      {showForm && (
-        <div className="mb-6">
+      {(showForm || editingBroadcast) && (
+        <div className="mb-5 animate-fade-up">
           <BroadcastForm
             bots={bots}
+            broadcast={editingBroadcast ?? undefined}
             onSaved={handleSaved}
-            onCancel={() => setShowForm(false)}
+            onCancel={() => { setShowForm(false); setEditingBroadcast(null) }}
           />
         </div>
       )}
 
-      {broadcasts.length === 0 ? (
-        <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-zinc-700 py-16 text-center">
-          <Megaphone className="mb-3 h-10 w-10 text-zinc-600" />
-          <p className="text-zinc-400">Nenhuma transmissão criada</p>
-          <p className="text-sm text-zinc-600">Crie uma para enviar remarketing</p>
+      {broadcasts.length === 0 && !showForm ? (
+        <div
+          className="flex flex-col items-center justify-center rounded-2xl border-2 border-dashed py-16 text-center"
+          style={{ borderColor: 'rgba(255,255,255,0.07)' }}
+        >
+          <div
+            className="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl"
+            style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }}
+          >
+            <Megaphone className="h-7 w-7 text-slate-600" />
+          </div>
+          <p className="font-medium text-slate-400">Nenhuma transmissão criada</p>
+          <p className="mt-1 text-sm text-slate-600">Crie uma para enviar remarketing aos seus usuários</p>
+          <Button className="mt-4" size="sm" onClick={() => setShowForm(true)}>
+            <Plus className="h-4 w-4" />
+            Nova Transmissão
+          </Button>
         </div>
       ) : (
         <div className="grid gap-4 sm:grid-cols-2">
@@ -139,73 +175,84 @@ export function BroadcastList({ initialBroadcasts, bots }: BroadcastListProps) {
             const isSending = sending === b.id
 
             return (
-              <Card key={b.id} className="border-zinc-800 bg-zinc-900/60">
-                <CardHeader className="flex flex-row items-start justify-between pb-3">
-                  <div className="flex-1 min-w-0">
-                    <CardTitle className="truncate text-base text-zinc-100">{b.name}</CardTitle>
-                    <p className="text-xs text-zinc-500">{b.bot?.name}</p>
+              <div key={b.id} className="rounded-2xl p-5 transition-all duration-200 hover:border-white/[0.13]" style={cardStyle}>
+                <div className="mb-3 flex items-start justify-between gap-3">
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate font-semibold text-slate-100">{b.name}</p>
+                    <p className="text-xs text-slate-500">{b.bot?.name}</p>
                   </div>
                   <Badge variant={statusVariants[b.status] ?? 'secondary'}>
                     {statusLabels[b.status] ?? b.status}
                   </Badge>
-                </CardHeader>
-                <CardContent className="space-y-3">
-                  <p className="line-clamp-2 text-sm text-zinc-400">{b.message_text}</p>
+                </div>
 
-                  <div className="flex flex-wrap gap-2">
-                    <span className="flex items-center gap-1 rounded-full bg-zinc-800 px-2 py-0.5 text-xs text-zinc-400">
-                      <TargetIcon className="h-3 w-3" />
-                      {target.label}
+                <p className="mb-3 line-clamp-2 text-sm text-slate-500 leading-relaxed">{b.message_text}</p>
+
+                <div className="mb-4 flex flex-wrap gap-1.5">
+                  <span
+                    className="flex items-center gap-1 rounded-full px-2 py-0.5 text-xs text-slate-400"
+                    style={{ background: 'rgba(255,255,255,0.06)' }}
+                  >
+                    <TargetIcon className="h-3 w-3" />
+                    {target.label}
+                  </span>
+                  {b.media_type && (
+                    <span className="rounded-full px-2 py-0.5 text-xs text-slate-400" style={{ background: 'rgba(255,255,255,0.06)' }}>
+                      {b.media_type === 'image' ? '📷 Imagem' : '🎥 Vídeo'}
                     </span>
-                    {b.media_type && (
-                      <span className="rounded-full bg-zinc-800 px-2 py-0.5 text-xs text-zinc-400">
-                        {b.media_type === 'image' ? '📷 Imagem' : '🎥 Vídeo'}
-                      </span>
-                    )}
-                    {b.status === 'sent' && (
-                      <span className="rounded-full bg-green-900/40 px-2 py-0.5 text-xs text-green-400">
-                        ✓ {b.sent_count} enviados
-                      </span>
-                    )}
-                  </div>
+                  )}
+                  {b.status === 'sent' && (
+                    <span className="rounded-full px-2 py-0.5 text-xs text-emerald-400" style={{ background: 'rgba(52,211,153,0.1)' }}>
+                      ✓ {b.sent_count} enviados
+                    </span>
+                  )}
+                </div>
 
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs text-zinc-600">{formatDate(b.created_at)}</span>
-                    <div className="flex gap-2">
-                      {b.status === 'draft' && (
-                        <Button
-                          size="sm"
-                          onClick={() => handleSend(b.id)}
-                          disabled={isSending}
-                          className="bg-blue-600 hover:bg-blue-700"
-                        >
-                          {isSending ? (
-                            <Loader2 className="mr-1.5 h-3 w-3 animate-spin" />
-                          ) : (
-                            <Send className="mr-1.5 h-3 w-3" />
-                          )}
-                          Enviar
-                        </Button>
-                      )}
-                      {b.status === 'sent' && (
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => handleSend(b.id, true)}
-                          disabled={isSending}
-                        >
-                          {isSending ? (
-                            <Loader2 className="mr-1.5 h-3 w-3 animate-spin" />
-                          ) : (
-                            <RefreshCw className="mr-1.5 h-3 w-3" />
-                          )}
-                          Reenviar para novos
-                        </Button>
-                      )}
-                    </div>
+                <div className="flex items-center justify-between gap-2">
+                  <span className="text-xs text-slate-600">{formatDate(b.created_at)}</span>
+                  <div className="flex gap-1.5">
+                    {/* Edit (draft/scheduled only) */}
+                    {(b.status === 'draft' || b.status === 'scheduled') && (
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => { setEditingBroadcast(b); setShowForm(false) }}
+                      >
+                        <Pencil className="h-3.5 w-3.5" />
+                      </Button>
+                    )}
+
+                    {/* Send draft */}
+                    {b.status === 'draft' && (
+                      <Button
+                        size="sm"
+                        onClick={() => handleSend(b.id)}
+                        disabled={isSending}
+                      >
+                        {isSending ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Send className="h-3.5 w-3.5" />}
+                        Enviar
+                      </Button>
+                    )}
+
+                    {/* Resend */}
+                    {b.status === 'sent' && (
+                      <Button size="sm" variant="outline" onClick={() => handleSend(b.id, true)} disabled={isSending}>
+                        {isSending ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <RefreshCw className="h-3.5 w-3.5" />}
+                        Reenviar
+                      </Button>
+                    )}
+
+                    {/* Delete */}
+                    <Button
+                      size="sm"
+                      variant="destructive"
+                      onClick={() => handleDelete(b.id)}
+                    >
+                      <Trash2 className="h-3.5 w-3.5" />
+                    </Button>
                   </div>
-                </CardContent>
-              </Card>
+                </div>
+              </div>
             )
           })}
         </div>

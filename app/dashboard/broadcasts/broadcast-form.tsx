@@ -10,24 +10,38 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { MediaUpload } from '@/components/media-upload'
 import { Loader2, Calendar } from 'lucide-react'
 
+interface BroadcastData {
+  id?: string
+  bot_id?: string
+  name?: string
+  message_text?: string
+  media_url?: string | null
+  media_type?: string | null
+  target_type?: string
+  scheduled_at?: string | null
+  status?: string
+}
+
 interface BroadcastFormProps {
   bots: { id: string; name: string }[]
+  broadcast?: BroadcastData
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   onSaved: (b: any) => void
   onCancel: () => void
 }
 
-export function BroadcastForm({ bots, onSaved, onCancel }: BroadcastFormProps) {
+export function BroadcastForm({ bots, broadcast, onSaved, onCancel }: BroadcastFormProps) {
+  const isEdit = !!broadcast?.id
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [form, setForm] = useState({
-    bot_id: bots[0]?.id ?? '',
-    name: '',
-    message_text: '',
-    media_url: '',
-    media_type: '',
-    target_type: 'unpaid',
-    scheduled_at: '',
+    bot_id: broadcast?.bot_id ?? bots[0]?.id ?? '',
+    name: broadcast?.name ?? '',
+    message_text: broadcast?.message_text ?? '',
+    media_url: broadcast?.media_url ?? '',
+    media_type: broadcast?.media_type ?? '',
+    target_type: broadcast?.target_type ?? 'unpaid',
+    scheduled_at: broadcast?.scheduled_at ?? '',
   })
 
   async function handleSubmit(e: React.FormEvent) {
@@ -35,15 +49,18 @@ export function BroadcastForm({ bots, onSaved, onCancel }: BroadcastFormProps) {
     setError('')
     setLoading(true)
     try {
-      const res = await fetch('/api/broadcasts', {
-        method: 'POST',
+      const url = isEdit ? `/api/broadcasts/${broadcast!.id}` : '/api/broadcasts'
+      const method = isEdit ? 'PATCH' : 'POST'
+
+      const res = await fetch(url, {
+        method,
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           ...form,
           media_url: form.media_url || null,
           media_type: form.media_type || null,
           scheduled_at: form.scheduled_at || null,
-          status: form.scheduled_at ? 'scheduled' : 'draft',
+          ...(!isEdit && { status: form.scheduled_at ? 'scheduled' : 'draft' }),
         }),
       })
       const data = await res.json()
@@ -55,30 +72,29 @@ export function BroadcastForm({ bots, onSaved, onCancel }: BroadcastFormProps) {
   }
 
   const targets = [
-    { value: 'unpaid', label: '🎯 Não pagaram — remarketing de quem não comprou' },
+    { value: 'unpaid',  label: '🎯 Não pagaram — remarketing de quem não comprou' },
     { value: 'expired', label: '⏰ Expirados — quem tinha acesso mas venceu' },
-    { value: 'active', label: '✅ Assinantes ativos — quem está pagando' },
-    { value: 'all', label: '👥 Todos os usuários do bot' },
+    { value: 'active',  label: '✅ Assinantes ativos — quem está pagando' },
+    { value: 'all',     label: '👥 Todos os usuários do bot' },
   ]
 
-  // Min date = now (for datetime-local input)
   const minDate = new Date().toISOString().slice(0, 16)
 
   return (
-    <Card className="border-zinc-800 bg-zinc-900/60">
+    <Card>
       <CardHeader>
-        <CardTitle className="text-zinc-100">Nova Transmissão</CardTitle>
+        <CardTitle>{isEdit ? 'Editar Transmissão' : 'Nova Transmissão'}</CardTitle>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-4">
           {error && (
-            <p className="rounded-md bg-red-900/40 px-4 py-2 text-sm text-red-300">{error}</p>
+            <p className="rounded-xl px-4 py-2.5 text-sm text-red-300" style={{ background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.2)' }}>{error}</p>
           )}
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-1.5">
               <Label>Bot</Label>
-              <Select value={form.bot_id} onValueChange={(v) => setForm({ ...form, bot_id: v })}>
+              <Select value={form.bot_id} onValueChange={(v) => setForm({ ...form, bot_id: v })} disabled={isEdit}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
                   {bots.map((b) => <SelectItem key={b.id} value={b.id}>{b.name}</SelectItem>)}
@@ -117,7 +133,7 @@ export function BroadcastForm({ bots, onSaved, onCancel }: BroadcastFormProps) {
               onChange={(e) => setForm({ ...form, message_text: e.target.value })}
               required
             />
-            <p className="text-xs text-zinc-600">HTML: &lt;b&gt;negrito&lt;/b&gt; • &lt;i&gt;itálico&lt;/i&gt; • &lt;code&gt;código&lt;/code&gt;</p>
+            <p className="text-xs text-slate-600">HTML: &lt;b&gt;negrito&lt;/b&gt; • &lt;i&gt;itálico&lt;/i&gt; • &lt;code&gt;código&lt;/code&gt;</p>
           </div>
 
           <div className="space-y-1.5">
@@ -141,9 +157,8 @@ export function BroadcastForm({ bots, onSaved, onCancel }: BroadcastFormProps) {
               min={minDate}
               value={form.scheduled_at}
               onChange={(e) => setForm({ ...form, scheduled_at: e.target.value })}
-              className="text-zinc-300"
             />
-            <p className="text-xs text-zinc-600">
+            <p className="text-xs text-slate-600">
               Deixe vazio para salvar como rascunho e enviar manualmente
             </p>
           </div>
@@ -152,7 +167,7 @@ export function BroadcastForm({ bots, onSaved, onCancel }: BroadcastFormProps) {
             <Button type="button" variant="outline" onClick={onCancel}>Cancelar</Button>
             <Button type="submit" disabled={loading}>
               {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              {form.scheduled_at ? 'Agendar Envio' : 'Salvar Rascunho'}
+              {isEdit ? 'Salvar alterações' : form.scheduled_at ? 'Agendar Envio' : 'Salvar Rascunho'}
             </Button>
           </div>
         </form>

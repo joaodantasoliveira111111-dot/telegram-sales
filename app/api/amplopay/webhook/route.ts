@@ -68,6 +68,12 @@ export async function POST(request: NextRequest) {
     const bot = payment.bot
     const expiresAt = addDays(new Date(), plan.duration_days)
 
+    const botPixel = {
+      pixelId: bot.meta_pixel_id || undefined,
+      accessToken: bot.meta_access_token || undefined,
+      testEventCode: bot.meta_test_event_code || undefined,
+    }
+
     // Dispara evento Purchase no Meta CAPI
     sendPurchaseEvent({
       eventId: `payment_${payment.id}`,
@@ -76,7 +82,7 @@ export async function POST(request: NextRequest) {
       planId: String(payment.plan_id ?? plan.id),
       paymentId: String(payment.id),
       telegramId: String(payment.telegram_id),
-    }).catch((err) => console.error('[Meta CAPI] erro:', err))
+    }, botPixel).catch((err) => console.error('[Meta CAPI] erro:', err))
 
     await supabaseAdmin.from('subscriptions').insert({
       bot_id: payment.bot_id,

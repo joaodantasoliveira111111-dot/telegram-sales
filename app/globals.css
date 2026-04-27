@@ -1,15 +1,48 @@
 @import "tailwindcss";
 
 :root {
-  --background: #09090b;
-  --foreground: #fafafa;
+  --background: #07071a;
+  --foreground: #f1f5f9;
 }
 
 body {
-  background: var(--background);
+  background-color: var(--background);
   color: var(--foreground);
+  font-feature-settings: "cv11", "ss01";
+  -webkit-font-smoothing: antialiased;
 }
 
 * {
   box-sizing: border-box;
 }
+
+/* Animated background blobs */
+@keyframes blob-drift {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33% { transform: translate(40px, -60px) scale(1.08); }
+  66% { transform: translate(-30px, 30px) scale(0.94); }
+}
+
+@keyframes fade-in-up {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 20px rgba(59, 130, 246, 0.2); }
+  50%       { box-shadow: 0 0 40px rgba(59, 130, 246, 0.4); }
+}
+
+.blob-1 { animation: blob-drift 28s ease-in-out infinite; }
+.blob-2 { animation: blob-drift 22s ease-in-out infinite reverse; animation-delay: -9s; }
+.blob-3 { animation: blob-drift 18s ease-in-out infinite; animation-delay: -5s; }
+
+.animate-fade-up { animation: fade-in-up 0.35s ease-out both; }
+.animate-fade-up-delay { animation: fade-in-up 0.35s ease-out 0.08s both; }
+.animate-pulse-glow { animation: pulse-glow 3s ease-in-out infinite; }
+
+/* Custom scrollbar */
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 99px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.2); }

@@ -5,7 +5,7 @@ import { usePathname, useRouter } from 'next/navigation'
 import {
   Bot, CreditCard, LayoutDashboard, ListOrdered, Users,
   Megaphone, Zap, TrendingUp, Package, BarChart2, MessageSquare, X,
-  Settings, LogOut,
+  Settings, LogOut, ChevronRight, Link2,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
@@ -21,6 +21,7 @@ const navGroups = [
     label: 'Produtos',
     items: [
       { href: '/dashboard/bots', label: 'Bots', icon: Bot },
+      { href: '/dashboard/telegram-connect', label: 'Conectar Telegram', icon: Link2 },
       { href: '/dashboard/plans', label: 'Planos', icon: ListOrdered },
       { href: '/dashboard/account-stock', label: 'Estoque de Contas', icon: Package },
       { href: '/dashboard/messages', label: 'Mensagens do Bot', icon: MessageSquare },
@@ -42,6 +43,22 @@ const navGroups = [
   },
 ]
 
+const glass = {
+  sidebar: {
+    background: 'rgba(5,5,20,0.92)',
+    borderRight: '1px solid rgba(255,255,255,0.07)',
+    backdropFilter: 'blur(40px)',
+  } as React.CSSProperties,
+  activeItem: {
+    background: 'linear-gradient(135deg, rgba(59,130,246,0.18) 0%, rgba(139,92,246,0.08) 100%)',
+    border: '1px solid rgba(59,130,246,0.25)',
+  } as React.CSSProperties,
+  infoCard: {
+    background: 'rgba(255,255,255,0.03)',
+    border: '1px solid rgba(255,255,255,0.07)',
+  } as React.CSSProperties,
+}
+
 interface SidebarProps {
   onClose?: () => void
 }
@@ -57,22 +74,32 @@ export function Sidebar({ onClose }: SidebarProps) {
   }
 
   return (
-    <aside className="flex h-full w-64 flex-col border-r border-zinc-800/60 bg-zinc-900">
+    <aside
+      className="flex h-full w-64 flex-col"
+      style={glass.sidebar}
+    >
       {/* Logo */}
       <div className="flex h-16 shrink-0 items-center justify-between px-5">
         <div className="flex items-center gap-3">
-          <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-blue-600 shadow-lg shadow-blue-600/30">
-            <Zap className="h-4 w-4 text-white" />
+          <div
+            className="flex h-9 w-9 items-center justify-center rounded-xl shadow-lg"
+            style={{
+              background: 'linear-gradient(135deg, #3b82f6 0%, #6366f1 100%)',
+              boxShadow: '0 0 20px rgba(59,130,246,0.35), inset 0 1px 0 rgba(255,255,255,0.2)',
+            }}
+          >
+            <Zap className="h-4.5 w-4.5 text-white" />
           </div>
           <div className="leading-tight">
-            <p className="text-sm font-bold text-zinc-100">TelegramSales</p>
-            <p className="text-[10px] text-zinc-500">Painel de Controle</p>
+            <p className="text-sm font-bold text-slate-100 tracking-tight">TelegramSales</p>
+            <p className="text-[10px] text-slate-500 tracking-wide">Painel de Controle</p>
           </div>
         </div>
         {onClose && (
           <button
             onClick={onClose}
-            className="rounded-lg p-1 text-zinc-500 transition-colors hover:text-zinc-300 lg:hidden"
+            className="rounded-lg p-1.5 text-slate-500 transition-colors hover:text-slate-300 lg:hidden"
+            style={{ background: 'rgba(255,255,255,0.05)' }}
           >
             <X className="h-4 w-4" />
           </button>
@@ -80,13 +107,13 @@ export function Sidebar({ onClose }: SidebarProps) {
       </div>
 
       {/* Divider */}
-      <div className="mx-4 border-t border-zinc-800/60" />
+      <div className="mx-4 h-px" style={{ background: 'rgba(255,255,255,0.06)' }} />
 
       {/* Nav */}
-      <nav className="flex flex-1 flex-col gap-6 overflow-y-auto px-3 py-5">
+      <nav className="flex flex-1 flex-col gap-5 overflow-y-auto px-3 py-5">
         {navGroups.map((group) => (
           <div key={group.label}>
-            <p className="mb-2 px-2 text-[10px] font-semibold uppercase tracking-widest text-zinc-600">
+            <p className="mb-2 px-2.5 text-[9px] font-bold uppercase tracking-[0.12em] text-slate-600">
               {group.label}
             </p>
             <div className="flex flex-col gap-0.5">
@@ -97,21 +124,31 @@ export function Sidebar({ onClose }: SidebarProps) {
                     key={href}
                     href={href}
                     className={cn(
-                      'group flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-150',
-                      active
-                        ? 'bg-blue-600/15 text-blue-400'
-                        : 'text-zinc-500 hover:bg-zinc-800/70 hover:text-zinc-200'
+                      'group relative flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-150',
+                      active ? 'text-blue-300' : 'text-slate-500 hover:text-slate-200'
                     )}
+                    style={active ? glass.activeItem : undefined}
                   >
+                    {!active && (
+                      <div className="absolute inset-0 rounded-xl opacity-0 transition-opacity group-hover:opacity-100"
+                        style={{ background: 'rgba(255,255,255,0.04)' }}
+                      />
+                    )}
                     <Icon
                       className={cn(
-                        'h-4 w-4 shrink-0 transition-colors',
-                        active ? 'text-blue-400' : 'text-zinc-600 group-hover:text-zinc-400'
+                        'relative h-4 w-4 shrink-0 transition-colors',
+                        active ? 'text-blue-400' : 'text-slate-600 group-hover:text-slate-400'
                       )}
                     />
-                    <span className="flex-1">{label}</span>
+                    <span className="relative flex-1">{label}</span>
                     {active && (
-                      <span className="h-1.5 w-1.5 rounded-full bg-blue-500" />
+                      <span
+                        className="h-1.5 w-1.5 shrink-0 rounded-full"
+                        style={{ background: '#3b82f6', boxShadow: '0 0 6px rgba(59,130,246,0.6)' }}
+                      />
+                    )}
+                    {!active && (
+                      <ChevronRight className="relative h-3 w-3 shrink-0 text-slate-700 opacity-0 transition-opacity group-hover:opacity-100" />
                     )}
                   </Link>
                 )
@@ -122,31 +159,35 @@ export function Sidebar({ onClose }: SidebarProps) {
       </nav>
 
       {/* Footer */}
-      <div className="shrink-0 space-y-2 p-4">
+      <div className="shrink-0 space-y-1.5 p-3">
         <Link
           href="/dashboard/settings"
           className={cn(
             'flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all',
             pathname.startsWith('/dashboard/settings')
-              ? 'bg-blue-600/15 text-blue-400'
-              : 'text-zinc-500 hover:bg-zinc-800/70 hover:text-zinc-200'
+              ? 'text-blue-300'
+              : 'text-slate-500 hover:text-slate-200'
           )}
+          style={pathname.startsWith('/dashboard/settings') ? glass.activeItem : { background: 'rgba(255,255,255,0.02)' }}
         >
-          <Settings className={cn('h-4 w-4 shrink-0', pathname.startsWith('/dashboard/settings') ? 'text-blue-400' : 'text-zinc-600')} />
+          <Settings className={cn('h-4 w-4 shrink-0', pathname.startsWith('/dashboard/settings') ? 'text-blue-400' : 'text-slate-600')} />
           Configurações
         </Link>
 
         <button
           onClick={handleLogout}
-          className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-zinc-500 transition-all hover:bg-red-500/10 hover:text-red-400"
+          className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-slate-500 transition-all hover:text-red-400"
+          style={{ background: 'rgba(255,255,255,0.02)' }}
+          onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.background = 'rgba(239,68,68,0.08)' }}
+          onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = 'rgba(255,255,255,0.02)' }}
         >
           <LogOut className="h-4 w-4 shrink-0" />
           Sair
         </button>
 
-        <div className="rounded-xl border border-zinc-800/60 bg-zinc-950/60 px-3 py-2.5">
-          <p className="text-[10px] font-semibold uppercase tracking-wider text-zinc-600">Webhook AmploPay</p>
-          <p className="mt-0.5 break-all font-mono text-[10px] text-zinc-700">
+        <div className="rounded-xl px-3 py-2.5" style={glass.infoCard}>
+          <p className="text-[9px] font-bold uppercase tracking-[0.1em] text-slate-600">Webhook AmploPay</p>
+          <p className="mt-0.5 break-all font-mono text-[10px] text-slate-700">
             /api/amplopay/webhook
           </p>
         </div>
