@@ -5,7 +5,7 @@ import { usePathname, useRouter } from 'next/navigation'
 import {
   Bot, CreditCard, LayoutDashboard, Users,
   Megaphone, Zap, TrendingUp, BarChart2, X,
-  Settings, LogOut, ChevronRight, Link2,
+  Settings, LogOut, ChevronRight, Link2, Shield,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
@@ -30,6 +30,7 @@ const navGroups = [
     items: [
       { href: '/dashboard/broadcasts', label: 'Transmissões', icon: Megaphone },
       { href: '/dashboard/offers', label: 'Upsell & Downsell', icon: TrendingUp },
+      { href: '/dashboard/cloakers', label: 'Cloaker', icon: Shield },
     ],
   },
   {
