@@ -48,6 +48,26 @@ body {
   to   { stroke-dashoffset: 0; }
 }
 
+/* ─── Horizontal marquee ticker ─── */
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+.animate-marquee { animation: marquee 40s linear infinite; }
+
+/* ─── Gentle float (for stat pills) ─── */
+@keyframes float-a {
+  0%, 100% { transform: translateY(0px); }
+  50%       { transform: translateY(-8px); }
+}
+@keyframes float-b {
+  0%, 100% { transform: translateY(0px); }
+  50%       { transform: translateY(8px); }
+}
+.animate-float-a { animation: float-a 4s ease-in-out infinite; }
+.animate-float-b { animation: float-b 5s ease-in-out infinite; animation-delay: -2s; }
+.animate-float-c { animation: float-a 6s ease-in-out infinite; animation-delay: -3s; }
+
 .blob-1 { animation: blob-drift 28s ease-in-out infinite; }
 .blob-2 { animation: blob-drift 22s ease-in-out infinite reverse; animation-delay: -9s; }
 .blob-3 { animation: blob-drift 18s ease-in-out infinite; animation-delay: -5s; }
