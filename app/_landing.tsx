@@ -667,7 +667,7 @@ function Features() {
         desc="Seu bot gera o QR Code, aguarda a confirmação do gateway e libera o acesso imediatamente. Sem você tocar em nada. O cliente paga às 3h da manhã e o bot entrega na hora."
         bullets={[
           'QR Code e copia-e-cola gerados automaticamente',
-          'Confirmação instantânea via AmloPay',
+          'Confirmação instantânea via AmploPay',
           'Entrega de link ou credenciais sem intervalo',
         ]}
         visual={<PixFlowVisual />}
@@ -876,16 +876,84 @@ function HowItWorks() {
   )
 }
 
+// ─── Template niche icons ─────────────────────────────────────────────────────
+
+function IconHot() {
+  return (
+    <svg viewBox="0 0 40 40" width="22" height="22" fill="none">
+      <path d="M20 4C20 4 14 10 14 18c0 3.31 2.69 6 6 6s6-2.69 6-6c0-2-1-4-1-4s3 3 3 7c0 6.63-5.37 12-12 12S4 26.63 4 20C4 11 12 4 20 4z" fill="#f97316" />
+      <path d="M20 14c0 0-3 3-3 7 0 1.66 1.34 3 3 3s3-1.34 3-3c0-1-.5-2-.5-2s1.5 1.5 1.5 3.5c0 3.31-2.69 6-6 6s-6-2.69-6-6c0-4 4-8 4-8" fill="#fbbf24" opacity="0.8" />
+      <circle cx="20" cy="21" r="2.5" fill="#fef3c7" />
+    </svg>
+  )
+}
+
+function IconVip() {
+  return (
+    <svg viewBox="0 0 40 40" width="22" height="22" fill="none">
+      <path d="M20 6l3.09 9.26L33 15l-7.45 5.74L28.18 30 20 25l-8.18 5 2.63-9.26L7 15l9.91.26z" fill="none" stroke="#a78bfa" strokeWidth="2" strokeLinejoin="round" />
+      <path d="M20 8l2.47 7.4L30 15.6l-5.96 4.59 2.1 7.41L20 23.5l-6.14 4.1 2.1-7.41L10 15.6l7.53-.2z" fill="#8b5cf6" opacity="0.6" />
+      <circle cx="20" cy="17" r="3" fill="#c4b5fd" />
+    </svg>
+  )
+}
+
+function IconStreaming() {
+  return (
+    <svg viewBox="0 0 40 40" width="22" height="22" fill="none">
+      <rect x="5" y="9" width="30" height="18" rx="3" stroke="#60a5fa" strokeWidth="2" fill="none" />
+      <path d="M13 27v4M27 27v4M10 31h20" stroke="#60a5fa" strokeWidth="2" strokeLinecap="round" />
+      <polygon points="16,14 16,22 26,18" fill="#3b82f6" />
+      <rect x="5" y="9" width="30" height="18" rx="3" fill="#3b82f6" opacity="0.08" />
+    </svg>
+  )
+}
+
+function IconSoftware() {
+  return (
+    <svg viewBox="0 0 40 40" width="22" height="22" fill="none">
+      <rect x="5" y="7" width="30" height="22" rx="3" stroke="#34d399" strokeWidth="2" fill="none" />
+      <rect x="5" y="7" width="30" height="6" rx="3" fill="#10b981" opacity="0.3" />
+      <circle cx="10" cy="10" r="1.2" fill="#6ee7b7" />
+      <circle cx="14" cy="10" r="1.2" fill="#fcd34d" />
+      <circle cx="18" cy="10" r="1.2" fill="#f87171" />
+      <path d="M11 21l3-3-3-3" stroke="#34d399" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M17 21h6" stroke="#34d399" strokeWidth="1.5" strokeLinecap="round" />
+    </svg>
+  )
+}
+
+function IconCourse() {
+  return (
+    <svg viewBox="0 0 40 40" width="22" height="22" fill="none">
+      <path d="M20 8L4 16l16 8 16-8-16-8z" fill="#fbbf24" opacity="0.8" stroke="#f59e0b" strokeWidth="1.5" strokeLinejoin="round" />
+      <path d="M10 20v8c0 0 4 4 10 4s10-4 10-4v-8" stroke="#f59e0b" strokeWidth="1.5" strokeLinecap="round" fill="none" />
+      <path d="M34 16v8" stroke="#f59e0b" strokeWidth="1.5" strokeLinecap="round" />
+    </svg>
+  )
+}
+
+function IconMentoring() {
+  return (
+    <svg viewBox="0 0 40 40" width="22" height="22" fill="none">
+      <circle cx="15" cy="13" r="5" stroke="#f472b6" strokeWidth="1.8" fill="none" />
+      <path d="M5 32c0-5.52 4.48-10 10-10s10 4.48 10 10" stroke="#f472b6" strokeWidth="1.8" strokeLinecap="round" fill="none" />
+      <path d="M28 18c2.21 0 4-1.79 4-4s-1.79-4-4-4" stroke="#fb7185" strokeWidth="1.8" strokeLinecap="round" fill="none" />
+      <path d="M35 32c0-4.42-3.13-8-7-8.75" stroke="#fb7185" strokeWidth="1.8" strokeLinecap="round" fill="none" />
+    </svg>
+  )
+}
+
 // ─── Templates ────────────────────────────────────────────────────────────────
 
 function Templates() {
   const list = [
-    { emoji: '🔥', name: 'Canal Hot', niche: 'Conteúdo Adulto', tips: ['Anti-vazamento ativo', 'Planos semanal, mensal, trimestral', 'Expulsão automática'] },
-    { emoji: '👑', name: 'Grupo VIP', niche: 'Conteúdo Exclusivo', tips: ['Qualquer nicho', 'Renovação com desconto', 'Funil de apresentação'] },
-    { emoji: '📺', name: 'Streaming', niche: 'Revenda de Contas', tips: ['Estoque gerenciado', 'Entrega imediata', 'Sem intervenção manual'] },
-    { emoji: '💻', name: 'Software', niche: 'Revenda de Contas', tips: ['Login+senha pelo bot', 'Planos recorrentes', 'Reposição fácil'] },
-    { emoji: '🎓', name: 'Curso Online', niche: 'Infoproduto', tips: ['Qualifica antes do preço', 'Acesso vitalício', 'Link externo'] },
-    { emoji: '⚡', name: 'Mentoria', niche: 'Serviços', tips: ['Funil consultivo', 'Cobrança recorrente', 'Direciona para WhatsApp'] },
+    { icon: <IconHot />, iconBg: 'rgba(249,115,22,0.12)', iconBorder: 'rgba(249,115,22,0.25)', name: 'Canal Hot', niche: 'Conteúdo Adulto', tips: ['Anti-vazamento ativo', 'Planos semanal, mensal, trimestral', 'Expulsão automática'] },
+    { icon: <IconVip />, iconBg: 'rgba(139,92,246,0.12)', iconBorder: 'rgba(139,92,246,0.25)', name: 'Grupo VIP', niche: 'Conteúdo Exclusivo', tips: ['Qualquer nicho', 'Renovação com desconto', 'Funil de apresentação'] },
+    { icon: <IconStreaming />, iconBg: 'rgba(59,130,246,0.12)', iconBorder: 'rgba(59,130,246,0.25)', name: 'Streaming', niche: 'Revenda de Contas', tips: ['Estoque gerenciado', 'Entrega imediata', 'Sem intervenção manual'] },
+    { icon: <IconSoftware />, iconBg: 'rgba(16,185,129,0.12)', iconBorder: 'rgba(16,185,129,0.25)', name: 'Software', niche: 'Revenda de Contas', tips: ['Login+senha pelo bot', 'Planos recorrentes', 'Reposição fácil'] },
+    { icon: <IconCourse />, iconBg: 'rgba(245,158,11,0.12)', iconBorder: 'rgba(245,158,11,0.25)', name: 'Curso Online', niche: 'Infoproduto', tips: ['Qualifica antes do preço', 'Acesso vitalício', 'Link externo'] },
+    { icon: <IconMentoring />, iconBg: 'rgba(244,114,182,0.12)', iconBorder: 'rgba(244,114,182,0.25)', name: 'Mentoria', niche: 'Serviços', tips: ['Funil consultivo', 'Cobrança recorrente', 'Direciona para WhatsApp'] },
   ]
   return (
     <section id="templates" className="py-24" style={{ background: '#0c0918' }}>
@@ -899,9 +967,9 @@ function Templates() {
           {list.map((t, i) => (
             <div key={i} data-animate className="opacity-0 rounded-2xl p-6 flex flex-col transition-all hover:scale-[1.01]" style={card}>
               <div className="flex items-start gap-4 mb-5">
-                <div className="flex h-11 w-11 items-center justify-center rounded-xl text-xl shrink-0"
-                  style={{ background: 'rgba(139,92,246,0.12)', border: '1px solid rgba(139,92,246,0.2)' }}>
-                  {t.emoji}
+                <div className="flex h-11 w-11 items-center justify-center rounded-xl shrink-0"
+                  style={{ background: t.iconBg, border: `1px solid ${t.iconBorder}` }}>
+                  {t.icon}
                 </div>
                 <div>
                   <h3 className="font-bold text-white leading-none">{t.name}</h3>
@@ -1001,7 +1069,7 @@ function Pricing() {
     'Bots ilimitados',
     'Todos os tipos de fluxo',
     'Teste A/B de roteiros',
-    'PIX automático (AmloPay)',
+    'PIX automático (AmploPay)',
     'Histórico completo de clientes',
     'Programa de afiliados',
     'Links inteligentes por país',
@@ -1061,7 +1129,7 @@ function FAQ() {
   const items = [
     { q: 'Preciso saber programar para usar o FlowBot?', a: 'Não. O editor é drag-and-drop — você arrasta blocos para montar o roteiro de vendas. Se sabe usar WhatsApp, sabe usar o FlowBot.' },
     { q: 'Quanto tempo leva para o bot entrar no ar?', a: 'Em média 5 minutos. Escolha um template, configure os planos, cole o token do Telegram e pronto — seu bot já aceita pedidos.' },
-    { q: 'O PIX é confiável? Cai na hora?', a: 'Sim. Usamos a AmloPay, especializada em pagamentos para Telegram. A confirmação é instantânea e o acesso é liberado automaticamente na sequência.' },
+    { q: 'O PIX é confiável? Cai na hora?', a: 'Sim. Usamos a AmploPay, especializada em pagamentos para Telegram. A confirmação é instantânea e o acesso é liberado automaticamente na sequência.' },
     { q: 'Posso vender qualquer produto digital?', a: 'Qualquer produto digital: acesso a canal ou grupo, contas de streaming, softwares, cursos, mentorias. O bot entrega links ou credenciais automaticamente após o pagamento.' },
     { q: 'O que é o teste A/B?', a: 'Você cria dois roteiros de venda diferentes e o bot divide o tráfego 50/50 entre eles. Depois de alguns dias, o painel mostra qual converte mais e você desativa o pior.' },
     { q: 'Tem suporte?', a: 'Sim, via Telegram. Retorno em até 4 horas nos dias úteis. Clientes com plano ativo têm prioridade.' },

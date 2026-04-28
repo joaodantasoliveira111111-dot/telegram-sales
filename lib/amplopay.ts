@@ -35,8 +35,8 @@ export interface CreatePixResponse {
   order?: Record<string, unknown>
 }
 
-export async function createPix(data: CreatePixRequest): Promise<CreatePixResponse> {
-  const { publicKey, secretKey } = await getKeys()
+export async function createPix(data: CreatePixRequest, overrideKeys?: { publicKey: string; secretKey: string }): Promise<CreatePixResponse> {
+  const { publicKey, secretKey } = overrideKeys ?? await getKeys()
 
   const res = await fetch(`${AMPLOPAY_BASE_URL}/gateway/pix/receive`, {
     method: 'POST',

@@ -21,7 +21,10 @@ const ADMIN_SETTING_KEYS = [
   'meta_track_initiate_checkout',
   'meta_track_view_content',
   'saas_billing_gateway',
-  'saas_billing_gateway_token',
+  'saas_billing_amplopay_public_key',
+  'saas_billing_amplopay_secret_key',
+  'saas_billing_amplopay_webhook_token',
+  'saas_billing_pushinpay_token',
 ]
 
 export default async function SettingsPage() {

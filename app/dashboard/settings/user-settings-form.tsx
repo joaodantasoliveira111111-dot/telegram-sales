@@ -11,7 +11,7 @@ import { Button } from '@/components/ui/button'
 const PLAN_ORDER = ['pay_per_use', 'starter', 'pro']
 const PLAN_LABELS: Record<string, string> = { pay_per_use: 'Pay-per-use', starter: 'Starter', pro: 'Pro' }
 const PLAN_PRICES: Record<string, number> = { starter: 97, pro: 297 }
-const PLAN_FEE: Record<string, string> = { pay_per_use: 'R$ 0,50/venda', starter: 'R$ 0,35/venda', pro: 'R$ 0,05/venda' }
+const PLAN_FEE: Record<string, string> = { pay_per_use: 'R$ 0,50/venda', starter: 'R$ 0,35/venda', pro: 'R$ 0,25/venda' }
 
 function SecretInput({ value, onChange, placeholder, id }: { value: string; onChange: (v: string) => void; placeholder?: string; id: string }) {
   const [show, setShow] = useState(false)
@@ -187,7 +187,7 @@ export function UserSettingsForm({ userId: _userId, initial }: Props) {
               className="w-full rounded-xl border px-4 py-3 text-sm text-zinc-100 bg-white/5 outline-none transition-all"
               style={{ borderColor: 'rgba(255,255,255,0.1)' }}>
               <option value="">Usar gateway da FlowBot (marketplace)</option>
-              <option value="amplopay">AmloPay</option>
+              <option value="amplopay">AmploPay</option>
               <option value="pushinpay">PushinPay</option>
             </select>
           </div>

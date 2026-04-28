@@ -641,43 +641,68 @@ export function SettingsForm({ initial }: Props) {
       </>)}
 
       {tab === 'saas' && (<>
-        <div className="rounded-2xl overflow-hidden" style={{ border: '1px solid rgba(255,255,255,0.07)' }}>
-          <div className="px-5 py-4" style={{ background: 'rgba(255,255,255,0.03)', borderBottom: '1px solid rgba(255,255,255,0.07)' }}>
-            <p className="text-sm font-semibold text-zinc-100">Gateway de Cobrança SaaS</p>
-            <p className="text-xs text-zinc-500 mt-0.5">Gateway que receberá os pagamentos das mensalidades dos usuários da plataforma</p>
-          </div>
-          <div className="px-5 py-5 space-y-5">
-            <FieldRow label="Gateway" description="Plataforma de pagamento para cobrar assinaturas dos usuários SaaS">
-              <select
-                value={values.saas_billing_gateway ?? ''}
-                onChange={e => set('saas_billing_gateway', e.target.value)}
-                className="w-full rounded-xl border border-zinc-700/60 bg-zinc-800/60 px-4 py-2.5 text-sm text-zinc-100 outline-none transition-all focus:border-blue-500/60 focus:ring-2 focus:ring-blue-500/10"
-              >
-                <option value="amplopay">AmloPay</option>
-                <option value="pushinpay">PushinPay</option>
-              </select>
-            </FieldRow>
-            <FieldRow label="Token / API Key" description="Chave de API do gateway escolhido">
-              <SecretInput
-                value={values.saas_billing_gateway_token ?? ''}
-                onChange={v => set('saas_billing_gateway_token', v)}
-                placeholder="Token do gateway SaaS"
-              />
-            </FieldRow>
-            <div className="flex justify-end pt-2 border-t border-zinc-800">
-              <button
-                onClick={() => saveSection(['saas_billing_gateway', 'saas_billing_gateway_token'])}
-                disabled={saving === 'saas_billing_gateway'}
-                className="flex items-center gap-2 rounded-xl bg-blue-600 px-5 py-2 text-sm font-semibold text-white shadow-lg shadow-blue-600/20 transition-all hover:bg-blue-500 disabled:opacity-60"
-              >
-                {saving === 'saas_billing_gateway'
-                  ? <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                  : <Save className="h-3.5 w-3.5" />}
-                Salvar Gateway SaaS
-              </button>
+        {(() => {
+          const saasGw = values.saas_billing_gateway || 'amplopay'
+          const saasKeys = saasGw === 'amplopay'
+            ? ['saas_billing_gateway', 'saas_billing_amplopay_public_key', 'saas_billing_amplopay_secret_key', 'saas_billing_amplopay_webhook_token']
+            : ['saas_billing_gateway', 'saas_billing_pushinpay_token']
+          return (
+            <div className="rounded-2xl overflow-hidden" style={{ border: '1px solid rgba(255,255,255,0.07)' }}>
+              <div className="px-5 py-4" style={{ background: 'rgba(255,255,255,0.03)', borderBottom: '1px solid rgba(255,255,255,0.07)' }}>
+                <p className="text-sm font-semibold text-zinc-100">Gateway de Cobrança SaaS</p>
+                <p className="text-xs text-zinc-500 mt-0.5">Gateway que receberá os pagamentos das mensalidades dos usuários da plataforma</p>
+              </div>
+              <div className="px-5 py-5 space-y-5">
+                <FieldRow label="Gateway" description="Plataforma de pagamento para cobrar assinaturas dos usuários SaaS">
+                  <select
+                    value={saasGw}
+                    onChange={e => set('saas_billing_gateway', e.target.value)}
+                    className="w-full rounded-xl border border-zinc-700/60 bg-zinc-800/60 px-4 py-2.5 text-sm text-zinc-100 outline-none transition-all focus:border-blue-500/60 focus:ring-2 focus:ring-blue-500/10"
+                  >
+                    <option value="amplopay">AmploPay</option>
+                    <option value="pushinpay">PushinPay</option>
+                  </select>
+                </FieldRow>
+
+                {saasGw === 'amplopay' && (<>
+                  <FieldRow label="Public Key" description="Chave pública AmploPay (x-public-key)">
+                    <SecretInput value={values.saas_billing_amplopay_public_key ?? ''} onChange={v => set('saas_billing_amplopay_public_key', v)} placeholder="pk_..." />
+                  </FieldRow>
+                  <FieldRow label="Secret Key" description="Chave secreta AmploPay (x-secret-key)">
+                    <SecretInput value={values.saas_billing_amplopay_secret_key ?? ''} onChange={v => set('saas_billing_amplopay_secret_key', v)} placeholder="sk_..." />
+                  </FieldRow>
+                  <FieldRow label="Webhook Token" description="Token para validar notificações recebidas da AmploPay">
+                    <SecretInput value={values.saas_billing_amplopay_webhook_token ?? ''} onChange={v => set('saas_billing_amplopay_webhook_token', v)} placeholder="Token secreto do webhook" />
+                  </FieldRow>
+                  <FieldRow label="Webhook URL" description="Configure este endereço no painel da AmploPay">
+                    <div className="flex items-center rounded-xl border border-zinc-700/40 bg-zinc-900/50 px-4 py-2.5">
+                      <code className="text-xs text-zinc-400">/api/saas/billing-webhook</code>
+                    </div>
+                  </FieldRow>
+                </>)}
+
+                {saasGw === 'pushinpay' && (
+                  <FieldRow label="Token / API Key" description="Token de acesso PushinPay">
+                    <SecretInput value={values.saas_billing_pushinpay_token ?? ''} onChange={v => set('saas_billing_pushinpay_token', v)} placeholder="Token PushinPay" />
+                  </FieldRow>
+                )}
+
+                <div className="flex justify-end pt-2 border-t border-zinc-800">
+                  <button
+                    onClick={() => saveSection(saasKeys)}
+                    disabled={saving === 'saas_billing_gateway'}
+                    className="flex items-center gap-2 rounded-xl bg-blue-600 px-5 py-2 text-sm font-semibold text-white shadow-lg shadow-blue-600/20 transition-all hover:bg-blue-500 disabled:opacity-60"
+                  >
+                    {saving === 'saas_billing_gateway'
+                      ? <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                      : <Save className="h-3.5 w-3.5" />}
+                    Salvar Gateway SaaS
+                  </button>
+                </div>
+              </div>
             </div>
-          </div>
-        </div>
+          )
+        })()}
       </>)}
 
     </div>
