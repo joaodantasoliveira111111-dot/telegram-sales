@@ -76,6 +76,7 @@ function Toggle({ checked, onChange, label }: { checked: boolean; onChange: (v: 
 }
 
 export function SettingsForm({ initial }: Props) {
+  const [tab, setTab] = useState<'gateway' | 'pixel'>('gateway')
   const [values, setValues] = useState<Record<string, string>>(initial)
   const [saving, setSaving] = useState<string | null>(null)
   const [testingEvent, setTestingEvent] = useState<string | null>(null)
@@ -117,7 +118,32 @@ export function SettingsForm({ initial }: Props) {
   return (
     <div className="space-y-6">
 
+      {/* Tab selector */}
+      <div
+        className="flex gap-1 rounded-xl p-1 w-fit"
+        style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)' }}
+      >
+        {([
+          { key: 'gateway', label: 'Gateway de Pagamento' },
+          { key: 'pixel',   label: 'Pixel & Marketing' },
+        ] as const).map(({ key, label }) => (
+          <button
+            key={key}
+            type="button"
+            onClick={() => setTab(key)}
+            className="rounded-lg px-4 py-2 text-sm font-semibold transition-all"
+            style={tab === key
+              ? { background: 'rgba(139,92,246,0.25)', color: '#c4b5fd', boxShadow: '0 0 12px rgba(139,92,246,0.15)' }
+              : { color: '#71717a' }
+            }
+          >
+            {label}
+          </button>
+        ))}
+      </div>
+
       {/* Gateways de Pagamento — unified card */}
+      {tab === 'gateway' && (<>
       <Card>
         <CardHeader className="pb-4">
           <CardTitle className="text-base font-semibold text-zinc-100">Gateways de Pagamento</CardTitle>
@@ -246,9 +272,10 @@ export function SettingsForm({ initial }: Props) {
           </div>
         </CardContent>
       </Card>
+      </>)}
 
       {/* Meta Pixel */}
-      <Card>
+      {tab === 'pixel' && (<Card>
         <CardHeader className="pb-4">
           <div className="flex items-start justify-between gap-4">
             <div>
@@ -352,7 +379,7 @@ export function SettingsForm({ initial }: Props) {
             </div>
           </div>
         </CardContent>
-      </Card>
+      </Card>)}
 
     </div>
   )
