@@ -7,6 +7,7 @@ import {
   Megaphone, BarChart2, X,
   Settings, LogOut, ChevronRight, Link2, Shield,
   UserCheck, CalendarClock, LayoutTemplate, Handshake,
+  ExternalLink, Wand2,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
@@ -33,6 +34,7 @@ const navGroups = [
       { href: '/dashboard/affiliates', label: 'Afiliados', icon: Handshake },
       { href: '/dashboard/scheduled-posts', label: 'Agendamento', icon: CalendarClock },
       { href: '/dashboard/cloakers', label: 'Cloaker', icon: Shield },
+      { href: '/dashboard/redirect-pages', label: 'Página de Redirect', icon: ExternalLink },
     ],
   },
   {
@@ -47,6 +49,7 @@ const navGroups = [
     label: 'Ferramentas',
     items: [
       { href: '/dashboard/funnel-templates', label: 'Templates de Funil', icon: LayoutTemplate },
+      { href: '/dashboard/tools', label: 'Ferramentas de Mídia', icon: Wand2 },
     ],
   },
 ]
