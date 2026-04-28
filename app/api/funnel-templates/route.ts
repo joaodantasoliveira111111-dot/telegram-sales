@@ -37,6 +37,8 @@ export async function POST(request: NextRequest) {
     button_text: p.button_text,
     plan_role: p.plan_role,
     content_type: 'link',
+    kick_on_expire: p.kick_on_expire ?? false,
+    renewal_discount_pct: p.renewal_discount_pct ?? 0,
   }))
 
   const { data: plans, error: planError } = await supabaseAdmin
@@ -45,6 +47,13 @@ export async function POST(request: NextRequest) {
     .select()
 
   if (planError) return NextResponse.json({ error: planError.message }, { status: 500 })
+
+  // Update bot with template settings
+  await supabaseAdmin.from('bots').update({
+    bot_type: template.bot_type,
+    flow_type: template.flow_type,
+    protect_content: template.protect_content,
+  }).eq('id', bot_id)
 
   return NextResponse.json({ ok: true, plans_created: plans?.length ?? 0, messages_updated: messageUpserts.length })
 }

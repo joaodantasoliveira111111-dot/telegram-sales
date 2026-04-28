@@ -6,10 +6,10 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Loader2, Zap, Package, Link as LinkIcon, Bot as BotIcon, Sparkles, ArrowRight, Eye, MessageCircle, FlaskConical } from 'lucide-react'
+import { Loader2, Zap, Package, Link as LinkIcon, Bot as BotIcon, Sparkles, ArrowRight, Eye, MessageCircle, FlaskConical, ShieldCheck, ChevronRight, X, Check, GitBranch } from 'lucide-react'
 import { MediaUpload } from '@/components/media-upload'
+import { FUNNEL_TEMPLATES, FunnelTemplate } from '@/lib/funnel-templates'
 
 interface BotFormProps {
   bot?: Bot
@@ -18,18 +18,20 @@ interface BotFormProps {
 }
 
 type BotType = 'account_stock' | 'channel_link'
-type FlowType = 'direct' | 'presentation' | 'consultive'
+type FlowType = 'direct' | 'presentation' | 'consultive' | 'visual'
 
 export function BotForm({ bot, onSaved, onCancel }: BotFormProps) {
   const isEdit = !!bot
   const [loading, setLoading] = useState(false)
   const [botfatherLoading, setBotfatherLoading] = useState(false)
   const [error, setError] = useState('')
-  const botAny = bot as Bot & { bot_type?: string; flow_type?: string; ab_test_enabled?: boolean; flow_type_b?: string }
+  const botAny = bot as Bot & { bot_type?: string; flow_type?: string; ab_test_enabled?: boolean; flow_type_b?: string; protect_content?: boolean }
   const [botType, setBotType] = useState<BotType>(botAny?.bot_type as BotType ?? 'channel_link')
   const [flowType, setFlowType] = useState<FlowType>(botAny?.flow_type as FlowType ?? 'direct')
   const [abEnabled, setAbEnabled] = useState<boolean>(botAny?.ab_test_enabled ?? false)
   const [flowTypeB, setFlowTypeB] = useState<FlowType>(botAny?.flow_type_b as FlowType ?? 'presentation')
+  const [protectContent, setProtectContent] = useState<boolean>(botAny?.protect_content ?? false)
+  const [selectedTemplate, setSelectedTemplate] = useState<FunnelTemplate | null>(null)
   const [form, setForm] = useState<CreateBotForm & { bot_type?: string; flow_type?: string }>({
     name: bot?.name ?? '',
     telegram_token: bot?.telegram_token ?? '',
@@ -41,6 +43,18 @@ export function BotForm({ bot, onSaved, onCancel }: BotFormProps) {
   })
   const [botUsername, setBotUsername] = useState('')
   const [showBotFather, setShowBotFather] = useState(false)
+
+  function applyTemplate(t: FunnelTemplate) {
+    setSelectedTemplate(t)
+    setBotType(t.bot_type)
+    setFlowType(t.flow_type)
+    setProtectContent(t.protect_content)
+    if (!form.name) {
+      setForm(f => ({ ...f, welcome_message: t.messages.welcome ?? f.welcome_message }))
+    } else {
+      setForm(f => ({ ...f, welcome_message: t.messages.welcome ?? f.welcome_message }))
+    }
+  }
 
   async function handleBotFatherCreate() {
     if (!form.name || !botUsername) {
@@ -80,12 +94,23 @@ export function BotForm({ bot, onSaved, onCancel }: BotFormProps) {
           flow_type: flowType,
           ab_test_enabled: abEnabled,
           flow_type_b: flowTypeB,
+          protect_content: protectContent,
           welcome_media_url: form.welcome_media_url || null,
           welcome_media_type: form.welcome_media_type || null,
         }),
       })
       const data = await res.json()
       if (!res.ok) { setError(data.error ?? 'Erro ao salvar bot.'); return }
+
+      // Apply template after creation
+      if (!isEdit && selectedTemplate) {
+        await fetch('/api/funnel-templates', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ bot_id: data.id, template_id: selectedTemplate.id }),
+        })
+      }
+
       onSaved(data)
     } finally {
       setLoading(false)
@@ -116,6 +141,14 @@ export function BotForm({ bot, onSaved, onCancel }: BotFormProps) {
       badge: 'Alta conversão',
       icon: <MessageCircle className="h-4 w-4" />,
       color: 'violet',
+    },
+    {
+      value: 'visual',
+      label: 'Fluxo Visual',
+      desc: 'Monte uma jornada personalizada com o editor de fluxo drag-and-drop.',
+      badge: 'Avançado',
+      icon: <GitBranch className="h-4 w-4" />,
+      color: 'emerald',
     },
   ]
 
@@ -151,6 +184,70 @@ export function BotForm({ bot, onSaved, onCancel }: BotFormProps) {
         <form onSubmit={handleSubmit} className="space-y-5">
           {error && (
             <p className="rounded-xl px-4 py-2.5 text-sm text-red-300" style={{ background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.2)' }}>{error}</p>
+          )}
+
+          {/* Template Selection — only on creation */}
+          {!isEdit && (
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <Label>Template de Funil <span className="text-slate-500 font-normal">(opcional)</span></Label>
+                {selectedTemplate && (
+                  <button type="button" onClick={() => setSelectedTemplate(null)} className="flex items-center gap-1 text-xs text-slate-500 hover:text-slate-300">
+                    <X className="h-3 w-3" /> Remover
+                  </button>
+                )}
+              </div>
+              <p className="text-xs text-slate-500">Selecione um template para pré-configurar mensagens, planos e fluxo automaticamente.</p>
+              <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+                {FUNNEL_TEMPLATES.map((t) => {
+                  const active = selectedTemplate?.id === t.id
+                  return (
+                    <button
+                      key={t.id}
+                      type="button"
+                      onClick={() => active ? setSelectedTemplate(null) : applyTemplate(t)}
+                      className="relative rounded-xl p-3 text-left transition-all duration-150"
+                      style={active ? {
+                        background: 'rgba(59,130,246,0.12)',
+                        border: '1px solid rgba(59,130,246,0.4)',
+                        boxShadow: '0 0 16px rgba(59,130,246,0.12)',
+                      } : {
+                        background: 'rgba(255,255,255,0.02)',
+                        border: '1px solid rgba(255,255,255,0.07)',
+                      }}
+                    >
+                      {active && (
+                        <div className="absolute top-2 right-2 flex h-4 w-4 items-center justify-center rounded-full" style={{ background: 'rgba(59,130,246,0.8)' }}>
+                          <Check className="h-2.5 w-2.5 text-white" />
+                        </div>
+                      )}
+                      <span className="text-lg leading-none">{t.emoji}</span>
+                      <p className={`mt-1.5 text-xs font-semibold ${active ? 'text-blue-300' : 'text-slate-300'}`}>{t.name}</p>
+                      <p className="mt-0.5 text-[10px] text-slate-500">{t.niche}</p>
+                    </button>
+                  )
+                })}
+              </div>
+              {selectedTemplate && (
+                <div
+                  className="rounded-xl p-3 space-y-1.5"
+                  style={{ background: 'rgba(59,130,246,0.05)', border: '1px solid rgba(59,130,246,0.15)' }}
+                >
+                  <p className="text-xs font-medium text-blue-300">{selectedTemplate.emoji} {selectedTemplate.name} selecionado</p>
+                  <p className="text-xs text-slate-400">{selectedTemplate.description}</p>
+                  {selectedTemplate.tips.length > 0 && (
+                    <ul className="mt-1 space-y-0.5">
+                      {selectedTemplate.tips.map((tip, i) => (
+                        <li key={i} className="flex items-start gap-1.5 text-[10px] text-slate-500">
+                          <ChevronRight className="h-2.5 w-2.5 mt-0.5 flex-shrink-0 text-blue-500" />
+                          {tip}
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
+              )}
+            </div>
           )}
 
           {/* Bot Type — only on creation */}
@@ -193,6 +290,7 @@ export function BotForm({ bot, onSaved, onCancel }: BotFormProps) {
                   slate: { bg: 'rgba(100,116,139,0.10)', border: 'rgba(100,116,139,0.35)', text: 'text-slate-300', badgeBg: 'rgba(100,116,139,0.2)' },
                   blue: { bg: 'rgba(59,130,246,0.10)', border: 'rgba(59,130,246,0.35)', text: 'text-blue-300', badgeBg: 'rgba(59,130,246,0.2)' },
                   violet: { bg: 'rgba(139,92,246,0.10)', border: 'rgba(139,92,246,0.35)', text: 'text-violet-300', badgeBg: 'rgba(139,92,246,0.2)' },
+                  emerald: { bg: 'rgba(52,211,153,0.10)', border: 'rgba(52,211,153,0.35)', text: 'text-emerald-300', badgeBg: 'rgba(52,211,153,0.2)' },
                 }
                 const c = colorMap[opt.color]
                 return (
@@ -291,6 +389,33 @@ export function BotForm({ bot, onSaved, onCancel }: BotFormProps) {
                 </div>
               </div>
             )}
+          </div>
+
+          {/* Anti-fraud / Protect Content */}
+          <div
+            className="rounded-xl p-4"
+            style={{ background: 'rgba(239,68,68,0.04)', border: '1px solid rgba(239,68,68,0.12)' }}
+          >
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2.5">
+                <ShieldCheck className="h-4 w-4 text-red-400" />
+                <div>
+                  <p className="text-sm font-medium text-slate-200">Anti-fraude (Protect Content)</p>
+                  <p className="text-xs text-slate-500 mt-0.5">Bloqueia encaminhamento e download de mídia no Telegram</p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setProtectContent((s) => !s)}
+                className="relative h-5 w-9 rounded-full transition-colors duration-200 flex-shrink-0"
+                style={{ background: protectContent ? 'rgba(239,68,68,0.6)' : 'rgba(255,255,255,0.1)' }}
+              >
+                <span
+                  className="absolute top-0.5 left-0.5 h-4 w-4 rounded-full bg-white transition-transform duration-200"
+                  style={{ transform: protectContent ? 'translateX(16px)' : 'translateX(0)' }}
+                />
+              </button>
+            </div>
           </div>
 
           {/* Name */}
@@ -397,7 +522,7 @@ export function BotForm({ bot, onSaved, onCancel }: BotFormProps) {
             <Button type="button" variant="outline" onClick={onCancel}>Cancelar</Button>
             <Button type="submit" disabled={loading}>
               {loading && <Loader2 className="h-4 w-4 animate-spin" />}
-              {isEdit ? 'Salvar' : 'Criar Bot'}
+              {isEdit ? 'Salvar' : selectedTemplate ? `Criar com template ${selectedTemplate.emoji}` : 'Criar Bot'}
             </Button>
           </div>
         </form>

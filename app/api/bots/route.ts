@@ -33,6 +33,9 @@ export async function POST(request: NextRequest) {
       welcome_media_type: body.welcome_media_type ?? null,
       bot_type: bodyAny.bot_type ?? 'channel_link',
       flow_type: bodyAny.flow_type ?? 'direct',
+      ab_test_enabled: bodyAny.ab_test_enabled ?? false,
+      flow_type_b: bodyAny.flow_type_b ?? null,
+      protect_content: bodyAny.protect_content ?? false,
     })
     .select()
     .single()

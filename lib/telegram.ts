@@ -15,11 +15,13 @@ async function telegramFetch(token: string, method: string, body: Record<string,
   return data
 }
 
-export async function sendMessage(token: string, chatId: string | number, text: string) {
+export async function sendMessage(token: string, chatId: string | number, text: string, options?: { protect_content?: boolean; reply_markup?: unknown }) {
   return telegramFetch(token, 'sendMessage', {
     chat_id: chatId,
     text,
     parse_mode: 'HTML',
+    ...(options?.protect_content ? { protect_content: true } : {}),
+    ...(options?.reply_markup ? { reply_markup: options.reply_markup } : {}),
   })
 }
 
@@ -27,13 +29,31 @@ export async function sendPhoto(
   token: string,
   chatId: string | number,
   photoUrl: string,
-  caption?: string
+  caption?: string,
+  options?: { protect_content?: boolean }
 ) {
   return telegramFetch(token, 'sendPhoto', {
     chat_id: chatId,
     photo: photoUrl,
     caption,
     parse_mode: 'HTML',
+    ...(options?.protect_content ? { protect_content: true } : {}),
+  })
+}
+
+export async function sendAudio(
+  token: string,
+  chatId: string | number,
+  audioUrl: string,
+  caption?: string,
+  options?: { protect_content?: boolean }
+) {
+  return telegramFetch(token, 'sendAudio', {
+    chat_id: chatId,
+    audio: audioUrl,
+    caption,
+    parse_mode: 'HTML',
+    ...(options?.protect_content ? { protect_content: true } : {}),
   })
 }
 
@@ -64,13 +84,15 @@ export async function sendVideo(
   token: string,
   chatId: string | number,
   videoUrl: string,
-  caption?: string
+  caption?: string,
+  options?: { protect_content?: boolean }
 ) {
   return telegramFetch(token, 'sendVideo', {
     chat_id: chatId,
     video: videoUrl,
     caption,
     parse_mode: 'HTML',
+    ...(options?.protect_content ? { protect_content: true } : {}),
   })
 }
 

@@ -13,6 +13,7 @@ import { createPix } from '@/lib/amplopay'
 import { TelegramUpdate, Plan } from '@/types'
 import { getBotMessage } from '@/lib/messages'
 import { sendInitiateCheckoutEvent, sendViewContentEvent } from '@/lib/meta'
+import { executeFlowStep } from '@/lib/flow-executor'
 
 export async function POST(
   request: NextRequest,
@@ -34,6 +35,26 @@ export async function POST(
     update = await request.json()
   } catch {
     return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 })
+  }
+
+  // Visual flow mode — delegate to flow executor
+  if ((bot.flow_type as string) === 'visual') {
+    if (update.message?.text?.startsWith('/start') || update.message) {
+      const from = update.message.from
+      const chatId = update.message.chat.id
+      await supabaseAdmin.from('telegram_users').upsert(
+        { bot_id: botId, telegram_id: String(from.id), username: from.username ?? null, first_name: from.first_name ?? null },
+        { onConflict: 'bot_id,telegram_id' }
+      )
+      await executeFlowStep(botId, String(from.id), bot.telegram_token as string, chatId, bot.protect_content as boolean ?? false)
+    }
+    if (update.callback_query) {
+      const cq = update.callback_query
+      const chatId = cq.message?.chat.id ?? cq.from.id
+      await answerCallbackQuery(bot.telegram_token as string, cq.id)
+      await executeFlowStep(botId, String(cq.from.id), bot.telegram_token as string, chatId, bot.protect_content as boolean ?? false, cq.data)
+    }
+    return NextResponse.json({ ok: true })
   }
 
   if (update.message?.text?.startsWith('/start')) {
