@@ -155,3 +155,14 @@ export async function getMe(token: string) {
   const res = await fetch(`${BASE(token)}/getMe`)
   return res.json()
 }
+
+export async function kickChatMember(token: string, chatId: string | number, userId: string | number) {
+  // Ban then immediately unban — removes user but lets them rejoin later
+  await telegramFetch(token, 'banChatMember', { chat_id: chatId, user_id: Number(userId) })
+  await telegramFetch(token, 'unbanChatMember', { chat_id: chatId, user_id: Number(userId), only_if_banned: true })
+}
+
+export async function sendMediaToChat(token: string, chatId: string | number, mediaUrl: string, mediaType: 'photo' | 'video', caption?: string) {
+  if (mediaType === 'video') return sendVideo(token, chatId, mediaUrl, caption)
+  return sendPhoto(token, chatId, mediaUrl, caption)
+}

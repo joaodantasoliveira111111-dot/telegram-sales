@@ -161,6 +161,25 @@ export async function POST(request: NextRequest) {
       const msg = await getBotMessage(payment.bot_id, 'payment_confirmed_generic', { nome: '', plano: plan.name })
       await sendMessage(botToken, chatId, msg)
     }
+    // Credit affiliate commission if sale came via affiliate link
+    if (payment.affiliate_code) {
+      const commission = Number(payment.plan_price ?? payment.plan?.price ?? 0)
+      const { data: affiliate } = await supabaseAdmin
+        .from('affiliates')
+        .select('id, commission_pct, total_sales, total_earned')
+        .eq('bot_id', payment.bot_id)
+        .eq('code', payment.affiliate_code)
+        .maybeSingle()
+
+      if (affiliate) {
+        const earned = commission * (affiliate.commission_pct / 100)
+        void supabaseAdmin.from('affiliates').update({
+          total_sales: (affiliate.total_sales ?? 0) + 1,
+          total_earned: Number((affiliate.total_earned ?? 0)) + earned,
+        }).eq('id', affiliate.id)
+      }
+    }
+
     // Fire upsell offer if configured
     const { data: upsellOffer } = await supabaseAdmin
       .from('offers')

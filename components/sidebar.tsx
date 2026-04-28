@@ -6,6 +6,7 @@ import {
   Bot, CreditCard, LayoutDashboard, Users,
   Megaphone, Zap, TrendingUp, BarChart2, X,
   Settings, LogOut, ChevronRight, Link2, Shield,
+  UserCheck, CalendarClock, LayoutTemplate, Handshake,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
@@ -30,7 +31,10 @@ const navGroups = [
     items: [
       { href: '/dashboard/broadcasts', label: 'Transmissões', icon: Megaphone },
       { href: '/dashboard/offers', label: 'Upsell & Downsell', icon: TrendingUp },
+      { href: '/dashboard/affiliates', label: 'Afiliados', icon: Handshake },
+      { href: '/dashboard/scheduled-posts', label: 'Agendamento', icon: CalendarClock },
       { href: '/dashboard/cloakers', label: 'Cloaker', icon: Shield },
+      { href: '/dashboard/funnel-templates', label: 'Templates de Funil', icon: LayoutTemplate },
     ],
   },
   {
@@ -38,6 +42,7 @@ const navGroups = [
     items: [
       { href: '/dashboard/payments', label: 'Pagamentos', icon: CreditCard },
       { href: '/dashboard/subscriptions', label: 'Assinaturas', icon: Users },
+      { href: '/dashboard/crm', label: 'CRM — Leads', icon: UserCheck },
     ],
   },
 ]
