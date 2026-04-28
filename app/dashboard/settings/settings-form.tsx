@@ -75,6 +75,69 @@ function Toggle({ checked, onChange, label }: { checked: boolean; onChange: (v: 
   )
 }
 
+// ─── Platform Logos (inline SVG) ─────────────────────────────────────────────
+
+function LogoMeta() {
+  return (
+    <svg viewBox="0 0 48 48" width="22" height="22" fill="none" aria-label="Meta Ads">
+      <path
+        d="M6 28.5c0 4.97 3.13 8.5 7.5 8.5 2.6 0 4.5-1.05 6.4-3.5L24 28l4.1 5.5C30 36 32 37 34.5 37 38.87 37 42 33.47 42 28.5c0-2.63-.72-5.07-2.14-7.15C38.2 19.05 35.6 17 32.5 17c-2.4 0-4.6.85-6.7 3.3L24 22.5l-1.8-2.2C20.1 17.85 17.9 17 15.5 17c-3.1 0-5.7 2.05-7.36 4.35C6.72 23.43 6 25.87 6 28.5zm3.2 0c0-2.06.55-4 1.56-5.55C11.9 21.23 13.52 20 15.5 20c1.75 0 3.2.63 4.9 2.85L24 27.3l3.6-4.45C29.3 20.63 30.75 20 32.5 20c1.98 0 3.6 1.23 4.74 2.95C38.25 24.5 38.8 26.44 38.8 28.5c0 3.62-2.03 6-4.3 6-1.45 0-2.58-.6-3.9-2.38L24 24.4l-6.6 7.72C16.08 33.9 14.95 34.5 13.5 34.5c-2.27 0-4.3-2.38-4.3-6z"
+        fill="#0081FB"
+      />
+    </svg>
+  )
+}
+
+function LogoTikTok() {
+  return (
+    <svg viewBox="0 0 48 48" width="22" height="22" fill="none" aria-label="TikTok Ads">
+      <path d="M39.72 12.52A10.6 10.6 0 0133 10.04V22.9a12.42 12.42 0 01-12.42 12.4 12.42 12.42 0 01-12.42-12.4A12.42 12.42 0 0120.58 10.5c.68 0 1.35.06 2 .17V18.6a4.85 4.85 0 00-2-.42 4.9 4.9 0 00-4.9 4.9 4.9 4.9 0 004.9 4.9 4.9 4.9 0 004.9-4.9V4h6.74a10.62 10.62 0 007.5 8.52z" fill="#69C9D0" />
+      <path d="M37.72 10.52A10.6 10.6 0 0131 8.04V20.9a12.42 12.42 0 01-12.42 12.4 12.42 12.42 0 01-12.42-12.4A12.42 12.42 0 0118.58 8.5c.68 0 1.35.06 2 .17V16.6a4.85 4.85 0 00-2-.42 4.9 4.9 0 00-4.9 4.9 4.9 4.9 0 004.9 4.9 4.9 4.9 0 004.9-4.9V2h6.74a10.62 10.62 0 007.5 8.52z" fill="#EE1D52" opacity="0.7" />
+      <path d="M38.72 11.52A10.6 10.6 0 0132 9.04V21.9a12.42 12.42 0 01-12.42 12.4 12.42 12.42 0 01-12.42-12.4A12.42 12.42 0 0119.58 9.5c.68 0 1.35.06 2 .17V17.6a4.85 4.85 0 00-2-.42 4.9 4.9 0 00-4.9 4.9 4.9 4.9 0 004.9 4.9 4.9 4.9 0 004.9-4.9V3h6.74a10.62 10.62 0 007.5 8.52z" fill="#010101" />
+    </svg>
+  )
+}
+
+function LogoGA4() {
+  return (
+    <svg viewBox="0 0 48 48" width="22" height="22" fill="none" aria-label="Google Analytics 4">
+      <rect x="5" y="26" width="10" height="16" rx="3" fill="#E37400" />
+      <rect x="19" y="16" width="10" height="26" rx="3" fill="#E37400" />
+      <rect x="33" y="6" width="10" height="36" rx="3" fill="#E37400" />
+      <circle cx="38" cy="12" r="4" fill="#FBBC04" />
+    </svg>
+  )
+}
+
+function LogoGTM() {
+  return (
+    <svg viewBox="0 0 48 48" width="22" height="22" fill="none" aria-label="Google Tag Manager">
+      <path d="M24 4L44 24L24 44L4 24Z" fill="#4285F4" />
+      <path d="M24 4L34 24L24 44L14 24Z" fill="#4285F4" />
+      <path d="M24 4L44 24L34 24Z" fill="#3367D6" />
+      <path d="M19 29V20h4l-7-8-7 8h4v9h6z" fill="white" />
+      <path d="M26 17h5v5h-2v-3h-3v-2z" fill="white" opacity="0.8" />
+    </svg>
+  )
+}
+
+function LogoKwai() {
+  return (
+    <svg viewBox="0 0 48 48" width="22" height="22" fill="none" aria-label="Kwai Ads">
+      <rect width="48" height="48" rx="12" fill="#FF5E0A" />
+      <path d="M14 12h5v10l9-10h7L24 24l12 12h-7L20 26v10h-6V12z" fill="white" />
+    </svg>
+  )
+}
+
+const PLATFORM_LOGOS: Record<string, React.ReactNode> = {
+  meta:   <LogoMeta />,
+  tiktok: <LogoTikTok />,
+  ga4:    <LogoGA4 />,
+  gtm:    <LogoGTM />,
+  kwai:   <LogoKwai />,
+}
+
 export function SettingsForm({ initial }: Props) {
   const [tab, setTab] = useState<'gateway' | 'pixel'>('gateway')
   const [values, setValues] = useState<Record<string, string>>(initial)
@@ -294,7 +357,7 @@ export function SettingsForm({ initial }: Props) {
         {(() => {
           const PLATFORMS = [
             {
-              id: 'meta', name: 'Meta / Facebook', emoji: '📘',
+              id: 'meta', name: 'Meta / Facebook',
               description: 'Facebook & Instagram Ads — Conversions API server-side',
               color: '#1877F2', configured: !!(values.meta_pixel_id),
               fields: [
@@ -312,7 +375,7 @@ export function SettingsForm({ initial }: Props) {
               testEvents: ['Lead', 'Purchase', 'InitiateCheckout', 'ViewContent'],
             },
             {
-              id: 'tiktok', name: 'TikTok Ads', emoji: '🎵',
+              id: 'tiktok', name: 'TikTok Ads',
               description: 'TikTok Events API — envio server-side em tempo real',
               color: '#010101', configured: !!(values.tiktok_pixel_id),
               fields: [
@@ -329,7 +392,7 @@ export function SettingsForm({ initial }: Props) {
               testEvents: ['Lead', 'Purchase', 'InitiateCheckout'],
             },
             {
-              id: 'ga4', name: 'Google Analytics 4', emoji: '📊',
+              id: 'ga4', name: 'Google Analytics 4',
               description: 'GA4 Measurement Protocol — importação automática para Google Ads',
               color: '#F9AB00', configured: !!(values.ga4_measurement_id),
               fields: [
@@ -344,7 +407,7 @@ export function SettingsForm({ initial }: Props) {
               testEvents: ['Lead', 'Purchase'],
             },
             {
-              id: 'gtm', name: 'Google Tag Manager', emoji: '🏷️',
+              id: 'gtm', name: 'Google Tag Manager',
               description: 'Embed GTM nas suas Páginas de Redirect (biolink)',
               color: '#246FDB', configured: !!(values.gtm_container_id),
               fields: [
@@ -355,7 +418,7 @@ export function SettingsForm({ initial }: Props) {
               testEvents: [],
             },
             {
-              id: 'kwai', name: 'Kwai Ads', emoji: '🎬',
+              id: 'kwai', name: 'Kwai Ads',
               description: 'Kwai Events API — server-side pixel tracking',
               color: '#FF6900', configured: !!(values.kwai_pixel_id),
               fields: [
@@ -396,10 +459,10 @@ export function SettingsForm({ initial }: Props) {
                     >
                       {/* Platform icon */}
                       <div
-                        className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-lg"
+                        className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl"
                         style={{ background: `${p.color}18`, border: `1px solid ${p.color}35` }}
                       >
-                        {p.emoji}
+                        {PLATFORM_LOGOS[p.id]}
                       </div>
 
                       {/* Name + description */}
