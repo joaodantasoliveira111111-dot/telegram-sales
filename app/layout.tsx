@@ -1,8 +1,12 @@
 import type { Metadata } from "next";
-import { Geist } from "next/font/google";
+import { Space_Grotesk } from "next/font/google";
 import "./globals.css";
 
-const geist = Geist({ subsets: ["latin"] });
+const spaceGrotesk = Space_Grotesk({
+  subsets: ["latin"],
+  weight: ["300", "400", "500", "600", "700"],
+  variable: "--font-sans",
+});
 
 export const metadata: Metadata = {
   title: "FlowBot — Painel de Controle",
@@ -16,7 +20,8 @@ export default function RootLayout({
 }) {
   return (
     <html lang="pt-BR" className="h-full dark">
-      <body className={`${geist.className} min-h-full bg-zinc-950 text-zinc-100 antialiased`}>
+      <body className={`${spaceGrotesk.variable} min-h-full antialiased`}
+        style={{ fontFamily: "var(--font-sans), system-ui, sans-serif", background: "var(--background)", color: "var(--foreground)" }}>
         {children}
       </body>
     </html>

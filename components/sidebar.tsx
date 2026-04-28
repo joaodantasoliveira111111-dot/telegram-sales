@@ -3,28 +3,28 @@
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import {
-  Bot, CreditCard, LayoutDashboard, Users,
-  Megaphone, BarChart2, X,
-  Settings, LogOut, ChevronRight, Link2, Shield,
-  UserCheck, LayoutTemplate, Handshake,
-  ExternalLink, Wand2,
+  LayoutDashboard, Bot, Users2, Megaphone, Handshake,
+  Shield, ExternalLink, CreditCard, BarChart2, UserCheck,
+  LayoutTemplate, Wand2, Settings, LogOut, Link2, X,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import { RevenueMilestone } from './revenue-milestone'
 
-const navGroups = [
+// ─── Navigation structure ─────────────────────────────────────────────────────
+// Merged: Relatórios → Dashboard  |  Templates de Funil → Templates
+// Postagens Agendadas → inside Postagens  |  CRM — Leads → CRM
+// Ferramentas de Mídia → Ferramentas  |  Página de Redirect → Redirects
+
+const NAV = [
   {
-    label: 'Geral',
     items: [
       { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard, exact: true },
-      { href: '/dashboard/reports', label: 'Relatórios', icon: BarChart2 },
     ],
   },
   {
     label: 'Bots',
     items: [
       { href: '/dashboard/bots', label: 'Meus Bots', icon: Bot },
-      { href: '/dashboard/groups', label: 'Grupos & Canais', icon: Users },
+      { href: '/dashboard/groups', label: 'Grupos & Canais', icon: Users2 },
       { href: '/dashboard/telegram-connect', label: 'Conta Telegram', icon: Link2 },
     ],
   },
@@ -34,41 +34,25 @@ const navGroups = [
       { href: '/dashboard/broadcasts', label: 'Postagens', icon: Megaphone },
       { href: '/dashboard/affiliates', label: 'Afiliados', icon: Handshake },
       { href: '/dashboard/cloakers', label: 'Cloaker', icon: Shield },
-      { href: '/dashboard/redirect-pages', label: 'Página de Redirect', icon: ExternalLink },
+      { href: '/dashboard/redirect-pages', label: 'Redirects', icon: ExternalLink },
     ],
   },
   {
     label: 'Clientes',
     items: [
       { href: '/dashboard/payments', label: 'Pagamentos', icon: CreditCard },
-      { href: '/dashboard/subscriptions', label: 'Assinaturas', icon: Users },
-      { href: '/dashboard/crm', label: 'CRM — Leads', icon: UserCheck },
+      { href: '/dashboard/subscriptions', label: 'Assinaturas', icon: BarChart2 },
+      { href: '/dashboard/crm', label: 'CRM', icon: UserCheck },
     ],
   },
   {
-    label: 'Ferramentas',
+    label: 'Builder',
     items: [
-      { href: '/dashboard/funnel-templates', label: 'Templates de Funil', icon: LayoutTemplate },
-      { href: '/dashboard/tools', label: 'Ferramentas de Mídia', icon: Wand2 },
+      { href: '/dashboard/funnel-templates', label: 'Templates', icon: LayoutTemplate },
+      { href: '/dashboard/tools', label: 'Ferramentas', icon: Wand2 },
     ],
   },
 ]
-
-const glass = {
-  sidebar: {
-    background: 'rgba(5,5,20,0.92)',
-    borderRight: '1px solid rgba(255,255,255,0.07)',
-    backdropFilter: 'blur(40px)',
-  } as React.CSSProperties,
-  activeItem: {
-    background: 'linear-gradient(135deg, rgba(139,92,246,0.18) 0%, rgba(109,40,217,0.1) 100%)',
-    border: '1px solid rgba(139,92,246,0.28)',
-  } as React.CSSProperties,
-  infoCard: {
-    background: 'rgba(255,255,255,0.03)',
-    border: '1px solid rgba(255,255,255,0.07)',
-  } as React.CSSProperties,
-}
 
 interface SidebarProps {
   onClose?: () => void
@@ -84,96 +68,162 @@ export function Sidebar({ onClose }: SidebarProps) {
     router.refresh()
   }
 
+  function isActive(href: string, exact?: boolean) {
+    return exact ? pathname === href : pathname.startsWith(href)
+  }
+
   return (
-    <aside className="flex h-full w-64 flex-col" style={glass.sidebar}>
+    <aside
+      className="flex h-full flex-col"
+      style={{
+        width: 'var(--sidebar-w)',
+        background: 'rgba(6,4,18,0.88)',
+        backdropFilter: 'blur(60px) saturate(160%)',
+        WebkitBackdropFilter: 'blur(60px) saturate(160%)',
+        borderRight: '1px solid rgba(255,255,255,0.07)',
+      }}
+    >
       {/* Logo */}
-      <div className="flex h-16 shrink-0 items-center justify-between px-5">
-        <div className="flex items-center gap-3">
-          <div className="h-9 w-9 overflow-hidden rounded-xl shadow-lg flex-shrink-0"
-            style={{ boxShadow: '0 0 20px rgba(139,92,246,0.35)' }}>
-            <img src="/logo.svg" alt="FlowBot" className="h-9 w-9" />
+      <div className="flex h-14 shrink-0 items-center justify-between px-4">
+        <div className="flex items-center gap-2.5">
+          <div
+            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl overflow-hidden"
+            style={{ boxShadow: '0 0 16px rgba(139,92,246,0.5)' }}
+          >
+            <img src="/logo.svg" alt="FlowBot" className="h-8 w-8" />
           </div>
-          <div className="leading-tight">
-            <p className="text-sm font-bold text-slate-100 tracking-tight">FlowBot</p>
-            <p className="text-[10px] text-slate-500 tracking-wide">Painel de Controle</p>
+          <div>
+            <p className="text-[13px] font-bold text-zinc-100 tracking-tight leading-none">FlowBot</p>
+            <p className="text-[9px] tracking-[0.12em] uppercase mt-0.5" style={{ color: 'rgba(139,92,246,0.7)' }}>
+              Painel
+            </p>
           </div>
         </div>
         {onClose && (
-          <button onClick={onClose}
-            className="rounded-lg p-1.5 text-slate-500 transition-colors hover:text-slate-300 lg:hidden"
-            style={{ background: 'rgba(255,255,255,0.05)' }}>
-            <X className="h-4 w-4" />
+          <button
+            onClick={onClose}
+            className="rounded-lg p-1.5 text-zinc-600 transition-colors hover:text-zinc-400 lg:hidden"
+          >
+            <X className="h-3.5 w-3.5" />
           </button>
         )}
       </div>
 
-      <div className="mx-4 h-px" style={{ background: 'rgba(255,255,255,0.06)' }} />
+      {/* Divider */}
+      <div className="mx-4 h-px" style={{ background: 'rgba(255,255,255,0.05)' }} />
 
       {/* Nav */}
-      <nav className="flex flex-1 flex-col gap-5 overflow-y-auto px-3 py-5">
-        {navGroups.map((group) => (
-          <div key={group.label}>
-            <p className="mb-2 px-2.5 text-[9px] font-bold uppercase tracking-[0.12em] text-slate-600">
-              {group.label}
-            </p>
-            <div className="flex flex-col gap-0.5">
-              {group.items.map(({ href, label, icon: Icon, exact }) => {
-                // Special case: Bots tab — active for /dashboard/bots but not /dashboard/broadcasts etc
-                const active = exact ? pathname === href : pathname.startsWith(href)
-                return (
-                  <Link key={href} href={href}
+      <nav className="flex flex-1 flex-col overflow-y-auto px-2.5 py-3 gap-0.5">
+        {NAV.map((group, gi) => (
+          <div key={gi} className={gi > 0 ? 'mt-4' : ''}>
+            {group.label && (
+              <p
+                className="mb-1 px-2.5 text-[9px] font-bold uppercase tracking-[0.14em]"
+                style={{ color: 'rgba(255,255,255,0.22)' }}
+              >
+                {group.label}
+              </p>
+            )}
+            {group.items.map(({ href, label, icon: Icon, ...rest }) => {
+              const exact = 'exact' in rest ? (rest as { exact?: boolean }).exact : undefined
+              const active = isActive(href, exact)
+              return (
+                <Link
+                  key={href}
+                  href={href}
+                  className={cn(
+                    'group relative flex items-center gap-2.5 rounded-xl px-2.5 py-2 text-[13px] font-medium transition-all duration-150',
+                    active
+                      ? 'sidebar-active-bar text-violet-300'
+                      : 'text-zinc-500 hover:text-zinc-200'
+                  )}
+                  style={
+                    active
+                      ? {
+                          background: 'linear-gradient(90deg, rgba(139,92,246,0.14), rgba(139,92,246,0.04))',
+                          border: '1px solid rgba(139,92,246,0.2)',
+                        }
+                      : undefined
+                  }
+                >
+                  {/* Hover bg */}
+                  {!active && (
+                    <div
+                      className="absolute inset-0 rounded-xl opacity-0 transition-opacity duration-150 group-hover:opacity-100"
+                      style={{ background: 'rgba(255,255,255,0.03)' }}
+                    />
+                  )}
+
+                  <Icon
                     className={cn(
-                      'group relative flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-150',
-                      active ? 'text-violet-300' : 'text-slate-500 hover:text-slate-200'
+                      'relative h-[15px] w-[15px] shrink-0 transition-colors duration-150',
+                      active ? 'text-violet-400' : 'text-zinc-600 group-hover:text-zinc-400'
                     )}
-                    style={active ? glass.activeItem : undefined}>
-                    {!active && (
-                      <div className="absolute inset-0 rounded-xl opacity-0 transition-opacity group-hover:opacity-100"
-                        style={{ background: 'rgba(139,92,246,0.06)' }} />
-                    )}
-                    <Icon className={cn('relative h-4 w-4 shrink-0 transition-colors',
-                      active ? 'text-violet-400' : 'text-slate-600 group-hover:text-slate-400')} />
-                    <span className="relative flex-1">{label}</span>
-                    {active && (
-                      <span className="h-1.5 w-1.5 shrink-0 rounded-full"
-                        style={{ background: '#8b5cf6', boxShadow: '0 0 6px rgba(139,92,246,0.7)' }} />
-                    )}
-                    {!active && (
-                      <ChevronRight className="relative h-3 w-3 shrink-0 text-slate-700 opacity-0 transition-opacity group-hover:opacity-100" />
-                    )}
-                  </Link>
-                )
-              })}
-            </div>
+                  />
+                  <span className="relative flex-1 leading-none">{label}</span>
+
+                  {/* Active dot */}
+                  {active && (
+                    <span
+                      className="relative h-1.5 w-1.5 shrink-0 rounded-full"
+                      style={{ background: '#8b5cf6', boxShadow: '0 0 6px rgba(139,92,246,0.8)' }}
+                    />
+                  )}
+                </Link>
+              )
+            })}
           </div>
         ))}
       </nav>
 
+      {/* Divider */}
+      <div className="mx-4 h-px mb-2" style={{ background: 'rgba(255,255,255,0.05)' }} />
+
       {/* Footer */}
-      <div className="shrink-0 space-y-1.5 p-3">
-        <Link href="/dashboard/settings"
-          className={cn('flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all',
-            pathname.startsWith('/dashboard/settings') ? 'text-violet-300' : 'text-slate-500 hover:text-slate-200')}
-          style={pathname.startsWith('/dashboard/settings') ? glass.activeItem : { background: 'rgba(255,255,255,0.02)' }}>
-          <Settings className={cn('h-4 w-4 shrink-0', pathname.startsWith('/dashboard/settings') ? 'text-violet-400' : 'text-slate-600')} />
-          Configurações
+      <div className="shrink-0 px-2.5 pb-4 space-y-0.5">
+        <Link
+          href="/dashboard/settings"
+          className={cn(
+            'group relative flex items-center gap-2.5 rounded-xl px-2.5 py-2 text-[13px] font-medium transition-all duration-150',
+            pathname.startsWith('/dashboard/settings')
+              ? 'sidebar-active-bar text-violet-300'
+              : 'text-zinc-500 hover:text-zinc-200'
+          )}
+          style={
+            pathname.startsWith('/dashboard/settings')
+              ? {
+                  background: 'linear-gradient(90deg, rgba(139,92,246,0.14), rgba(139,92,246,0.04))',
+                  border: '1px solid rgba(139,92,246,0.2)',
+                }
+              : undefined
+          }
+        >
+          {!pathname.startsWith('/dashboard/settings') && (
+            <div
+              className="absolute inset-0 rounded-xl opacity-0 transition-opacity duration-150 group-hover:opacity-100"
+              style={{ background: 'rgba(255,255,255,0.03)' }}
+            />
+          )}
+          <Settings
+            className={cn(
+              'relative h-[15px] w-[15px] shrink-0',
+              pathname.startsWith('/dashboard/settings') ? 'text-violet-400' : 'text-zinc-600 group-hover:text-zinc-400'
+            )}
+          />
+          <span className="relative flex-1 leading-none">Configurações</span>
         </Link>
 
-        <button onClick={handleLogout}
-          className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-slate-500 transition-all hover:text-red-400"
-          style={{ background: 'rgba(255,255,255,0.02)' }}
-          onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.background = 'rgba(239,68,68,0.08)' }}
-          onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.background = 'rgba(255,255,255,0.02)' }}>
-          <LogOut className="h-4 w-4 shrink-0" />
-          Sair
+        <button
+          onClick={handleLogout}
+          className="group relative flex w-full items-center gap-2.5 rounded-xl px-2.5 py-2 text-[13px] font-medium text-zinc-500 transition-all duration-150 hover:text-red-400"
+        >
+          <div
+            className="absolute inset-0 rounded-xl opacity-0 transition-opacity duration-150 group-hover:opacity-100"
+            style={{ background: 'rgba(239,68,68,0.06)' }}
+          />
+          <LogOut className="relative h-[15px] w-[15px] shrink-0 text-zinc-600 group-hover:text-red-500 transition-colors" />
+          <span className="relative leading-none">Sair</span>
         </button>
-
-        <RevenueMilestone />
-
-        <div className="rounded-xl px-3 py-2.5" style={glass.infoCard}>
-          <p className="text-[9px] font-bold uppercase tracking-[0.1em] text-slate-600">Webhook AmploPay</p>
-          <p className="mt-0.5 break-all font-mono text-[10px] text-slate-700">/api/amplopay/webhook</p>
-        </div>
       </div>
     </aside>
   )
