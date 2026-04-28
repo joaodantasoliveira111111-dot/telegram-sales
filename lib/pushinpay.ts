@@ -1,6 +1,6 @@
 import { getSettings } from './settings'
 
-const BASE = 'https://api.pushinpay.com.br/api/v2'
+const BASE = 'https://api.pushinpay.com.br/api'
 
 async function getToken(): Promise<string> {
   const s = await getSettings(['pushinpay_token'])
