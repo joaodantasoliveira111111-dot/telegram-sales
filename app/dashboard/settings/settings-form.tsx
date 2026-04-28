@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { toast } from 'sonner'
-import { Save, Loader2, Eye, EyeOff, ExternalLink } from 'lucide-react'
+import { Save, Loader2, Eye, EyeOff, ExternalLink, Send } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 
 interface Props {
@@ -78,6 +78,7 @@ function Toggle({ checked, onChange, label }: { checked: boolean; onChange: (v: 
 export function SettingsForm({ initial }: Props) {
   const [values, setValues] = useState<Record<string, string>>(initial)
   const [saving, setSaving] = useState<string | null>(null)
+  const [testingEvent, setTestingEvent] = useState<string | null>(null)
 
   function set(key: string, value: string) {
     setValues((prev) => ({ ...prev, [key]: value }))
@@ -109,46 +110,82 @@ export function SettingsForm({ initial }: Props) {
 
   const amplopayKeys = ['amplopay_public_key', 'amplopay_secret_key', 'amplopay_webhook_token']
   const pushinpayKeys = ['pushinpay_token']
-  const gatewayKey = ['active_gateway']
-  const metaKeys = ['meta_pixel_id', 'meta_access_token', 'meta_test_event_code', 'meta_track_purchase', 'meta_track_initiate_checkout', 'meta_track_view_content']
+  const metaKeys = ['meta_pixel_id', 'meta_access_token', 'meta_test_event_code', 'meta_track_lead', 'meta_track_purchase', 'meta_track_initiate_checkout', 'meta_track_view_content']
 
   const activeGateway = values.active_gateway || 'amplopay'
 
   return (
     <div className="space-y-6">
 
-      {/* Gateway selector */}
+      {/* Gateways de Pagamento — unified card */}
       <Card>
         <CardHeader className="pb-4">
-          <CardTitle className="text-base font-semibold text-zinc-100">Gateway Ativo</CardTitle>
-          <p className="mt-1 text-xs text-zinc-500">Escolha qual gateway processa os pagamentos PIX dos seus bots</p>
+          <CardTitle className="text-base font-semibold text-zinc-100">Gateways de Pagamento</CardTitle>
+          <p className="mt-1 text-xs text-zinc-500">Clique em um gateway para ativá-lo e configurar as credenciais. A troca é salva automaticamente.</p>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent className="space-y-5">
+          {/* Gateway selector buttons */}
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             {([
               { id: 'amplopay',  label: 'AmploPay',  desc: 'Public Key + Secret Key', href: 'https://app.amplopay.com' },
               { id: 'pushinpay', label: 'PushinPay', desc: 'Bearer Token único',       href: 'https://app.pushinpay.com.br' },
             ] as const).map(({ id, label, desc, href }) => {
               const active = activeGateway === id
+              const isSaving = saving === 'active_gateway'
               return (
                 <button
                   key={id}
                   type="button"
-                  onClick={() => set('active_gateway', id)}
-                  className="flex items-center gap-4 rounded-xl border p-4 text-left transition-all"
+                  disabled={isSaving}
+                  onClick={async () => {
+                    if (active) return
+                    set('active_gateway', id)
+                    setSaving('active_gateway')
+                    try {
+                      const res = await fetch('/api/settings', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ active_gateway: id }),
+                      })
+                      if (!res.ok) { toast.error('Erro ao salvar'); return }
+                      toast.success(`${label} ativado!`)
+                    } finally {
+                      setSaving(null)
+                    }
+                  }}
+                  className="relative flex items-center gap-4 rounded-xl border p-4 text-left transition-all disabled:cursor-wait"
                   style={active
-                    ? { background: 'rgba(139,92,246,0.12)', borderColor: 'rgba(139,92,246,0.4)' }
+                    ? { background: 'rgba(139,92,246,0.12)', borderColor: 'rgba(139,92,246,0.4)', boxShadow: '0 0 20px rgba(139,92,246,0.1)' }
                     : { background: 'rgba(255,255,255,0.03)', borderColor: 'rgba(255,255,255,0.08)' }
                   }
                 >
-                  <div className={[
-                    'flex h-4 w-4 shrink-0 rounded-full border-2 items-center justify-center',
-                    active ? 'border-violet-500' : 'border-zinc-600',
-                  ].join(' ')}>
-                    {active && <div className="h-2 w-2 rounded-full bg-violet-500" />}
+                  {isSaving && active && (
+                    <div className="absolute inset-0 flex items-center justify-center rounded-xl" style={{ background: 'rgba(0,0,0,0.3)' }}>
+                      <Loader2 className="h-4 w-4 animate-spin text-violet-400" />
+                    </div>
+                  )}
+                  <div className="relative flex-shrink-0">
+                    <div className={[
+                      'flex h-5 w-5 rounded-full border-2 items-center justify-center transition-all',
+                      active ? 'border-violet-500 bg-violet-500/20' : 'border-zinc-600',
+                    ].join(' ')}>
+                      {active && <div className="h-2 w-2 rounded-full bg-violet-400" />}
+                    </div>
+                    {active && (
+                      <span className="absolute -top-1 -right-1 flex h-2.5 w-2.5">
+                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-violet-400 opacity-50" />
+                        <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-violet-500" />
+                      </span>
+                    )}
                   </div>
-                  <div className="min-w-0">
-                    <p className={['text-sm font-semibold', active ? 'text-violet-300' : 'text-zinc-300'].join(' ')}>{label}</p>
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center gap-2">
+                      <p className={['text-sm font-semibold', active ? 'text-violet-300' : 'text-zinc-300'].join(' ')}>{label}</p>
+                      {active && (
+                        <span className="rounded-full px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider"
+                          style={{ background: 'rgba(139,92,246,0.25)', color: '#c4b5fd' }}>ATIVO</span>
+                      )}
+                    </div>
                     <p className="text-xs text-zinc-500">{desc}</p>
                   </div>
                   <a href={href} target="_blank" rel="noopener noreferrer"
@@ -161,105 +198,51 @@ export function SettingsForm({ initial }: Props) {
             })}
           </div>
 
-          <div className="flex justify-end border-t border-zinc-800 pt-4">
-            <button
-              onClick={() => saveSection(gatewayKey)}
-              disabled={saving === 'active_gateway'}
-              className="flex items-center gap-2 rounded-xl bg-violet-600 px-5 py-2 text-sm font-semibold text-white shadow-lg shadow-violet-600/20 transition-all hover:bg-violet-500 disabled:opacity-60"
-            >
-              {saving === 'active_gateway' ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Save className="h-3.5 w-3.5" />}
-              Salvar escolha
-            </button>
-          </div>
-        </CardContent>
-      </Card>
+          {/* Credentials accordion — shows only active gateway */}
+          <div className="border-t border-zinc-800 pt-5 space-y-5">
+            {activeGateway === 'amplopay' ? (
+              <>
+                <FieldRow label="Public Key" description="Chave pública da API">
+                  <SecretInput value={values.amplopay_public_key ?? ''} onChange={(v) => set('amplopay_public_key', v)} placeholder="pk_..." />
+                </FieldRow>
+                <FieldRow label="Secret Key" description="Chave secreta da API">
+                  <SecretInput value={values.amplopay_secret_key ?? ''} onChange={(v) => set('amplopay_secret_key', v)} placeholder="sk_..." />
+                </FieldRow>
+                <FieldRow label="Webhook Token" description="Token para validar notificações do gateway">
+                  <SecretInput value={values.amplopay_webhook_token ?? ''} onChange={(v) => set('amplopay_webhook_token', v)} placeholder="Token secreto do webhook" />
+                </FieldRow>
+                <FieldRow label="Webhook URL" description="Configure este endereço no painel da AmploPay">
+                  <div className="rounded-xl border border-zinc-700/60 bg-zinc-900/60 px-4 py-2.5">
+                    <code className="text-xs text-zinc-400">/api/amplopay/webhook</code>
+                  </div>
+                </FieldRow>
+              </>
+            ) : (
+              <>
+                <FieldRow label="Bearer Token" description="Token de acesso gerado no painel PushinPay">
+                  <SecretInput value={values.pushinpay_token ?? ''} onChange={(v) => set('pushinpay_token', v)} placeholder="Seu token de acesso..." />
+                </FieldRow>
+                <FieldRow label="Webhook URL" description="Configure este endereço no painel da PushinPay (campo webhook_url ao criar PIX)">
+                  <div className="rounded-xl border border-zinc-700/60 bg-zinc-900/60 px-4 py-2.5">
+                    <code className="text-xs text-zinc-400">/api/pushinpay/webhook</code>
+                  </div>
+                </FieldRow>
+              </>
+            )}
 
-      {/* AmploPay */}
-      <Card>
-        <CardHeader className="pb-4">
-          <div className="flex items-start justify-between gap-4">
-            <div>
-              <CardTitle className="text-base font-semibold text-zinc-100">
-                AmploPay
-                {activeGateway === 'amplopay' && (
-                  <span className="ml-2 rounded-full bg-violet-600/20 px-2 py-0.5 text-[10px] font-semibold text-violet-400">ATIVO</span>
-                )}
-              </CardTitle>
-              <p className="mt-1 text-xs text-zinc-500">Credenciais do gateway de pagamento Pix</p>
+            <div className="flex justify-end border-t border-zinc-800 pt-4">
+              <button
+                onClick={() => saveSection(activeGateway === 'amplopay' ? amplopayKeys : pushinpayKeys)}
+                disabled={saving === (activeGateway === 'amplopay' ? 'amplopay_public_key' : 'pushinpay_token')}
+                className="flex items-center gap-2 rounded-xl bg-blue-600 px-5 py-2 text-sm font-semibold text-white shadow-lg shadow-blue-600/20 transition-all hover:bg-blue-500 disabled:opacity-60"
+              >
+                {saving === (activeGateway === 'amplopay' ? 'amplopay_public_key' : 'pushinpay_token')
+                  ? <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                  : <Save className="h-3.5 w-3.5" />
+                }
+                Salvar credenciais
+              </button>
             </div>
-            <a href="https://app.amplopay.com" target="_blank" rel="noopener noreferrer"
-              className="flex items-center gap-1 text-xs text-blue-400 hover:text-blue-300 transition-colors">
-              Painel <ExternalLink className="h-3 w-3" />
-            </a>
-          </div>
-        </CardHeader>
-        <CardContent className="space-y-5">
-          <FieldRow label="Public Key" description="Chave pública da API">
-            <SecretInput value={values.amplopay_public_key ?? ''} onChange={(v) => set('amplopay_public_key', v)} placeholder="pk_..." />
-          </FieldRow>
-          <FieldRow label="Secret Key" description="Chave secreta da API">
-            <SecretInput value={values.amplopay_secret_key ?? ''} onChange={(v) => set('amplopay_secret_key', v)} placeholder="sk_..." />
-          </FieldRow>
-          <FieldRow label="Webhook Token" description="Token para validar notificações do gateway">
-            <SecretInput value={values.amplopay_webhook_token ?? ''} onChange={(v) => set('amplopay_webhook_token', v)} placeholder="Token secreto do webhook" />
-          </FieldRow>
-          <FieldRow label="Webhook URL" description="Configure este endereço no painel da AmploPay">
-            <div className="rounded-xl border border-zinc-700/60 bg-zinc-900/60 px-4 py-2.5">
-              <code className="text-xs text-zinc-400">/api/amplopay/webhook</code>
-            </div>
-          </FieldRow>
-
-          <div className="flex justify-end border-t border-zinc-800 pt-4">
-            <button
-              onClick={() => saveSection(amplopayKeys)}
-              disabled={saving === 'amplopay_public_key'}
-              className="flex items-center gap-2 rounded-xl bg-blue-600 px-5 py-2 text-sm font-semibold text-white shadow-lg shadow-blue-600/20 transition-all hover:bg-blue-500 disabled:opacity-60"
-            >
-              {saving === 'amplopay_public_key' ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Save className="h-3.5 w-3.5" />}
-              Salvar AmploPay
-            </button>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* PushinPay */}
-      <Card>
-        <CardHeader className="pb-4">
-          <div className="flex items-start justify-between gap-4">
-            <div>
-              <CardTitle className="text-base font-semibold text-zinc-100">
-                PushinPay
-                {activeGateway === 'pushinpay' && (
-                  <span className="ml-2 rounded-full bg-violet-600/20 px-2 py-0.5 text-[10px] font-semibold text-violet-400">ATIVO</span>
-                )}
-              </CardTitle>
-              <p className="mt-1 text-xs text-zinc-500">Gateway de pagamento PIX via Bearer Token</p>
-            </div>
-            <a href="https://app.pushinpay.com.br" target="_blank" rel="noopener noreferrer"
-              className="flex items-center gap-1 text-xs text-blue-400 hover:text-blue-300 transition-colors">
-              Painel <ExternalLink className="h-3 w-3" />
-            </a>
-          </div>
-        </CardHeader>
-        <CardContent className="space-y-5">
-          <FieldRow label="Bearer Token" description="Token de acesso gerado no painel PushinPay">
-            <SecretInput value={values.pushinpay_token ?? ''} onChange={(v) => set('pushinpay_token', v)} placeholder="Seu token de acesso..." />
-          </FieldRow>
-          <FieldRow label="Webhook URL" description="Configure este endereço no painel da PushinPay (campo webhook_url ao criar PIX)">
-            <div className="rounded-xl border border-zinc-700/60 bg-zinc-900/60 px-4 py-2.5">
-              <code className="text-xs text-zinc-400">/api/pushinpay/webhook</code>
-            </div>
-          </FieldRow>
-
-          <div className="flex justify-end border-t border-zinc-800 pt-4">
-            <button
-              onClick={() => saveSection(pushinpayKeys)}
-              disabled={saving === 'pushinpay_token'}
-              className="flex items-center gap-2 rounded-xl bg-blue-600 px-5 py-2 text-sm font-semibold text-white shadow-lg shadow-blue-600/20 transition-all hover:bg-blue-500 disabled:opacity-60"
-            >
-              {saving === 'pushinpay_token' ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Save className="h-3.5 w-3.5" />}
-              Salvar PushinPay
-            </button>
           </div>
         </CardContent>
       </Card>
@@ -297,6 +280,11 @@ export function SettingsForm({ initial }: Props) {
             <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-zinc-500">Eventos rastreados</p>
             <div className="space-y-3">
               <Toggle
+                checked={bool('meta_track_lead')}
+                onChange={(v) => setBool('meta_track_lead', v)}
+                label="Lead — dispara quando usuário inicia o bot (/start)"
+              />
+              <Toggle
                 checked={bool('meta_track_purchase')}
                 onChange={(v) => setBool('meta_track_purchase', v)}
                 label="Purchase — dispara quando pagamento é confirmado"
@@ -323,6 +311,45 @@ export function SettingsForm({ initial }: Props) {
               {saving === 'meta_pixel_id' ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Save className="h-3.5 w-3.5" />}
               Salvar Marketing
             </button>
+          </div>
+
+          {/* Test events section */}
+          <div className="border-t border-zinc-800 pt-5">
+            <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-zinc-500">Testar Eventos</p>
+            <div className="flex flex-wrap gap-2">
+              {(['Lead', 'ViewContent', 'InitiateCheckout', 'Purchase'] as const).map((eventName) => (
+                <button
+                  key={eventName}
+                  type="button"
+                  disabled={testingEvent !== null}
+                  onClick={async () => {
+                    setTestingEvent(eventName)
+                    try {
+                      const res = await fetch('/api/meta/test-event', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ event_name: eventName }),
+                      })
+                      const data = await res.json()
+                      if (!res.ok) { toast.error(data.error ?? `Erro ao enviar evento ${eventName}`); return }
+                      toast.success(`Evento '${eventName}' enviado! Verifique no Events Manager.`)
+                    } catch {
+                      toast.error(`Erro ao enviar evento ${eventName}`)
+                    } finally {
+                      setTestingEvent(null)
+                    }
+                  }}
+                  className="flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs font-medium transition-colors disabled:opacity-50 hover:text-white"
+                  style={{ borderColor: 'rgba(63,63,70,1)', color: '#a1a1aa' }}
+                >
+                  {testingEvent === eventName
+                    ? <Loader2 className="h-3 w-3 animate-spin" />
+                    : <Send className="h-3 w-3" />
+                  }
+                  {eventName}
+                </button>
+              ))}
+            </div>
           </div>
         </CardContent>
       </Card>

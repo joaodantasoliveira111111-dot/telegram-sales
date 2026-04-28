@@ -36,6 +36,7 @@ export async function POST(request: NextRequest) {
       ab_test_enabled: bodyAny.ab_test_enabled ?? false,
       flow_type_b: bodyAny.flow_type_b ?? null,
       protect_content: bodyAny.protect_content ?? false,
+      gateway: bodyAny.gateway ?? null,
     })
     .select()
     .single()

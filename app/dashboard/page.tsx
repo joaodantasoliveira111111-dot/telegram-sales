@@ -10,6 +10,7 @@ import { Bot, CreditCard, TrendingUp, Users, ArrowUpRight } from 'lucide-react'
 import { formatCurrency, formatDate, getPeriodRange } from '@/lib/utils'
 import { PaymentStatus } from '@/types'
 import { PeriodSelector } from '@/components/period-selector'
+import { RevenueMilestone } from '@/components/revenue-milestone'
 
 const statusConfig: Record<PaymentStatus, { label: string; variant: 'success' | 'warning' | 'destructive' | 'secondary' }> = {
   paid: { label: 'Pago', variant: 'success' },
@@ -149,6 +150,9 @@ export default async function DashboardPage({ searchParams }: PageProps) {
           </Card>
         ))}
       </div>
+
+      {/* Revenue milestone banner */}
+      <RevenueMilestone variant="banner" />
 
       {/* Funnel + Chart */}
       <div className="grid gap-4 lg:grid-cols-2">

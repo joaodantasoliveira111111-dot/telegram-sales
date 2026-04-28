@@ -12,6 +12,7 @@ const SETTING_KEYS = [
   'meta_pixel_id',
   'meta_access_token',
   'meta_test_event_code',
+  'meta_track_lead',
   'meta_track_purchase',
   'meta_track_initiate_checkout',
   'meta_track_view_content',

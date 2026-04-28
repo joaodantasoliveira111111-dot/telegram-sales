@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Loader2, Zap, Package, Link as LinkIcon, Bot as BotIcon, Sparkles, ArrowRight, Eye, MessageCircle, FlaskConical, ShieldCheck, ChevronRight, X, Check, GitBranch } from 'lucide-react'
+import { Loader2, Zap, Package, Link as LinkIcon, Bot as BotIcon, Sparkles, ArrowRight, Eye, MessageCircle, FlaskConical, ShieldCheck, ChevronRight, X, Check, GitBranch, CreditCard } from 'lucide-react'
 import { MediaUpload } from '@/components/media-upload'
 import { FUNNEL_TEMPLATES, FunnelTemplate } from '@/lib/funnel-templates'
 
@@ -31,6 +31,7 @@ export function BotForm({ bot, onSaved, onCancel }: BotFormProps) {
   const [abEnabled, setAbEnabled] = useState<boolean>(botAny?.ab_test_enabled ?? false)
   const [flowTypeB, setFlowTypeB] = useState<FlowType>(botAny?.flow_type_b as FlowType ?? 'presentation')
   const [protectContent, setProtectContent] = useState<boolean>(botAny?.protect_content ?? false)
+  const [gateway, setGateway] = useState<'default' | 'amplopay' | 'pushinpay'>((botAny as Record<string, unknown>)?.gateway as 'amplopay' | 'pushinpay' ?? 'default')
   const [selectedTemplate, setSelectedTemplate] = useState<FunnelTemplate | null>(null)
   const [form, setForm] = useState<CreateBotForm & { bot_type?: string; flow_type?: string }>({
     name: bot?.name ?? '',
@@ -95,6 +96,7 @@ export function BotForm({ bot, onSaved, onCancel }: BotFormProps) {
           ab_test_enabled: abEnabled,
           flow_type_b: flowTypeB,
           protect_content: protectContent,
+          gateway: gateway === 'default' ? null : gateway,
           welcome_media_url: form.welcome_media_url || null,
           welcome_media_type: form.welcome_media_type || null,
         }),
@@ -415,6 +417,45 @@ export function BotForm({ bot, onSaved, onCancel }: BotFormProps) {
                   style={{ transform: protectContent ? 'translateX(16px)' : 'translateX(0)' }}
                 />
               </button>
+            </div>
+          </div>
+
+          {/* Gateway per bot */}
+          <div
+            className="rounded-xl p-4 space-y-3"
+            style={{ background: 'rgba(52,211,153,0.04)', border: '1px solid rgba(52,211,153,0.12)' }}
+          >
+            <div className="flex items-center gap-2">
+              <CreditCard className="h-4 w-4 text-emerald-400" />
+              <p className="text-sm font-medium text-slate-200">Gateway de Pagamento</p>
+            </div>
+            <p className="text-xs text-slate-500">Escolha o gateway para este bot. <span className="text-slate-400">Padrão</span> usa o gateway global das Configurações.</p>
+            <div className="grid grid-cols-3 gap-2">
+              {([
+                { value: 'default', label: 'Padrão', desc: 'Global' },
+                { value: 'amplopay', label: 'AmploPay', desc: 'Forçar' },
+                { value: 'pushinpay', label: 'PushinPay', desc: 'Forçar' },
+              ] as const).map((opt) => {
+                const active = gateway === opt.value
+                return (
+                  <button
+                    key={opt.value}
+                    type="button"
+                    onClick={() => setGateway(opt.value)}
+                    className="rounded-lg p-2.5 text-left transition-all duration-150"
+                    style={active ? {
+                      background: 'rgba(52,211,153,0.12)',
+                      border: '1px solid rgba(52,211,153,0.35)',
+                    } : {
+                      background: 'rgba(255,255,255,0.02)',
+                      border: '1px solid rgba(255,255,255,0.06)',
+                    }}
+                  >
+                    <p className={`text-xs font-semibold ${active ? 'text-emerald-300' : 'text-slate-400'}`}>{opt.label}</p>
+                    <p className="text-[10px] text-slate-600">{opt.desc}</p>
+                  </button>
+                )
+              })}
             </div>
           </div>
 

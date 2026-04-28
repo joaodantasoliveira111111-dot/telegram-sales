@@ -204,3 +204,37 @@ export async function sendViewContentEvent(data: ViewContentData, botPixel?: Bot
     },
   })
 }
+
+// ─── Lead ─────────────────────────────────────────────────────────────────────
+
+interface LeadEventData {
+  eventId: string
+  telegramId: string
+  firstName?: string
+  botName?: string
+}
+
+export async function sendLeadEvent(data: LeadEventData, botPixel?: BotPixelOverride) {
+  const cfg = await getPixelConfig(botPixel)
+  if (!cfg.pixelId || !cfg.accessToken) return
+  // Check if lead tracking is enabled
+  const s = await getSettings(['meta_track_lead'])
+  if (s.meta_track_lead === 'false') return
+
+  await sendEvent(cfg.pixelId, cfg.accessToken, cfg.testEventCode, {
+    event_name: 'Lead',
+    event_time: Math.floor(Date.now() / 1000),
+    event_id: data.eventId,
+    event_source_url: EVENT_SOURCE_URL,
+    action_source: 'other',
+    user_data: buildUserData({
+      telegramId: data.telegramId,
+      firstName: data.firstName,
+    }),
+    custom_data: {
+      content_name: data.botName ?? 'Bot',
+      content_ids: [data.botName ?? 'bot'],
+      content_type: 'product',
+    },
+  })
+}

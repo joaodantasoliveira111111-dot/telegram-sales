@@ -1,10 +1,11 @@
 'use client'
 
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useRef } from 'react'
 import { toast } from 'sonner'
 import {
   ExternalLink, Plus, Copy, Trash2, Pencil, X, Check,
   MousePointerClick, ToggleLeft, ToggleRight, Eye, CheckCircle2,
+  Camera, ImageIcon,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -85,15 +86,24 @@ function MiniPreview({ form }: { form: FormState }) {
 
       <div className="flex flex-col items-center gap-3">
         {/* Avatar */}
-        <div
-          className="h-14 w-14 rounded-full flex items-center justify-center text-lg font-bold text-white flex-shrink-0"
-          style={{
-            background: `linear-gradient(135deg,${theme.accent},rgba(${hexToRgb(theme.accent)},0.4))`,
-            boxShadow: `0 0 0 2px ${theme.accent}, 0 0 12px ${theme.glow}`,
-          }}
-        >
-          {form.name.charAt(0).toUpperCase() || '?'}
-        </div>
+        {form.photo_url ? (
+          <img
+            src={form.photo_url}
+            alt={form.name}
+            className="h-14 w-14 rounded-full object-cover flex-shrink-0"
+            style={{ boxShadow: `0 0 0 2px ${theme.accent}, 0 0 12px ${theme.glow}` }}
+          />
+        ) : (
+          <div
+            className="h-14 w-14 rounded-full flex items-center justify-center text-lg font-bold text-white flex-shrink-0"
+            style={{
+              background: `linear-gradient(135deg,${theme.accent},rgba(${hexToRgb(theme.accent)},0.4))`,
+              boxShadow: `0 0 0 2px ${theme.accent}, 0 0 12px ${theme.glow}`,
+            }}
+          >
+            {form.name.charAt(0).toUpperCase() || '?'}
+          </div>
+        )}
 
         {/* Name */}
         <div className="flex items-center gap-1.5">
@@ -165,6 +175,7 @@ interface FormState {
   theme: string
   button_text: string
   bio: string
+  photo_url: string
   highlights: string[]
   show_countdown: boolean
   countdown_minutes: number
@@ -181,6 +192,7 @@ function defaultForm(): FormState {
     theme: 'dark',
     button_text: 'Abrir no Telegram',
     bio: '',
+    photo_url: '',
     highlights: ['', '', ''],
     show_countdown: false,
     countdown_minutes: 15,
@@ -199,6 +211,7 @@ function pageToForm(p: RedirectPage): FormState {
     theme: p.theme,
     button_text: p.button_text,
     bio: p.bio ?? '',
+    photo_url: p.photo_url ?? '',
     highlights: [h[0] ?? '', h[1] ?? '', h[2] ?? ''],
     show_countdown: p.show_countdown,
     countdown_minutes: p.countdown_minutes,
@@ -222,7 +235,23 @@ function PageForm({
 }) {
   const isEdit = !!initial?.id
   const [loading, setLoading] = useState(false)
+  const [uploadingPhoto, setUploadingPhoto] = useState(false)
   const [form, setForm] = useState<FormState>(initial ? pageToForm(initial) : defaultForm())
+  const fileInputRef = useRef<HTMLInputElement>(null)
+
+  async function handlePhotoUpload(file: File) {
+    setUploadingPhoto(true)
+    try {
+      const fd = new FormData()
+      fd.append('file', file)
+      const res = await fetch('/api/upload', { method: 'POST', body: fd })
+      const data = await res.json()
+      if (!res.ok) { toast.error(data.error ?? 'Erro ao fazer upload'); return }
+      set('photo_url', data.url)
+    } finally {
+      setUploadingPhoto(false)
+    }
+  }
 
   function set<K extends keyof FormState>(k: K, v: FormState[K]) {
     setForm(f => ({ ...f, [k]: v }))
@@ -287,6 +316,65 @@ function PageForm({
 
         <form onSubmit={handleSubmit} className="space-y-3">
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            {/* Photo upload */}
+            <div className="space-y-2 sm:col-span-2">
+              <Label>Foto <span className="text-slate-600">(opcional)</span></Label>
+              <div className="flex items-center gap-3">
+                {form.photo_url ? (
+                  <img
+                    src={form.photo_url}
+                    alt="Foto"
+                    className="h-16 w-16 rounded-full object-cover flex-shrink-0"
+                    style={{ border: '2px solid rgba(139,92,246,0.4)' }}
+                  />
+                ) : (
+                  <div
+                    className="h-16 w-16 rounded-full flex items-center justify-center flex-shrink-0"
+                    style={{ background: 'rgba(255,255,255,0.05)', border: '2px dashed rgba(255,255,255,0.12)' }}
+                  >
+                    <ImageIcon className="h-6 w-6 text-slate-600" />
+                  </div>
+                )}
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => fileInputRef.current?.click()}
+                    disabled={uploadingPhoto}
+                    className="flex items-center gap-1.5 rounded-lg px-3 py-2 text-xs font-medium transition-colors disabled:opacity-60"
+                    style={{ background: 'rgba(139,92,246,0.15)', border: '1px solid rgba(139,92,246,0.3)', color: '#c4b5fd' }}
+                  >
+                    {uploadingPhoto
+                      ? <svg className="h-3.5 w-3.5 animate-spin" viewBox="0 0 24 24" fill="none"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" /></svg>
+                      : <Camera className="h-3.5 w-3.5" />
+                    }
+                    {uploadingPhoto ? 'Enviando...' : 'Upload foto'}
+                  </button>
+                  {form.photo_url && (
+                    <button
+                      type="button"
+                      onClick={() => set('photo_url', '')}
+                      className="flex items-center justify-center h-7 w-7 rounded-lg text-slate-500 hover:text-red-400 transition-colors"
+                      style={{ background: 'rgba(255,255,255,0.05)' }}
+                      title="Remover foto"
+                    >
+                      <X className="h-3.5 w-3.5" />
+                    </button>
+                  )}
+                </div>
+              </div>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/jpeg,image/png,image/webp,image/gif"
+                className="hidden"
+                onChange={e => {
+                  const file = e.target.files?.[0]
+                  if (file) handlePhotoUpload(file)
+                  e.target.value = ''
+                }}
+              />
+            </div>
+
             {/* Name */}
             <div className="space-y-1.5 sm:col-span-2">
               <Label>Nome</Label>

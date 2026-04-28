@@ -49,13 +49,17 @@ export async function createPix(data: {
 export async function getTransaction(id: string): Promise<PushinPayTransaction | null> {
   const token = await getToken()
 
-  const res = await fetch(`${BASE}/transaction/${id}`, {
+  const res = await fetch(`${BASE}/pix/cashIn/${id}`, {
     headers: {
       Authorization: `Bearer ${token}`,
       Accept: 'application/json',
+      'Content-Type': 'application/json',
     },
   })
 
   if (!res.ok) return null
-  return res.json()
+  const data = await res.json()
+  // 404 returns empty array []
+  if (Array.isArray(data)) return null
+  return data
 }

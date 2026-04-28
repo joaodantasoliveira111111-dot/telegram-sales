@@ -14,7 +14,7 @@ import { createPix as pushinpayCreatePix } from '@/lib/pushinpay'
 import { getSetting } from '@/lib/settings'
 import { TelegramUpdate, Plan } from '@/types'
 import { getBotMessage } from '@/lib/messages'
-import { sendInitiateCheckoutEvent, sendViewContentEvent } from '@/lib/meta'
+import { sendInitiateCheckoutEvent, sendViewContentEvent, sendLeadEvent } from '@/lib/meta'
 import { executeFlowStep } from '@/lib/flow-executor'
 
 export async function POST(
@@ -147,6 +147,13 @@ async function handleStart(bot: Record<string, unknown>, update: TelegramUpdate)
     accessToken: bot.meta_access_token as string | undefined,
     testEventCode: bot.meta_test_event_code as string | undefined,
   }
+  sendLeadEvent({
+    eventId: `lead_${bot.id}_${from.id}_${Date.now()}`,
+    telegramId: String(from.id),
+    firstName: from.first_name,
+    botName: bot.name as string,
+  }, botPixel).catch(() => {})
+
   sendViewContentEvent({
     eventId: `view_${bot.id}_${from.id}_${Date.now()}`,
     telegramId: String(from.id),
@@ -281,7 +288,7 @@ async function handleCallbackQuery(bot: Record<string, unknown>, update: Telegra
 
   try {
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL
-    const gateway = await getSetting('active_gateway') || 'amplopay'
+    const gateway = (bot.gateway as string | null) || await getSetting('active_gateway') || 'amplopay'
 
     let pixCode: string | null = null
 
