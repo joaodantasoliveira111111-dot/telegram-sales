@@ -22,8 +22,8 @@ export interface PushinPayTransaction {
 export async function createPix(data: {
   value: number      // em reais (ex: 59.90) — convertido para centavos internamente
   webhookUrl?: string
-}): Promise<PushinPayTransaction> {
-  const token = await getToken()
+}, overrideToken?: string): Promise<PushinPayTransaction> {
+  const token = overrideToken ?? await getToken()
 
   const res = await fetch(`${BASE}/pix/cashIn`, {
     method: 'POST',

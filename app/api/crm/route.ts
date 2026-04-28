@@ -1,7 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase'
+import { getSessionFromRequest, getUserBotIds } from '@/lib/session'
 
 export async function GET(request: NextRequest) {
+  const session = await getSessionFromRequest(request)
+  if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+
   const botId = request.nextUrl.searchParams.get('bot_id')
   const tag = request.nextUrl.searchParams.get('tag')
   const search = request.nextUrl.searchParams.get('q')
@@ -15,6 +19,12 @@ export async function GET(request: NextRequest) {
     .order('created_at', { ascending: false })
     .range(from, from + limit - 1)
 
+  if (session.type === 'user') {
+    const botIds = await getUserBotIds(session.userId!)
+    if (botIds.length === 0) return NextResponse.json({ data: [], total: 0, page, limit })
+    q = q.in('bot_id', botIds)
+  }
+
   if (botId) q = q.eq('bot_id', botId)
   if (tag) q = q.contains('tags', [tag])
   if (search) q = q.or(`telegram_id.ilike.%${search}%,username.ilike.%${search}%,first_name.ilike.%${search}%`)
@@ -22,7 +32,6 @@ export async function GET(request: NextRequest) {
   const { data: users, error, count } = await q
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
 
-  // Enrich with LTV from payments
   const ids = (users ?? []).map(u => u.telegram_id as string)
   let ltv: Record<string, number> = {}
   let pixCount: Record<string, number> = {}
@@ -52,9 +61,17 @@ export async function GET(request: NextRequest) {
 }
 
 export async function PATCH(request: NextRequest) {
+  const session = await getSessionFromRequest(request)
+  if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+
   const body = await request.json()
   const { telegram_id, bot_id, tags, notes } = body
   if (!telegram_id || !bot_id) return NextResponse.json({ error: 'telegram_id e bot_id obrigatórios' }, { status: 400 })
+
+  if (session.type === 'user') {
+    const botIds = await getUserBotIds(session.userId!)
+    if (!botIds.includes(bot_id)) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+  }
 
   const update: Record<string, unknown> = {}
   if (tags !== undefined) update.tags = tags

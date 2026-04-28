@@ -1,22 +1,33 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase'
 import { getMe, setWebhook } from '@/lib/telegram'
+import { getSessionFromRequest } from '@/lib/session'
 import { CreateBotForm } from '@/types'
 
-export async function GET() {
-  const { data, error } = await supabaseAdmin
+export async function GET(request: NextRequest) {
+  const session = await getSessionFromRequest(request)
+  if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+
+  let query = supabaseAdmin
     .from('bots')
     .select('*')
     .order('created_at', { ascending: false })
 
+  if (session.type === 'user') {
+    query = query.eq('saas_user_id', session.userId!)
+  }
+
+  const { data, error } = await query
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
   return NextResponse.json(data)
 }
 
 export async function POST(request: NextRequest) {
+  const session = await getSessionFromRequest(request)
+  if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+
   const body: CreateBotForm = await request.json()
 
-  // Validate token with Telegram
   const me = await getMe(body.telegram_token)
   if (!me.ok) {
     return NextResponse.json({ error: 'Token do Telegram inválido.' }, { status: 400 })
@@ -37,13 +48,13 @@ export async function POST(request: NextRequest) {
       flow_type_b: bodyAny.flow_type_b ?? null,
       protect_content: bodyAny.protect_content ?? false,
       gateway: bodyAny.gateway ?? null,
+      saas_user_id: session.type === 'user' ? session.userId : null,
     })
     .select()
     .single()
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
 
-  // Auto-configure webhook
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL
   if (baseUrl) {
     await setWebhook(body.telegram_token, `${baseUrl}/api/telegram/${data.id}`)

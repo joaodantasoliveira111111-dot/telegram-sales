@@ -1,7 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase'
+import { getSessionFromRequest, getUserBotIds } from '@/lib/session'
 
 export async function GET(request: NextRequest) {
+  const session = await getSessionFromRequest(request)
+  if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+
   const botId = request.nextUrl.searchParams.get('bot_id')
   const status = request.nextUrl.searchParams.get('status')
   const page = parseInt(request.nextUrl.searchParams.get('page') ?? '1')
@@ -14,11 +18,16 @@ export async function GET(request: NextRequest) {
     .order('created_at', { ascending: false })
     .range(offset, offset + limit - 1)
 
+  if (session.type === 'user') {
+    const botIds = await getUserBotIds(session.userId!)
+    if (botIds.length === 0) return NextResponse.json({ data: [], total: 0, page, limit })
+    query = query.in('bot_id', botIds)
+  }
+
   if (botId) query = query.eq('bot_id', botId)
   if (status) query = query.eq('status', status)
 
   const { data, error, count } = await query
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
-
   return NextResponse.json({ data, total: count ?? 0, page, limit })
 }

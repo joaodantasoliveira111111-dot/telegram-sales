@@ -1,6 +1,8 @@
 export const dynamic = 'force-dynamic'
 
+import { cookies } from 'next/headers'
 import { supabaseAdmin } from '@/lib/supabase'
+import { getSessionFromCookies, getUserBotIds } from '@/lib/session'
 import { Badge } from '@/components/ui/badge'
 import { formatCurrency, formatDate } from '@/lib/utils'
 import { PaymentStatus } from '@/types'
@@ -43,15 +45,27 @@ export default async function PaymentsPage({
 }: {
   searchParams: Promise<{ page?: string; status?: string; bot_id?: string }>
 }) {
+  const cookieStore = await cookies()
+  const session = await getSessionFromCookies(cookieStore)
+
   const params = await searchParams
   const page = Math.max(1, parseInt(params.page ?? '1'))
   const limit = 25
   const offset = (page - 1) * limit
 
-  // Stats query (all time, no pagination)
-  const { data: statsData } = await supabaseAdmin
-    .from('payments')
-    .select('status, plan:plans(price)')
+  // Resolve bot IDs for scoping
+  let userBotIds: string[] | null = null
+  if (session?.type === 'user') {
+    userBotIds = await getUserBotIds(session.userId!)
+  }
+
+  // Stats query (all time)
+  let statsQ = supabaseAdmin.from('payments').select('status, plan:plans(price)')
+  if (userBotIds !== null) {
+    if (userBotIds.length === 0) statsQ = statsQ.in('bot_id', ['__none__'])
+    else statsQ = statsQ.in('bot_id', userBotIds)
+  }
+  const { data: statsData } = await statsQ
 
   const paid = (statsData ?? []).filter(p => p.status === 'paid')
   const pending = (statsData ?? []).filter(p => p.status === 'pending')
@@ -61,8 +75,13 @@ export default async function PaymentsPage({
   const sumPaid = paid.reduce((a, p) => a + ((p.plan as unknown as PlanSnap)?.price ?? 0), 0)
   const sumPending = pending.reduce((a, p) => a + ((p.plan as unknown as PlanSnap)?.price ?? 0), 0)
 
-  // Bots for filter dropdown
-  const { data: bots } = await supabaseAdmin.from('bots').select('id, name').order('name')
+  // Bots for filter dropdown (scoped)
+  let botsQ = supabaseAdmin.from('bots').select('id, name').order('name')
+  if (userBotIds !== null) {
+    if (userBotIds.length === 0) botsQ = botsQ.in('id', ['__none__'])
+    else botsQ = botsQ.in('id', userBotIds)
+  }
+  const { data: bots } = await botsQ
 
   // Main query with filters
   let query = supabaseAdmin
@@ -71,6 +90,10 @@ export default async function PaymentsPage({
     .order('created_at', { ascending: false })
     .range(offset, offset + limit - 1)
 
+  if (userBotIds !== null) {
+    if (userBotIds.length === 0) query = query.in('bot_id', ['__none__'])
+    else query = query.in('bot_id', userBotIds)
+  }
   if (params.status) query = query.eq('status', params.status)
   if (params.bot_id) query = query.eq('bot_id', params.bot_id)
 

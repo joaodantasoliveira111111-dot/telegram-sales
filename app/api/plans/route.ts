@@ -1,11 +1,20 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase'
+import { getSessionFromRequest, getUserBotIds } from '@/lib/session'
 import { CreatePlanForm } from '@/types'
 
 export async function GET(request: NextRequest) {
-  const botId = request.nextUrl.searchParams.get('bot_id')
+  const session = await getSessionFromRequest(request)
+  if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
+  const botId = request.nextUrl.searchParams.get('bot_id')
   let query = supabaseAdmin.from('plans').select('*, bot:bots(name)').order('created_at', { ascending: false })
+
+  if (session.type === 'user') {
+    const botIds = await getUserBotIds(session.userId!)
+    if (botIds.length === 0) return NextResponse.json([])
+    query = query.in('bot_id', botIds)
+  }
 
   if (botId) query = query.eq('bot_id', botId)
 
@@ -15,7 +24,15 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
+  const session = await getSessionFromRequest(request)
+  if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+
   const body: CreatePlanForm = await request.json()
+
+  if (session.type === 'user') {
+    const botIds = await getUserBotIds(session.userId!)
+    if (!botIds.includes(body.bot_id)) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+  }
 
   const { data, error } = await supabaseAdmin
     .from('plans')

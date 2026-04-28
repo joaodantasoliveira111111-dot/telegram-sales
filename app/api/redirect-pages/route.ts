@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase'
+import { getSessionFromRequest } from '@/lib/session'
 
 function slugify(text: string): string {
   return text
@@ -12,19 +13,29 @@ function slugify(text: string): string {
     .replace(/^-|-$/g, '')
 }
 
-export async function GET() {
-  const { data, error } = await supabaseAdmin
+export async function GET(request: NextRequest) {
+  const session = await getSessionFromRequest(request)
+  if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+
+  let query = supabaseAdmin
     .from('redirect_pages')
     .select('*')
     .order('created_at', { ascending: false })
 
+  if (session.type === 'user') {
+    query = query.eq('saas_user_id', session.userId!)
+  }
+
+  const { data, error } = await query
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
   return NextResponse.json(data)
 }
 
 export async function POST(request: NextRequest) {
-  const body = await request.json()
+  const session = await getSessionFromRequest(request)
+  if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
+  const body = await request.json()
   const { name, bot_link } = body
   if (!name) return NextResponse.json({ error: 'name é obrigatório' }, { status: 400 })
   if (!bot_link) return NextResponse.json({ error: 'bot_link é obrigatório' }, { status: 400 })
@@ -47,6 +58,7 @@ export async function POST(request: NextRequest) {
       show_verification: body.show_verification ?? false,
       highlights: body.highlights ?? [],
       is_active: body.is_active ?? true,
+      saas_user_id: session.type === 'user' ? session.userId : null,
     })
     .select()
     .single()

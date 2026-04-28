@@ -1,9 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase'
+import { getSessionFromRequest } from '@/lib/session'
 
 export const runtime = 'nodejs'
 
 export async function POST(request: NextRequest) {
+  const session = await getSessionFromRequest(request)
+  if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+
   const { phone } = await request.json()
 
   if (!phone) {
@@ -21,27 +25,19 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    // Dynamically import gramjs to avoid edge runtime issues
     const { TelegramClient } = await import('telegram')
     const { StringSession } = await import('telegram/sessions')
 
-    const session = new StringSession('')
-    const client = new TelegramClient(session, apiId, apiHash, {
-      connectionRetries: 3,
-    })
-
+    const tgSession = new StringSession('')
+    const client = new TelegramClient(tgSession, apiId, apiHash, { connectionRetries: 3 })
     await client.connect()
 
-    const result = await client.sendCode(
-      { apiId, apiHash },
-      phone
-    )
-
+    const result = await client.sendCode({ apiId, apiHash }, phone)
     const sessionString = String(client.session.save())
-
     await client.disconnect()
 
-    // Upsert session record
+    const saasUserId = session.type === 'user' ? session.userId : null
+
     await supabaseAdmin
       .from('telegram_sessions')
       .upsert({
@@ -49,6 +45,7 @@ export async function POST(request: NextRequest) {
         phone_code_hash: result.phoneCodeHash,
         session_string: sessionString,
         status: 'pending_code',
+        saas_user_id: saasUserId,
         updated_at: new Date().toISOString(),
       }, { onConflict: 'phone' })
 

@@ -1,18 +1,23 @@
 import { supabaseAdmin } from './supabase'
 
-export async function getConnectedSession() {
-  const { data } = await supabaseAdmin
+export async function getConnectedSession(saasUserId?: string) {
+  let query = supabaseAdmin
     .from('telegram_sessions')
     .select('*')
     .eq('status', 'connected')
     .order('updated_at', { ascending: false })
     .limit(1)
-    .maybeSingle()
+
+  if (saasUserId) {
+    query = query.eq('saas_user_id', saasUserId)
+  }
+
+  const { data } = await query.maybeSingle()
   return data
 }
 
-export async function createConnectedClient() {
-  const session = await getConnectedSession()
+export async function createConnectedClient(saasUserId?: string) {
+  const session = await getConnectedSession(saasUserId)
   if (!session) throw new Error('Nenhuma conta Telegram conectada. Vá em Conta Telegram e faça login.')
 
   const apiId = Number(process.env.TELEGRAM_API_ID)
