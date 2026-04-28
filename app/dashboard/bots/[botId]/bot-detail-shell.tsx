@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { Bot, ListOrdered, MessageSquare, Package, Sparkles, ArrowLeft, Cpu, BarChart2, TrendingUp, GitBranch } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { Breadcrumbs } from '@/components/breadcrumbs'
 
 interface BotDetailShellProps {
   bot: { id: string; name: string; is_active: boolean; bot_type?: string }
@@ -28,6 +29,9 @@ export function BotDetailShell({ bot, children }: BotDetailShellProps) {
 
   return (
     <div className="space-y-6 animate-fade-up">
+      {/* Breadcrumbs */}
+      <Breadcrumbs labels={{ [bot.id]: bot.name }} />
+
       {/* Back + Header */}
       <div>
         <Link

@@ -5,7 +5,7 @@ import { usePathname, useRouter } from 'next/navigation'
 import {
   LayoutDashboard, Bot, Users2, Megaphone, Handshake,
   Shield, ExternalLink, CreditCard, BarChart2, UserCheck,
-  LayoutTemplate, Wand2, Settings, LogOut, Link2, X,
+  Wand2, Settings, LogOut, Link2, X, UsersRound,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
@@ -43,12 +43,12 @@ const NAV = [
       { href: '/dashboard/payments', label: 'Pagamentos', icon: CreditCard },
       { href: '/dashboard/subscriptions', label: 'Assinaturas', icon: BarChart2 },
       { href: '/dashboard/crm', label: 'CRM', icon: UserCheck },
+      { href: '/dashboard/users', label: 'Usuários SaaS', icon: UsersRound },
     ],
   },
   {
     label: 'Builder',
     items: [
-      { href: '/dashboard/funnel-templates', label: 'Templates', icon: LayoutTemplate },
       { href: '/dashboard/tools', label: 'Ferramentas', icon: Wand2 },
     ],
   },
