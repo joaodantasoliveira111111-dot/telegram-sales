@@ -58,8 +58,8 @@ const glass = {
     backdropFilter: 'blur(40px)',
   } as React.CSSProperties,
   activeItem: {
-    background: 'linear-gradient(135deg, rgba(59,130,246,0.18) 0%, rgba(139,92,246,0.08) 100%)',
-    border: '1px solid rgba(59,130,246,0.25)',
+    background: 'linear-gradient(135deg, rgba(139,92,246,0.18) 0%, rgba(109,40,217,0.1) 100%)',
+    border: '1px solid rgba(139,92,246,0.28)',
   } as React.CSSProperties,
   infoCard: {
     background: 'rgba(255,255,255,0.03)',
@@ -87,7 +87,7 @@ export function Sidebar({ onClose }: SidebarProps) {
       <div className="flex h-16 shrink-0 items-center justify-between px-5">
         <div className="flex items-center gap-3">
           <div className="h-9 w-9 overflow-hidden rounded-xl shadow-lg flex-shrink-0"
-            style={{ boxShadow: '0 0 20px rgba(59,130,246,0.35)' }}>
+            style={{ boxShadow: '0 0 20px rgba(139,92,246,0.35)' }}>
             <img src="/logo.svg" alt="FlowBot" className="h-9 w-9" />
           </div>
           <div className="leading-tight">
@@ -121,19 +121,19 @@ export function Sidebar({ onClose }: SidebarProps) {
                   <Link key={href} href={href}
                     className={cn(
                       'group relative flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-150',
-                      active ? 'text-blue-300' : 'text-slate-500 hover:text-slate-200'
+                      active ? 'text-violet-300' : 'text-slate-500 hover:text-slate-200'
                     )}
                     style={active ? glass.activeItem : undefined}>
                     {!active && (
                       <div className="absolute inset-0 rounded-xl opacity-0 transition-opacity group-hover:opacity-100"
-                        style={{ background: 'rgba(255,255,255,0.04)' }} />
+                        style={{ background: 'rgba(139,92,246,0.06)' }} />
                     )}
                     <Icon className={cn('relative h-4 w-4 shrink-0 transition-colors',
-                      active ? 'text-blue-400' : 'text-slate-600 group-hover:text-slate-400')} />
+                      active ? 'text-violet-400' : 'text-slate-600 group-hover:text-slate-400')} />
                     <span className="relative flex-1">{label}</span>
                     {active && (
                       <span className="h-1.5 w-1.5 shrink-0 rounded-full"
-                        style={{ background: '#3b82f6', boxShadow: '0 0 6px rgba(59,130,246,0.6)' }} />
+                        style={{ background: '#8b5cf6', boxShadow: '0 0 6px rgba(139,92,246,0.7)' }} />
                     )}
                     {!active && (
                       <ChevronRight className="relative h-3 w-3 shrink-0 text-slate-700 opacity-0 transition-opacity group-hover:opacity-100" />
@@ -150,9 +150,9 @@ export function Sidebar({ onClose }: SidebarProps) {
       <div className="shrink-0 space-y-1.5 p-3">
         <Link href="/dashboard/settings"
           className={cn('flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all',
-            pathname.startsWith('/dashboard/settings') ? 'text-blue-300' : 'text-slate-500 hover:text-slate-200')}
+            pathname.startsWith('/dashboard/settings') ? 'text-violet-300' : 'text-slate-500 hover:text-slate-200')}
           style={pathname.startsWith('/dashboard/settings') ? glass.activeItem : { background: 'rgba(255,255,255,0.02)' }}>
-          <Settings className={cn('h-4 w-4 shrink-0', pathname.startsWith('/dashboard/settings') ? 'text-blue-400' : 'text-slate-600')} />
+          <Settings className={cn('h-4 w-4 shrink-0', pathname.startsWith('/dashboard/settings') ? 'text-violet-400' : 'text-slate-600')} />
           Configurações
         </Link>
 

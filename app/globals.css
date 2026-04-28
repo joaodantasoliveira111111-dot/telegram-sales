@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
 :root {
-  --background: #07071a;
+  --background: #06040f;
   --foreground: #f1f5f9;
   scroll-behavior: smooth;
 }
@@ -17,33 +17,57 @@ body {
   box-sizing: border-box;
 }
 
-/* Animated background blobs */
+/* ─── Blob drift ─── */
 @keyframes blob-drift {
   0%, 100% { transform: translate(0, 0) scale(1); }
   33% { transform: translate(40px, -60px) scale(1.08); }
   66% { transform: translate(-30px, 30px) scale(0.94); }
 }
 
+/* ─── Entrance ─── */
 @keyframes fade-in-up {
-  from { opacity: 0; transform: translateY(12px); }
+  from { opacity: 0; transform: translateY(14px); }
   to   { opacity: 1; transform: translateY(0); }
 }
 
-@keyframes pulse-glow {
-  0%, 100% { box-shadow: 0 0 20px rgba(59, 130, 246, 0.2); }
-  50%       { box-shadow: 0 0 40px rgba(59, 130, 246, 0.4); }
+/* ─── Purple pulse glow ─── */
+@keyframes pulse-glow-purple {
+  0%, 100% { box-shadow: 0 0 24px rgba(139,92,246,0.2), 0 0 0 1px rgba(139,92,246,0.08); }
+  50%       { box-shadow: 0 0 60px rgba(139,92,246,0.5), 0 0 100px rgba(139,92,246,0.15), 0 0 0 1px rgba(139,92,246,0.2); }
+}
+
+/* ─── Gradient shift (animated text) ─── */
+@keyframes grad-shift {
+  0%, 100% { background-position: 0% 50%; }
+  50%       { background-position: 100% 50%; }
+}
+
+/* ─── SVG flow line dash ─── */
+@keyframes flow-dash {
+  from { stroke-dashoffset: 240; }
+  to   { stroke-dashoffset: 0; }
 }
 
 .blob-1 { animation: blob-drift 28s ease-in-out infinite; }
 .blob-2 { animation: blob-drift 22s ease-in-out infinite reverse; animation-delay: -9s; }
 .blob-3 { animation: blob-drift 18s ease-in-out infinite; animation-delay: -5s; }
 
-.animate-fade-up { animation: fade-in-up 0.35s ease-out both; }
-.animate-fade-up-delay { animation: fade-in-up 0.35s ease-out 0.08s both; }
-.animate-pulse-glow { animation: pulse-glow 3s ease-in-out infinite; }
+.animate-fade-up       { animation: fade-in-up 0.35s ease-out both; }
+.animate-fade-up-delay { animation: fade-in-up 0.35s ease-out 0.1s both; }
+.animate-pulse-glow    { animation: pulse-glow-purple 3s ease-in-out infinite; }
 
-/* Custom scrollbar */
+/* ─── Flowing purple gradient text ─── */
+.text-flow-gradient {
+  background: linear-gradient(135deg, #c084fc 0%, #8b5cf6 35%, #6d28d9 65%, #a855f7 100%);
+  background-size: 300% 300%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: grad-shift 5s ease infinite;
+}
+
+/* ─── Custom scrollbar (purple) ─── */
 ::-webkit-scrollbar { width: 5px; height: 5px; }
 ::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 99px; }
-::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.2); }
+::-webkit-scrollbar-thumb { background: rgba(139,92,246,0.25); border-radius: 99px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(139,92,246,0.45); }

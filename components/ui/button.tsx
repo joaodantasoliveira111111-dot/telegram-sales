@@ -4,16 +4,16 @@ import { cva, type VariantProps } from 'class-variance-authority'
 import { cn } from '@/lib/utils'
 
 const buttonVariants = cva(
-  'inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-xl text-sm font-medium transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/50 disabled:pointer-events-none disabled:opacity-40 active:scale-[0.97]',
+  'inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-xl text-sm font-medium transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500/50 disabled:pointer-events-none disabled:opacity-40 active:scale-[0.97]',
   {
     variants: {
       variant: {
         default: [
           'text-white shadow-lg',
-          'bg-gradient-to-br from-blue-500 to-blue-700',
-          'shadow-blue-500/25',
-          'hover:from-blue-400 hover:to-blue-600',
-          'hover:shadow-blue-500/40',
+          'bg-gradient-to-br from-violet-500 to-violet-700',
+          'shadow-violet-500/25',
+          'hover:from-violet-400 hover:to-violet-600',
+          'hover:shadow-violet-500/40',
         ].join(' '),
         destructive: [
           'text-white shadow-lg',
@@ -29,7 +29,7 @@ const buttonVariants = cva(
           'text-slate-200',
         ].join(' '),
         ghost: 'text-slate-300 hover:text-slate-100',
-        link: 'text-blue-400 underline-offset-4 hover:underline',
+        link: 'text-violet-400 underline-offset-4 hover:underline',
         success: [
           'text-white shadow-lg',
           'bg-gradient-to-br from-emerald-500 to-emerald-700',
