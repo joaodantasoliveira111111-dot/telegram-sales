@@ -723,6 +723,122 @@ function MoreFeatures() {
   )
 }
 
+// ─── Marketing Integrations ───────────────────────────────────────────────────
+
+function IconMeta() {
+  return (
+    <svg viewBox="0 0 48 48" fill="none" aria-label="Meta Ads">
+      {/* Meta "M" infinity loop — brand shape */}
+      <path
+        d="M6 28.5c0 4.97 3.13 8.5 7.5 8.5 2.6 0 4.5-1.05 6.4-3.5L24 28l4.1 5.5C30 36 32 37 34.5 37 38.87 37 42 33.47 42 28.5c0-2.63-.72-5.07-2.14-7.15C38.2 19.05 35.6 17 32.5 17c-2.4 0-4.6.85-6.7 3.3L24 22.5l-1.8-2.2C20.1 17.85 17.9 17 15.5 17c-3.1 0-5.7 2.05-7.36 4.35C6.72 23.43 6 25.87 6 28.5zm3.2 0c0-2.06.55-4 1.56-5.55C11.9 21.23 13.52 20 15.5 20c1.75 0 3.2.63 4.9 2.85L24 27.3l3.6-4.45C29.3 20.63 30.75 20 32.5 20c1.98 0 3.6 1.23 4.74 2.95C38.25 24.5 38.8 26.44 38.8 28.5c0 3.62-2.03 6-4.3 6-1.45 0-2.58-.6-3.9-2.38L24 24.4l-6.6 7.72C16.08 33.9 14.95 34.5 13.5 34.5c-2.27 0-4.3-2.38-4.3-6z"
+        fill="#0081FB"
+      />
+    </svg>
+  )
+}
+
+function IconTikTok() {
+  return (
+    <svg viewBox="0 0 48 48" fill="none" aria-label="TikTok Ads">
+      {/* TikTok official note shape */}
+      <path
+        d="M38.72 11.52A10.6 10.6 0 0132 9.04V21.9a12.42 12.42 0 01-12.42 12.4 12.42 12.42 0 01-12.42-12.4 12.42 12.42 0 0112.42-12.4c.68 0 1.35.06 2 .17v7.94a4.85 4.85 0 00-2-.42 4.9 4.9 0 00-4.9 4.9 4.9 4.9 0 004.9 4.9 4.9 4.9 0 004.9-4.9V3h6.74a10.62 10.62 0 007.5 8.52z"
+        fill="#010101"
+      />
+      <path
+        d="M37.72 10.52A10.6 10.6 0 0131 8.04V20.9a12.42 12.42 0 01-12.42 12.4 12.42 12.42 0 01-12.42-12.4A12.42 12.42 0 0118.58 8.5c.68 0 1.35.06 2 .17V16.6a4.85 4.85 0 00-2-.42 4.9 4.9 0 00-4.9 4.9 4.9 4.9 0 004.9 4.9 4.9 4.9 0 004.9-4.9V2h6.74a10.62 10.62 0 007.5 8.52z"
+        fill="#69C9D0"
+        opacity="0.6"
+      />
+      <path
+        d="M39.72 12.52A10.6 10.6 0 0133 10.04V22.9a12.42 12.42 0 01-12.42 12.4 12.42 12.42 0 01-12.42-12.4A12.42 12.42 0 0120.58 10.5c.68 0 1.35.06 2 .17V18.6a4.85 4.85 0 00-2-.42 4.9 4.9 0 00-4.9 4.9 4.9 4.9 0 004.9 4.9 4.9 4.9 0 004.9-4.9V4h6.74a10.62 10.62 0 007.5 8.52z"
+        fill="#EE1D52"
+        opacity="0.6"
+      />
+    </svg>
+  )
+}
+
+function IconGA4() {
+  return (
+    <svg viewBox="0 0 48 48" fill="none" aria-label="Google Analytics 4">
+      {/* GA4 — 3 rising bars (official icon shape) */}
+      <rect x="5" y="26" width="10" height="16" rx="3" fill="#E37400" />
+      <rect x="19" y="16" width="10" height="26" rx="3" fill="#E37400" />
+      <rect x="33" y="6" width="10" height="36" rx="3" fill="#E37400" />
+      {/* Flame accent dot */}
+      <circle cx="38" cy="12" r="4" fill="#FBBC04" />
+    </svg>
+  )
+}
+
+function IconGTM() {
+  return (
+    <svg viewBox="0 0 48 48" fill="none" aria-label="Google Tag Manager">
+      {/* GTM tag shape — official arrow/diamond */}
+      <path d="M24 4L44 24L24 44L4 24L24 4Z" fill="#4285F4" />
+      <path d="M24 4L34 24L24 44L4 24L24 4Z" fill="#4285F4" />
+      <path d="M24 4L44 24L34 24L24 4Z" fill="#4285F4" />
+      {/* Inner arrow pointing up-right */}
+      <path d="M20 28V20h8l-8-8-8 8h5v8h3z" fill="white" />
+      <path d="M26 16h6v6h-2v-4h-4v-2z" fill="white" opacity="0.85" />
+    </svg>
+  )
+}
+
+function IconKwai() {
+  return (
+    <svg viewBox="0 0 48 48" fill="none" aria-label="Kwai Ads">
+      {/* Kwai — rounded square with K */}
+      <rect width="48" height="48" rx="12" fill="#FF5E0A" />
+      <path
+        d="M14 12h5v10l9-10h7L24 24l12 12h-7L20 26v10h-6V12z"
+        fill="white"
+      />
+    </svg>
+  )
+}
+
+function MarketingIntegrations() {
+  const platforms = [
+    { name: 'Meta Ads', Icon: IconMeta },
+    { name: 'TikTok Ads', Icon: IconTikTok },
+    { name: 'Google Analytics 4', Icon: IconGA4 },
+    { name: 'Google Tag Manager', Icon: IconGTM },
+    { name: 'Kwai Ads', Icon: IconKwai },
+  ]
+
+  return (
+    <div className="py-16" style={{ background: '#06040f', borderTop: '1px solid rgba(139,92,246,0.09)', borderBottom: '1px solid rgba(139,92,246,0.09)' }}>
+      <div className="mx-auto max-w-4xl px-6">
+        <p className="text-center text-xs font-bold uppercase tracking-widest text-violet-500 mb-2">
+          Rastreamento &amp; Marketing
+        </p>
+        <h2 className="text-center text-xl md:text-2xl font-black text-white mb-10">
+          Dispara eventos nas suas plataformas de anúncio
+        </h2>
+        <div className="flex flex-wrap justify-center gap-5">
+          {platforms.map(({ name, Icon }) => (
+            <div
+              key={name}
+              data-animate
+              className="opacity-0 flex flex-col items-center gap-3 rounded-2xl px-6 py-5 transition-all hover:scale-[1.03]"
+              style={{
+                background: 'rgba(255,255,255,0.03)',
+                border: '1px solid rgba(255,255,255,0.07)',
+                minWidth: 120,
+              }}
+            >
+              <Icon />
+              <span className="text-xs font-semibold text-zinc-400 text-center leading-tight whitespace-nowrap">{name}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  )
+}
+
 // ─── How It Works ─────────────────────────────────────────────────────────────
 
 function HowItWorks() {
@@ -1064,6 +1180,7 @@ export function LandingPage() {
       <BeforeAfter />
       <Features />
       <MoreFeatures />
+      <MarketingIntegrations />
       <HowItWorks />
       <Templates />
       <BigNumbers />
