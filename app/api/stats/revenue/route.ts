@@ -42,6 +42,16 @@ function getRange(period: string): { since: Date; until: Date; points: { key: st
 }
 
 export async function GET(request: NextRequest) {
+  // Return total all-time revenue for milestone widget
+  if (request.nextUrl.searchParams.get('total') === '1') {
+    const { data } = await supabaseAdmin
+      .from('payments')
+      .select('plan:plans(price)')
+      .eq('status', 'paid')
+    const total = (data ?? []).reduce((sum, p) => sum + (((p.plan as unknown) as { price: number } | null)?.price ?? 0), 0)
+    return NextResponse.json({ total })
+  }
+
   const period = request.nextUrl.searchParams.get('period') ?? '30d'
   const { since, until, points } = getRange(period)
   const isHourly = period === 'today' || period === 'yesterday'

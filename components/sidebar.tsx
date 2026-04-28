@@ -6,10 +6,11 @@ import {
   Bot, CreditCard, LayoutDashboard, Users,
   Megaphone, BarChart2, X,
   Settings, LogOut, ChevronRight, Link2, Shield,
-  UserCheck, CalendarClock, LayoutTemplate, Handshake,
+  UserCheck, LayoutTemplate, Handshake,
   ExternalLink, Wand2,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { RevenueMilestone } from './revenue-milestone'
 
 const navGroups = [
   {
@@ -30,9 +31,8 @@ const navGroups = [
   {
     label: 'Marketing',
     items: [
-      { href: '/dashboard/broadcasts', label: 'Transmissões', icon: Megaphone },
+      { href: '/dashboard/broadcasts', label: 'Postagens', icon: Megaphone },
       { href: '/dashboard/affiliates', label: 'Afiliados', icon: Handshake },
-      { href: '/dashboard/scheduled-posts', label: 'Agendamento', icon: CalendarClock },
       { href: '/dashboard/cloakers', label: 'Cloaker', icon: Shield },
       { href: '/dashboard/redirect-pages', label: 'Página de Redirect', icon: ExternalLink },
     ],
@@ -167,6 +167,8 @@ export function Sidebar({ onClose }: SidebarProps) {
           <LogOut className="h-4 w-4 shrink-0" />
           Sair
         </button>
+
+        <RevenueMilestone />
 
         <div className="rounded-xl px-3 py-2.5" style={glass.infoCard}>
           <p className="text-[9px] font-bold uppercase tracking-[0.1em] text-slate-600">Webhook AmploPay</p>

@@ -19,17 +19,21 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   const body = await request.json()
 
+  const insert: Record<string, unknown> = {
+    bot_id: body.bot_id,
+    name: body.name,
+    message_text: body.message_text,
+    media_url: body.media_url ?? null,
+    media_type: body.media_type ?? null,
+    target_type: body.target_type,
+    status: body.scheduled_at ? 'scheduled' : 'draft',
+  }
+  if (body.scheduled_at) insert.scheduled_at = body.scheduled_at
+  if (body.inline_keyboard) insert.inline_keyboard = body.inline_keyboard
+
   const { data, error } = await supabaseAdmin
     .from('broadcasts')
-    .insert({
-      bot_id: body.bot_id,
-      name: body.name,
-      message_text: body.message_text,
-      media_url: body.media_url ?? null,
-      media_type: body.media_type ?? null,
-      target_type: body.target_type,
-      status: 'draft',
-    })
+    .insert(insert)
     .select()
     .single()
 
