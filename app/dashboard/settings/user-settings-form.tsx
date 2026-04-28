@@ -9,9 +9,9 @@ import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 
 const PLAN_ORDER = ['pay_per_use', 'starter', 'pro']
-const PLAN_LABELS: Record<string, string> = { pay_per_use: 'Pay-per-use', starter: 'Starter', pro: 'Pro' }
-const PLAN_PRICES: Record<string, number> = { starter: 97, pro: 297 }
-const PLAN_FEE: Record<string, string> = { pay_per_use: 'R$ 0,50/venda', starter: 'R$ 0,35/venda', pro: 'R$ 0,25/venda' }
+const PLAN_LABELS: Record<string, string> = { pay_per_use: 'Free', starter: 'Starter', pro: 'Pro' }
+const PLAN_PRICES: Record<string, number> = { starter: 97, pro: 197 }
+const PLAN_FEE: Record<string, string> = { pay_per_use: 'R$ 0,49/venda', starter: 'R$ 0,39/venda', pro: 'R$ 0,29/venda' }
 
 function SecretInput({ value, onChange, placeholder, id }: { value: string; onChange: (v: string) => void; placeholder?: string; id: string }) {
   const [show, setShow] = useState(false)

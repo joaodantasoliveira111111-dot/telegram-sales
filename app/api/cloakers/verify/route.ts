@@ -5,7 +5,11 @@ export const runtime = 'nodejs'
 
 export async function POST(request: NextRequest) {
   try {
-    const { slug, verdict } = await request.json() as { slug: string; verdict: 'h' | 's' }
+    const { slug, verdict, params } = await request.json() as {
+      slug: string
+      verdict: 'h' | 's'
+      params?: string // JSON-encoded click ID map
+    }
 
     if (!slug || (verdict !== 'h' && verdict !== 's')) {
       return NextResponse.json({ error: 'invalid' }, { status: 400 })
@@ -16,7 +20,6 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'forbidden' }, { status: 403 })
     }
 
-    // Look up cloaker id by slug to embed in token
     const { supabaseAdmin } = await import('@/lib/supabase')
     const { data: cloaker } = await supabaseAdmin
       .from('cloakers')
@@ -28,7 +31,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'not_found' }, { status: 404 })
     }
 
-    const token = signToken(cloaker.id, verdict)
+    const token = signToken(cloaker.id, verdict, params)
     return NextResponse.json({ token })
   } catch {
     return NextResponse.json({ error: 'error' }, { status: 500 })

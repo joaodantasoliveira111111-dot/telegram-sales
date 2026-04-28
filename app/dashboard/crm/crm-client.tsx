@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import { toast } from 'sonner'
-import { UserCheck, Search, Tag, X, AlertTriangle, TrendingUp, Clock, StickyNote } from 'lucide-react'
+import { UserCheck, Search, Tag, X, AlertTriangle, TrendingUp, Clock, StickyNote, CheckCircle2, CreditCard, MessageSquare, Eye } from 'lucide-react'
 import { Input } from '@/components/ui/input'
 
 interface Lead {
@@ -24,6 +24,59 @@ interface Lead {
 const TAG_PRESETS = ['VIP', 'Problemático', 'Potencial upgrade', 'Recorrente', 'Desistiu', 'Lead frio']
 const CHURN_COLORS = { low: 'text-emerald-400', medium: 'text-yellow-400', high: 'text-red-400' }
 const CHURN_LABELS = { low: 'Ativo', medium: 'Risco', high: 'Sumiu' }
+
+function FunnelJourney({ lead }: { lead: Lead }) {
+  const hasPaid = lead.ltv > 0
+  const hasPixed = lead.total_pix > 0
+  const hasInteracted = !!lead.last_seen
+
+  const steps = [
+    { icon: MessageSquare, label: 'Iniciou o bot', done: hasInteracted, color: '#60a5fa' },
+    { icon: Eye, label: 'Visualizou planos', done: hasPixed || hasPaid, color: '#a78bfa' },
+    { icon: CreditCard, label: 'Gerou PIX', done: hasPixed, color: '#f59e0b' },
+    { icon: CheckCircle2, label: 'Pagamento confirmado', done: hasPaid, color: '#34d399' },
+  ]
+
+  const currentStep = steps.filter(s => s.done).length
+
+  return (
+    <div>
+      <p className="text-[11px] font-semibold text-slate-500 mb-3 flex items-center gap-1">
+        <TrendingUp className="h-3 w-3" />Jornada no funil
+      </p>
+      <div className="space-y-0">
+        {steps.map((step, i) => {
+          const Icon = step.icon
+          const isActive = i === currentStep && !hasPaid
+          return (
+            <div key={i} className="flex items-start gap-3">
+              <div className="flex flex-col items-center">
+                <div className="flex h-6 w-6 items-center justify-center rounded-full transition-all"
+                  style={step.done
+                    ? { background: `${step.color}20`, border: `1px solid ${step.color}60` }
+                    : isActive
+                    ? { background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.15)' }
+                    : { background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.05)' }}>
+                  <Icon className="h-3 w-3" style={{ color: step.done ? step.color : isActive ? '#71717a' : '#3f3f46' }} />
+                </div>
+                {i < steps.length - 1 && (
+                  <div className="w-px h-4 mt-0.5"
+                    style={{ background: i < currentStep ? 'rgba(52,211,153,0.3)' : 'rgba(255,255,255,0.05)' }} />
+                )}
+              </div>
+              <div className="pb-2 pt-0.5">
+                <p className="text-xs leading-none" style={{ color: step.done ? '#e4e4e7' : isActive ? '#71717a' : '#3f3f46' }}>
+                  {step.label}
+                </p>
+                {isActive && <p className="text-[10px] text-amber-400/70 mt-0.5">Parou aqui</p>}
+              </div>
+            </div>
+          )
+        })}
+      </div>
+    </div>
+  )
+}
 
 export function CrmClient({ bots }: { bots: { id: string; name: string }[] }) {
   const [leads, setLeads] = useState<Lead[]>([])
@@ -183,6 +236,9 @@ export function CrmClient({ bots }: { bots: { id: string; name: string }[] }) {
                 </div>
               ))}
             </div>
+
+            {/* Funnel journey */}
+            <FunnelJourney lead={selected} />
 
             {/* Tags */}
             <div>

@@ -13,11 +13,10 @@ export async function GET(
   const payload = verifyToken(token)
 
   if (!payload) {
-    // Expired or tampered — send to google silently
     return NextResponse.redirect('https://www.google.com', { status: 302 })
   }
 
-  const { cloakerId, verdict } = payload
+  const { cloakerId, verdict, params: encodedParams } = payload
 
   const { data: cloaker } = await supabaseAdmin
     .from('cloakers')
@@ -29,11 +28,22 @@ export async function GET(
     return NextResponse.redirect('https://www.google.com', { status: 302 })
   }
 
-  const target = verdict === 'h' ? cloaker.destination_url : cloaker.safe_url
+  const rawTarget = verdict === 'h' ? cloaker.destination_url : (cloaker.safe_url || 'https://www.google.com')
+
+  // Append preserved click IDs (fbclid, gclid, ttclid, UTMs, etc.) to destination
+  let target = rawTarget
+  if (verdict === 'h' && encodedParams) {
+    try {
+      const preserved = JSON.parse(decodeURIComponent(encodedParams)) as Record<string, string>
+      const destUrl = new URL(rawTarget)
+      Object.entries(preserved).forEach(([k, v]) => {
+        if (!destUrl.searchParams.has(k)) destUrl.searchParams.set(k, v)
+      })
+      target = destUrl.toString()
+    } catch { /* malformed params — use original URL */ }
+  }
 
   const response = NextResponse.redirect(target, { status: 302 })
-
-  // Clear the session cookie after use
   response.cookies.set('_ck', '', {
     httpOnly: true,
     sameSite: 'strict',

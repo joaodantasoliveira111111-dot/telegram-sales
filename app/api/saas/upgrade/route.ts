@@ -5,7 +5,7 @@ import { getSettings } from '@/lib/settings'
 import { createPix as amlopayCreatePix } from '@/lib/amplopay'
 
 const PLAN_ORDER = ['pay_per_use', 'starter', 'pro']
-const PLAN_PRICES: Record<string, number> = { starter: 97, pro: 297 }
+const PLAN_PRICES: Record<string, number> = { starter: 97, pro: 197 }
 
 export async function POST(request: NextRequest) {
   const session = await getSessionFromRequest(request)

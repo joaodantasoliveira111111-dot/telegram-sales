@@ -8,7 +8,7 @@ function hashPassword(password: string, salt: string): string {
   return createHash('sha256').update(salt + password).digest('hex')
 }
 
-const PLAN_PRICES: Record<string, number> = { starter: 97, pro: 297 }
+const PLAN_PRICES: Record<string, number> = { starter: 97, pro: 197 }
 
 export async function POST(request: NextRequest) {
   let body: {

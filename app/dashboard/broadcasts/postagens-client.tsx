@@ -13,8 +13,9 @@ import {
 import { Button } from '@/components/ui/button'
 import { MediaUpload } from '@/components/media-upload'
 import { cn } from '@/lib/utils'
+import { RemarketingClient } from './remarketing-client'
 
-type Tab = 'compose' | 'scheduled' | 'history'
+type Tab = 'compose' | 'scheduled' | 'history' | 'remarketing'
 type DestMode = 'bot' | 'group'
 
 interface InlineButton { text: string; url: string }
@@ -405,6 +406,7 @@ export function PostagensClient({ broadcasts: init, scheduledPosts: initSched, b
           { key: 'compose' as const, label: 'Compor', icon: PenLine },
           { key: 'scheduled' as const, label: totalScheduled > 0 ? `Agendadas (${totalScheduled})` : 'Agendadas', icon: CalendarClock },
           { key: 'history' as const, label: 'Histórico', icon: History },
+          { key: 'remarketing' as const, label: 'Remarketing', icon: RefreshCw },
         ]).map(({ key, label, icon: Icon }) => (
           <button key={key} onClick={() => setTab(key)}
             className="flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-medium transition-all"
@@ -839,6 +841,10 @@ export function PostagensClient({ broadcasts: init, scheduledPosts: initSched, b
             </>
           )}
         </div>
+      )}
+
+      {tab === 'remarketing' && (
+        <RemarketingClient bots={bots} />
       )}
     </div>
   )

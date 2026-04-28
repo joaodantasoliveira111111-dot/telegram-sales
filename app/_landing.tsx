@@ -1065,58 +1065,125 @@ function Testimonials() {
 // ─── Pricing ─────────────────────────────────────────────────────────────────
 
 function Pricing() {
-  const features = [
-    'Bots ilimitados',
-    'Todos os tipos de fluxo',
-    'Teste A/B de roteiros',
-    'PIX automático (AmploPay)',
-    'Histórico completo de clientes',
-    'Programa de afiliados',
-    'Links inteligentes por país',
-    '6 templates inclusos',
-    'Transmissões segmentadas',
-    'Suporte prioritário',
+  const plans = [
+    {
+      name: 'Free',
+      price: 'R$0',
+      period: '/mês',
+      fee: 'R$ 0,49 por venda',
+      desc: 'Para quem está começando. Pague só quando vender.',
+      highlight: false,
+      badge: null,
+      cta: 'Criar conta grátis',
+      features: [
+        'Bots ilimitados',
+        'Todos os templates',
+        'Editor visual de fluxos',
+        'PIX automático',
+        'CRM básico',
+        'Suporte incluso',
+      ],
+    },
+    {
+      name: 'Starter',
+      price: 'R$ 97',
+      period: '/mês',
+      fee: 'R$ 0,39 por venda',
+      desc: 'Para quem já vende e quer reduzir o custo por venda.',
+      highlight: true,
+      badge: 'Mais popular',
+      cta: 'Começar no Starter',
+      features: [
+        'Tudo do Free',
+        'Teste A/B de roteiros',
+        'Programa de afiliados',
+        'Links por país (cloaker)',
+        'Remarketing automático',
+        'Suporte prioritário',
+      ],
+    },
+    {
+      name: 'Pro',
+      price: 'R$ 197',
+      period: '/mês',
+      fee: 'R$ 0,29 por venda',
+      desc: 'Para alto volume. Menor taxa, máximo retorno.',
+      highlight: false,
+      badge: 'Melhor ROI',
+      cta: 'Começar no Pro',
+      features: [
+        'Tudo do Starter',
+        'Taxa mínima por venda',
+        'Suporte VIP',
+        'Acesso antecipado a novidades',
+        'Onboarding dedicado',
+        'SLA garantido',
+      ],
+    },
   ]
+
   return (
     <section id="precos" className="py-24 relative overflow-hidden" style={{ background: '#0c0918' }}>
-      <div className="blob-2 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full pointer-events-none"
+      <div className="blob-2 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[700px] rounded-full pointer-events-none"
         style={{ background: 'radial-gradient(circle, rgba(139,92,246,0.1) 0%, transparent 60%)', filter: 'blur(80px)' }} />
       <div className="relative z-10 mx-auto max-w-7xl px-6">
         <div className="text-center mb-14">
-          <p className="text-xs font-bold uppercase tracking-widest text-violet-500 mb-3">Preço</p>
-          <h2 className="text-3xl md:text-4xl font-black text-white">Um plano. Acesso a tudo.</h2>
-          <p className="mt-4 text-zinc-400 max-w-lg mx-auto">Sem limite de bots, sem taxa por mensagem. Pague uma vez e use tudo.</p>
+          <p className="text-xs font-bold uppercase tracking-widest text-violet-500 mb-3">Preços</p>
+          <h2 className="text-3xl md:text-4xl font-black text-white">Comece grátis. Escale no seu ritmo.</h2>
+          <p className="mt-4 text-zinc-400 max-w-lg mx-auto">Sem limite de bots, sem mensalidade para começar. Pague só quando vender — ou escolha um plano fixo e reduza a taxa.</p>
         </div>
-        <div className="max-w-sm mx-auto">
-          <div data-animate className="opacity-0 rounded-3xl p-8 relative"
-            style={{ background: 'rgba(139,92,246,0.08)', border: '1px solid rgba(139,92,246,0.28)', boxShadow: '0 0 100px rgba(139,92,246,0.15), inset 0 1px 0 rgba(255,255,255,0.06)' }}>
-            <div className="absolute top-0 left-6 right-6 h-px rounded-full"
-              style={{ background: 'linear-gradient(90deg, transparent, rgba(139,92,246,0.8), transparent)' }} />
-            <div className="text-center mb-8">
-              <div className="inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-bold text-violet-300 mb-5" style={pill}>
-                <BadgeCheck className="h-3.5 w-3.5" /> Acesso Completo
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-start max-w-5xl mx-auto">
+          {plans.map((p, i) => (
+            <div key={i} data-animate className={`opacity-0 rounded-3xl p-7 flex flex-col relative transition-all ${p.highlight ? 'md:-mt-4 md:mb-4' : ''}`}
+              style={p.highlight
+                ? { background: 'rgba(139,92,246,0.1)', border: '1px solid rgba(139,92,246,0.35)', boxShadow: '0 0 80px rgba(139,92,246,0.18), inset 0 1px 0 rgba(255,255,255,0.07)' }
+                : { background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)' }}>
+              {p.highlight && (
+                <div className="absolute top-0 left-8 right-8 h-px rounded-full"
+                  style={{ background: 'linear-gradient(90deg, transparent, rgba(139,92,246,0.9), transparent)' }} />
+              )}
+              {p.badge && (
+                <div className="mb-4">
+                  <span className="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-bold"
+                    style={p.highlight
+                      ? { background: 'rgba(139,92,246,0.2)', color: '#c4b5fd', border: '1px solid rgba(139,92,246,0.3)' }
+                      : { background: 'rgba(16,185,129,0.15)', color: '#6ee7b7', border: '1px solid rgba(16,185,129,0.25)' }}>
+                    <BadgeCheck className="h-3 w-3" /> {p.badge}
+                  </span>
+                </div>
+              )}
+              <div className="mb-6">
+                <p className="text-sm font-bold text-zinc-400 mb-2">{p.name}</p>
+                <div className="flex items-baseline gap-1 mb-1">
+                  <span className={`font-black ${p.highlight ? 'text-white' : 'text-zinc-100'}`} style={{ fontSize: '2.5rem', lineHeight: 1 }}>{p.price}</span>
+                  <span className="text-zinc-500 text-sm">{p.period}</span>
+                </div>
+                <div className="inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1 mt-2"
+                  style={{ background: 'rgba(16,185,129,0.1)', border: '1px solid rgba(16,185,129,0.2)' }}>
+                  <span className="text-xs font-semibold text-emerald-400">+ {p.fee}</span>
+                </div>
+                <p className="text-xs text-zinc-500 mt-3 leading-relaxed">{p.desc}</p>
               </div>
-              <div className="flex items-baseline justify-center gap-2.5 mb-1">
-                <span className="text-zinc-600 line-through text-lg">R$ 197</span>
-                <span className="text-white font-black" style={{ fontSize: '3.5rem', lineHeight: 1 }}>R$ 97</span>
-              </div>
-              <p className="text-zinc-500 text-sm">/mês</p>
+              <ul className="space-y-2.5 mb-8 flex-1">
+                {p.features.map((f, j) => (
+                  <li key={j} className="flex items-center gap-2.5 text-sm text-zinc-300">
+                    <Check className="h-3.5 w-3.5 text-emerald-400 shrink-0" />{f}
+                  </li>
+                ))}
+              </ul>
+              <Link href="/register"
+                className="block text-center rounded-2xl py-3.5 text-sm font-black transition-all hover:scale-[1.02] hover:brightness-110"
+                style={p.highlight
+                  ? { background: 'linear-gradient(135deg,#8b5cf6,#6d28d9)', color: '#fff', boxShadow: '0 8px 24px rgba(139,92,246,0.45)' }
+                  : { background: 'rgba(255,255,255,0.06)', color: '#d4d4d8', border: '1px solid rgba(255,255,255,0.1)' }}>
+                {p.cta}
+              </Link>
             </div>
-            <ul className="space-y-3 mb-8">
-              {features.map((f, i) => (
-                <li key={i} className="flex items-center gap-3 text-sm text-zinc-300">
-                  <Check className="h-4 w-4 text-emerald-400 shrink-0" />{f}
-                </li>
-              ))}
-            </ul>
-            <Link href="/login"
-              className="block text-center rounded-2xl py-4 text-base font-black text-white mb-4 transition-all hover:scale-[1.02] hover:brightness-110"
-              style={{ background: 'linear-gradient(135deg,#8b5cf6,#6d28d9)', boxShadow: '0 8px 28px rgba(139,92,246,0.5)' }}>
-              Começar agora — R$ 97/mês
-            </Link>
-            <p className="text-center text-xs text-zinc-600">Cancele quando quiser. Sem fidelidade.</p>
-          </div>
+          ))}
         </div>
+
+        <p className="text-center text-xs text-zinc-600 mt-8">Todos os planos incluem acesso completo a todas as funcionalidades. Cancele quando quiser.</p>
       </div>
     </section>
   )

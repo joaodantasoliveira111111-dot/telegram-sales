@@ -34,14 +34,14 @@ export function verifySession(cookie: string, slug: string): boolean {
 // ─── redirect token ───────────────────────────────────────────────────────────
 // Short-lived token (30s) carrying verdict + cloaker_id. Never exposes URLs.
 
-export function signToken(cloakerId: string, verdict: 'h' | 's'): string {
+export function signToken(cloakerId: string, verdict: 'h' | 's', params?: string): string {
   const exp = Math.floor(Date.now() / 1000) + 30
-  const payload = Buffer.from(JSON.stringify({ c: cloakerId, v: verdict, e: exp })).toString('base64url')
+  const payload = Buffer.from(JSON.stringify({ c: cloakerId, v: verdict, e: exp, p: params ?? '' })).toString('base64url')
   const sig = createHmac('sha256', secret()).update(payload).digest('base64url')
   return `${payload}.${sig}`
 }
 
-export function verifyToken(token: string): { cloakerId: string; verdict: 'h' | 's' } | null {
+export function verifyToken(token: string): { cloakerId: string; verdict: 'h' | 's'; params?: string } | null {
   try {
     const dot = token.lastIndexOf('.')
     if (dot === -1) return null
@@ -50,8 +50,8 @@ export function verifyToken(token: string): { cloakerId: string; verdict: 'h' | 
     const expected = createHmac('sha256', secret()).update(payload).digest('base64url')
     if (!timingSafeEqual(Buffer.from(sig), Buffer.from(expected))) return null
     const data = JSON.parse(Buffer.from(payload, 'base64url').toString())
-    if (!data.e || Math.floor(Date.now() / 1000) > data.e) return null // expired
-    return { cloakerId: data.c, verdict: data.v }
+    if (!data.e || Math.floor(Date.now() / 1000) > data.e) return null
+    return { cloakerId: data.c, verdict: data.v, params: data.p || undefined }
   } catch {
     return null
   }
