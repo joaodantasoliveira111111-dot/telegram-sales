@@ -5,9 +5,10 @@ import { supabaseAdmin } from '@/lib/supabase'
 import { getSessionFromCookies, getUserBotIds } from '@/lib/session'
 import { Badge } from '@/components/ui/badge'
 import { formatCurrency, formatDate } from '@/lib/utils'
-import { PaymentStatus } from '@/types'
-import { DollarSign, TrendingUp, Clock, XCircle, Filter } from 'lucide-react'
+import type { PaymentStatus } from '@/types'
+import { DollarSign, TrendingUp, Clock, XCircle } from 'lucide-react'
 import Link from 'next/link'
+import { PaymentsFilters } from './payments-filters'
 
 const statusConfig: Record<PaymentStatus, { label: string; variant: 'success' | 'warning' | 'destructive' | 'secondary' | 'outline' }> = {
   paid: { label: 'Pago', variant: 'success' },
@@ -17,6 +18,7 @@ const statusConfig: Record<PaymentStatus, { label: string; variant: 'success' | 
   chargeback: { label: 'Chargeback', variant: 'destructive' },
 }
 
+// filterUrl used only for pagination links
 function StatCard({ icon: Icon, label, value, sub, color }: {
   icon: React.ElementType; label: string; value: string; sub?: string; color: string
 }) {
@@ -125,47 +127,11 @@ export default async function PaymentsPage({
       </div>
 
       {/* Filters */}
-      <div
-        className="flex flex-wrap items-center gap-2 rounded-2xl p-3"
-        style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)' }}
-      >
-        <Filter className="h-3.5 w-3.5 text-zinc-500 shrink-0" />
-        <span className="text-xs text-zinc-500 mr-1">Filtrar:</span>
-
-        {/* Status */}
-        {(['', 'paid', 'pending', 'canceled', 'refunded', 'chargeback'] as const).map((s) => (
-          <Link
-            key={s}
-            href={filterUrl({ status: s || undefined })}
-            className="rounded-lg px-2.5 py-1 text-xs font-medium transition-all"
-            style={
-              (params.status ?? '') === s
-                ? { background: 'rgba(139,92,246,0.2)', color: '#a78bfa', border: '1px solid rgba(139,92,246,0.3)' }
-                : { background: 'rgba(255,255,255,0.04)', color: '#71717a', border: '1px solid rgba(255,255,255,0.07)' }
-            }
-          >
-            {s === '' ? 'Todos' : statusConfig[s as PaymentStatus]?.label ?? s}
-          </Link>
-        ))}
-
-        <div className="w-px h-4 bg-white/10 mx-1" />
-
-        {/* Bot filter */}
-        <select
-          className="rounded-lg px-2.5 py-1 text-xs bg-transparent border text-zinc-400 cursor-pointer"
-          style={{ border: '1px solid rgba(255,255,255,0.1)' }}
-          value={params.bot_id ?? ''}
-          onChange={(e) => {
-            const url = filterUrl({ bot_id: e.target.value || undefined })
-            window.location.href = url
-          }}
-        >
-          <option value="">Todos os bots</option>
-          {(bots ?? []).map((b) => (
-            <option key={b.id} value={b.id}>{b.name}</option>
-          ))}
-        </select>
-      </div>
+      <PaymentsFilters
+        currentStatus={params.status}
+        currentBotId={params.bot_id}
+        bots={bots ?? []}
+      />
 
       {/* Table */}
       <div
