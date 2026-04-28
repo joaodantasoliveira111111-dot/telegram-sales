@@ -4,6 +4,9 @@ import { sendMessage, createInviteLink, sendButtons } from '@/lib/telegram'
 import { reserveAccountForPlan, markAccountDelivered } from '@/lib/accounts'
 import { addDays } from '@/lib/utils'
 import { sendPurchaseEvent } from '@/lib/meta'
+import { sendTikTokPurchase } from '@/lib/tiktok'
+import { sendGA4Purchase } from '@/lib/ga4'
+import { sendKwaiPurchase } from '@/lib/kwai'
 import { getBotMessage } from '@/lib/messages'
 
 interface PushinPayWebhookPayload {
@@ -72,6 +75,31 @@ export async function POST(request: NextRequest) {
       paymentId: String(payment.id),
       telegramId: String(payment.telegram_id),
     }, botPixel).catch((err) => console.error('[Meta CAPI] erro:', err))
+
+    sendTikTokPurchase({
+      eventId: `tt_payment_${payment.id}`,
+      value: Number(plan.price),
+      planName: plan.name,
+      planId: String(payment.plan_id ?? plan.id),
+      paymentId: String(payment.id),
+      telegramId: String(payment.telegram_id),
+    }).catch((e) => console.error('[TikTok] purchase error', e))
+
+    sendGA4Purchase({
+      transactionId: String(payment.id),
+      value: Number(plan.price),
+      planName: plan.name,
+      planId: String(payment.plan_id ?? plan.id),
+      telegramId: String(payment.telegram_id),
+    }).catch((e) => console.error('[GA4] purchase error', e))
+
+    sendKwaiPurchase({
+      eventId: `kw_payment_${payment.id}`,
+      value: Number(plan.price),
+      planName: plan.name,
+      planId: String(payment.plan_id ?? plan.id),
+      telegramId: String(payment.telegram_id),
+    }).catch((e) => console.error('[Kwai] purchase error', e))
 
     await supabaseAdmin.from('subscriptions').insert({
       bot_id: payment.bot_id,

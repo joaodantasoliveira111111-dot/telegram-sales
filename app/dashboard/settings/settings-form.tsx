@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { toast } from 'sonner'
-import { Save, Loader2, Eye, EyeOff, ExternalLink, Send } from 'lucide-react'
+import { Save, Loader2, Eye, EyeOff, ExternalLink, Send, Copy } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 
 interface Props {
@@ -80,6 +80,21 @@ export function SettingsForm({ initial }: Props) {
   const [values, setValues] = useState<Record<string, string>>(initial)
   const [saving, setSaving] = useState<string | null>(null)
   const [testingEvent, setTestingEvent] = useState<string | null>(null)
+  const [platformExpanded, setPlatformExpanded] = useState<string | null>(null)
+  const [utmForm, setUtmForm] = useState({ baseUrl: '', source: '', medium: '', campaign: '', content: '', term: '' })
+
+  const utmLink = (() => {
+    if (!utmForm.baseUrl) return ''
+    try {
+      const url = new URL(utmForm.baseUrl)
+      if (utmForm.source) url.searchParams.set('utm_source', utmForm.source)
+      if (utmForm.medium) url.searchParams.set('utm_medium', utmForm.medium)
+      if (utmForm.campaign) url.searchParams.set('utm_campaign', utmForm.campaign)
+      if (utmForm.content) url.searchParams.set('utm_content', utmForm.content)
+      if (utmForm.term) url.searchParams.set('utm_term', utmForm.term)
+      return url.toString()
+    } catch { return '' }
+  })()
 
   function set(key: string, value: string) {
     setValues((prev) => ({ ...prev, [key]: value }))
@@ -274,112 +289,292 @@ export function SettingsForm({ initial }: Props) {
       </Card>
       </>)}
 
-      {/* Meta Pixel */}
-      {tab === 'pixel' && (<Card>
-        <CardHeader className="pb-4">
-          <div className="flex items-start justify-between gap-4">
-            <div>
-              <CardTitle className="text-base font-semibold text-zinc-100">Meta Ads — Pixel & CAPI</CardTitle>
-              <p className="mt-1 text-xs text-zinc-500">Rastreamento de eventos via Conversions API (server-side)</p>
-            </div>
-            <a
-              href="https://business.facebook.com/events_manager"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center gap-1 text-xs text-blue-400 hover:text-blue-300 transition-colors"
-            >
-              Events Manager <ExternalLink className="h-3 w-3" />
-            </a>
-          </div>
-        </CardHeader>
-        <CardContent className="space-y-5">
-          <FieldRow label="Pixel ID" description="ID do seu pixel no Meta">
-            <TextInput value={values.meta_pixel_id ?? ''} onChange={(v) => set('meta_pixel_id', v)} placeholder="123456789012345" />
-          </FieldRow>
-          <FieldRow label="Access Token" description="Token de acesso gerado no Events Manager">
-            <SecretInput value={values.meta_access_token ?? ''} onChange={(v) => set('meta_access_token', v)} placeholder="EAAxxxxxxx..." />
-          </FieldRow>
-          <FieldRow label="Test Event Code" description="Código de teste (opcional, para validar no Events Manager)">
-            <TextInput value={values.meta_test_event_code ?? ''} onChange={(v) => set('meta_test_event_code', v)} placeholder="TEST12345" />
-          </FieldRow>
+      {tab === 'pixel' && (<>
+        {/* Platform cards */}
+        {(() => {
+          const PLATFORMS = [
+            {
+              id: 'meta', name: 'Meta / Facebook', emoji: '📘',
+              description: 'Facebook & Instagram Ads — Conversions API server-side',
+              color: '#1877F2', configured: !!(values.meta_pixel_id),
+              fields: [
+                { key: 'meta_pixel_id', label: 'Pixel ID', secret: false, placeholder: '123456789012345' },
+                { key: 'meta_access_token', label: 'Access Token (CAPI)', secret: true, placeholder: 'EAAxxxxxxx...' },
+                { key: 'meta_test_event_code', label: 'Test Event Code', secret: false, placeholder: 'TEST12345 (opcional)' },
+              ],
+              saveKeys: ['meta_pixel_id', 'meta_access_token', 'meta_test_event_code', 'meta_track_lead', 'meta_track_purchase', 'meta_track_initiate_checkout', 'meta_track_view_content'],
+              events: [
+                { key: 'meta_track_lead', label: 'Lead — usuário inicia o bot' },
+                { key: 'meta_track_purchase', label: 'Purchase — pagamento confirmado' },
+                { key: 'meta_track_initiate_checkout', label: 'InitiateCheckout — clique em comprar' },
+                { key: 'meta_track_view_content', label: 'ViewContent — bot iniciado' },
+              ],
+              testEvents: ['Lead', 'Purchase', 'InitiateCheckout', 'ViewContent'],
+            },
+            {
+              id: 'tiktok', name: 'TikTok Ads', emoji: '🎵',
+              description: 'TikTok Events API — envio server-side em tempo real',
+              color: '#010101', configured: !!(values.tiktok_pixel_id),
+              fields: [
+                { key: 'tiktok_pixel_id', label: 'Pixel ID', secret: false, placeholder: 'C4XXXXXXXXXXXXXXXXXX' },
+                { key: 'tiktok_access_token', label: 'Access Token', secret: true, placeholder: 'Token gerado no TikTok Events Manager' },
+                { key: 'tiktok_test_event_code', label: 'Test Event Code', secret: false, placeholder: 'Opcional — para validar no painel' },
+              ],
+              saveKeys: ['tiktok_pixel_id', 'tiktok_access_token', 'tiktok_test_event_code', 'tiktok_track_purchase', 'tiktok_track_lead', 'tiktok_track_checkout'],
+              events: [
+                { key: 'tiktok_track_lead', label: 'SubmitForm (Lead) — bot iniciado' },
+                { key: 'tiktok_track_checkout', label: 'InitiateCheckout — clique em comprar' },
+                { key: 'tiktok_track_purchase', label: 'CompletePayment — pagamento confirmado' },
+              ],
+              testEvents: ['Lead', 'Purchase', 'InitiateCheckout'],
+            },
+            {
+              id: 'ga4', name: 'Google Analytics 4', emoji: '📊',
+              description: 'GA4 Measurement Protocol — importação automática para Google Ads',
+              color: '#F9AB00', configured: !!(values.ga4_measurement_id),
+              fields: [
+                { key: 'ga4_measurement_id', label: 'Measurement ID', secret: false, placeholder: 'G-XXXXXXXXXX' },
+                { key: 'ga4_api_secret', label: 'API Secret', secret: true, placeholder: 'Gerado em GA4 → Admin → Data Streams' },
+              ],
+              saveKeys: ['ga4_measurement_id', 'ga4_api_secret', 'ga4_track_purchase', 'ga4_track_lead'],
+              events: [
+                { key: 'ga4_track_lead', label: 'generate_lead — bot iniciado' },
+                { key: 'ga4_track_purchase', label: 'purchase — pagamento confirmado' },
+              ],
+              testEvents: ['Lead', 'Purchase'],
+            },
+            {
+              id: 'gtm', name: 'Google Tag Manager', emoji: '🏷️',
+              description: 'Embed GTM nas suas Páginas de Redirect (biolink)',
+              color: '#246FDB', configured: !!(values.gtm_container_id),
+              fields: [
+                { key: 'gtm_container_id', label: 'Container ID', secret: false, placeholder: 'GTM-XXXXXXX' },
+              ],
+              saveKeys: ['gtm_container_id'],
+              events: [],
+              testEvents: [],
+            },
+            {
+              id: 'kwai', name: 'Kwai Ads', emoji: '🎬',
+              description: 'Kwai Events API — server-side pixel tracking',
+              color: '#FF6900', configured: !!(values.kwai_pixel_id),
+              fields: [
+                { key: 'kwai_pixel_id', label: 'Pixel ID', secret: false, placeholder: 'Seu Pixel ID do Kwai Ads' },
+                { key: 'kwai_access_token', label: 'Access Token', secret: true, placeholder: 'Token de acesso gerado no Kwai Ads Manager' },
+              ],
+              saveKeys: ['kwai_pixel_id', 'kwai_access_token', 'kwai_track_purchase'],
+              events: [
+                { key: 'kwai_track_purchase', label: 'PURCHASE — pagamento confirmado' },
+              ],
+              testEvents: ['Purchase'],
+            },
+          ] as const
 
-          <div className="border-t border-zinc-800 pt-5">
-            <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-zinc-500">Eventos rastreados</p>
+          return (
             <div className="space-y-3">
-              <Toggle
-                checked={bool('meta_track_lead')}
-                onChange={(v) => setBool('meta_track_lead', v)}
-                label="Lead — dispara quando usuário inicia o bot (/start)"
-              />
-              <Toggle
-                checked={bool('meta_track_purchase')}
-                onChange={(v) => setBool('meta_track_purchase', v)}
-                label="Purchase — dispara quando pagamento é confirmado"
-              />
-              <Toggle
-                checked={bool('meta_track_initiate_checkout')}
-                onChange={(v) => setBool('meta_track_initiate_checkout', v)}
-                label="InitiateCheckout — dispara quando usuário clica em comprar"
-              />
-              <Toggle
-                checked={bool('meta_track_view_content')}
-                onChange={(v) => setBool('meta_track_view_content', v)}
-                label="ViewContent — dispara quando usuário inicia o bot"
+              {PLATFORMS.map((p) => {
+                const expanded = platformExpanded === p.id
+                const isConfigured = p.configured
+                const isSavingThis = saving === (p.saveKeys[0] as string)
+
+                return (
+                  <div
+                    key={p.id}
+                    className="rounded-2xl overflow-hidden transition-all duration-200"
+                    style={{
+                      background: expanded ? 'rgba(255,255,255,0.04)' : 'rgba(255,255,255,0.02)',
+                      border: expanded
+                        ? '1px solid rgba(255,255,255,0.12)'
+                        : '1px solid rgba(255,255,255,0.06)',
+                    }}
+                  >
+                    {/* Platform header row */}
+                    <button
+                      type="button"
+                      className="w-full flex items-center gap-4 px-5 py-4 text-left"
+                      onClick={() => setPlatformExpanded(expanded ? null : p.id)}
+                    >
+                      {/* Platform icon */}
+                      <div
+                        className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-lg"
+                        style={{ background: `${p.color}18`, border: `1px solid ${p.color}35` }}
+                      >
+                        {p.emoji}
+                      </div>
+
+                      {/* Name + description */}
+                      <div className="flex-1 min-w-0 text-left">
+                        <p className="text-sm font-semibold text-zinc-200">{p.name}</p>
+                        <p className="text-[11px] text-zinc-500 mt-0.5 truncate">{p.description}</p>
+                      </div>
+
+                      {/* Status badge */}
+                      <div className="flex items-center gap-2 shrink-0">
+                        <span
+                          className="flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider"
+                          style={isConfigured
+                            ? { background: 'rgba(16,185,129,0.12)', color: '#34d399', border: '1px solid rgba(16,185,129,0.2)' }
+                            : { background: 'rgba(255,255,255,0.05)', color: '#71717a', border: '1px solid rgba(255,255,255,0.08)' }
+                          }
+                        >
+                          <span
+                            className="h-1.5 w-1.5 rounded-full"
+                            style={{ background: isConfigured ? '#34d399' : '#52525b' }}
+                          />
+                          {isConfigured ? 'Ativo' : 'Inativo'}
+                        </span>
+
+                        {/* Chevron */}
+                        <svg
+                          className="h-4 w-4 text-zinc-600 transition-transform"
+                          style={{ transform: expanded ? 'rotate(180deg)' : 'rotate(0deg)' }}
+                          fill="none" viewBox="0 0 24 24" stroke="currentColor"
+                        >
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                        </svg>
+                      </div>
+                    </button>
+
+                    {/* Expanded credential section */}
+                    {expanded && (
+                      <div className="px-5 pb-5 space-y-5 border-t border-zinc-800">
+                        <div className="pt-4 space-y-4">
+                          {p.fields.map((field) => (
+                            <FieldRow key={field.key} label={field.label}>
+                              {field.secret
+                                ? <SecretInput value={values[field.key] ?? ''} onChange={(v) => set(field.key, v)} placeholder={field.placeholder} />
+                                : <TextInput value={values[field.key] ?? ''} onChange={(v) => set(field.key, v)} placeholder={field.placeholder} />
+                              }
+                            </FieldRow>
+                          ))}
+                        </div>
+
+                        {/* Event toggles */}
+                        {p.events.length > 0 && (
+                          <div className="space-y-3 pt-1 border-t border-zinc-800">
+                            <p className="text-[10px] font-bold uppercase tracking-wider text-zinc-500 pt-3">Eventos Rastreados</p>
+                            {p.events.map((ev) => (
+                              <Toggle
+                                key={ev.key}
+                                checked={bool(ev.key)}
+                                onChange={(v) => setBool(ev.key, v)}
+                                label={ev.label}
+                              />
+                            ))}
+                          </div>
+                        )}
+
+                        {/* Save + Test row */}
+                        <div className="flex flex-wrap items-center justify-between gap-3 pt-2 border-t border-zinc-800">
+                          {/* Test events */}
+                          {p.testEvents.length > 0 && (
+                            <div className="flex flex-wrap gap-1.5">
+                              <span className="text-[10px] text-zinc-600 self-center mr-1">Testar:</span>
+                              {p.testEvents.map((ev) => (
+                                <button
+                                  key={ev}
+                                  type="button"
+                                  disabled={testingEvent !== null}
+                                  onClick={async () => {
+                                    setTestingEvent(`${p.id}_${ev}`)
+                                    try {
+                                      const res = await fetch('/api/pixels/test-event', {
+                                        method: 'POST',
+                                        headers: { 'Content-Type': 'application/json' },
+                                        body: JSON.stringify({ platform: p.id, event_name: ev }),
+                                      })
+                                      const data = await res.json()
+                                      if (!res.ok) { toast.error(data.error ?? `Erro ao enviar ${ev}`); return }
+                                      toast.success(`Evento '${ev}' enviado para ${p.name}!`)
+                                    } catch { toast.error(`Erro de rede ao enviar ${ev}`) }
+                                    finally { setTestingEvent(null) }
+                                  }}
+                                  className="flex items-center gap-1 rounded-lg border px-2.5 py-1 text-[11px] font-medium transition-colors disabled:opacity-40 hover:border-zinc-500 hover:text-zinc-200"
+                                  style={{ borderColor: 'rgba(63,63,70,1)', color: '#a1a1aa' }}
+                                >
+                                  {testingEvent === `${p.id}_${ev}` ? <Loader2 className="h-2.5 w-2.5 animate-spin" /> : <Send className="h-2.5 w-2.5" />}
+                                  {ev}
+                                </button>
+                              ))}
+                            </div>
+                          )}
+
+                          <button
+                            onClick={() => saveSection(p.saveKeys as unknown as string[])}
+                            disabled={isSavingThis}
+                            className="ml-auto flex items-center gap-2 rounded-xl bg-blue-600 px-5 py-2 text-sm font-semibold text-white shadow-lg shadow-blue-600/20 transition-all hover:bg-blue-500 disabled:opacity-60"
+                          >
+                            {isSavingThis ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Save className="h-3.5 w-3.5" />}
+                            Salvar {p.name}
+                          </button>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )
+              })}
+            </div>
+          )
+        })()}
+
+        {/* UTM Builder */}
+        <div
+          className="rounded-2xl p-5 space-y-4 mt-2"
+          style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.07)' }}
+        >
+          <div>
+            <p className="text-sm font-semibold text-zinc-200">Construtor de Links UTM</p>
+            <p className="text-xs text-zinc-500 mt-0.5">Crie links rastreáveis para suas campanhas de anúncios</p>
+          </div>
+
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            <div className="space-y-1.5 sm:col-span-2">
+              <p className="text-xs font-medium text-zinc-400">URL base (seu link de redirect ou t.me/...)</p>
+              <TextInput
+                value={utmForm.baseUrl}
+                onChange={(v) => setUtmForm(f => ({ ...f, baseUrl: v }))}
+                placeholder="https://seusite.com/r/canal-vip"
               />
             </div>
+            {[
+              { key: 'source', label: 'Fonte (utm_source)', placeholder: 'google, facebook, tiktok...' },
+              { key: 'medium', label: 'Mídia (utm_medium)', placeholder: 'cpc, cpm, organic...' },
+              { key: 'campaign', label: 'Campanha (utm_campaign)', placeholder: 'nome_da_campanha' },
+              { key: 'content', label: 'Conteúdo (utm_content)', placeholder: 'banner_azul, video_1...' },
+              { key: 'term', label: 'Termo (utm_term)', placeholder: 'palavra_chave (opcional)' },
+            ].map(({ key, label, placeholder }) => (
+              <div key={key} className="space-y-1.5">
+                <p className="text-xs font-medium text-zinc-400">{label}</p>
+                <TextInput
+                  value={(utmForm as Record<string, string>)[key] ?? ''}
+                  onChange={(v) => setUtmForm(f => ({ ...f, [key]: v }))}
+                  placeholder={placeholder}
+                />
+              </div>
+            ))}
           </div>
 
-          <div className="flex justify-end border-t border-zinc-800 pt-4">
-            <button
-              onClick={() => saveSection(metaKeys)}
-              disabled={saving === 'meta_pixel_id'}
-              className="flex items-center gap-2 rounded-xl bg-blue-600 px-5 py-2 text-sm font-semibold text-white shadow-lg shadow-blue-600/20 transition-all hover:bg-blue-500 disabled:opacity-60"
-            >
-              {saving === 'meta_pixel_id' ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Save className="h-3.5 w-3.5" />}
-              Salvar Marketing
-            </button>
-          </div>
-
-          {/* Test events section */}
-          <div className="border-t border-zinc-800 pt-5">
-            <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-zinc-500">Testar Eventos</p>
-            <div className="flex flex-wrap gap-2">
-              {(['Lead', 'ViewContent', 'InitiateCheckout', 'Purchase'] as const).map((eventName) => (
+          {/* Generated link preview */}
+          {utmLink && (
+            <div className="rounded-xl p-3" style={{ background: 'rgba(59,130,246,0.07)', border: '1px solid rgba(59,130,246,0.15)' }}>
+              <div className="flex items-start justify-between gap-3">
+                <div className="flex-1 min-w-0">
+                  <p className="text-[10px] font-bold uppercase tracking-wider text-blue-400 mb-1">Link gerado</p>
+                  <p className="text-xs text-zinc-300 break-all font-mono">{utmLink}</p>
+                </div>
                 <button
-                  key={eventName}
                   type="button"
-                  disabled={testingEvent !== null}
-                  onClick={async () => {
-                    setTestingEvent(eventName)
-                    try {
-                      const res = await fetch('/api/meta/test-event', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ event_name: eventName }),
-                      })
-                      const data = await res.json()
-                      if (!res.ok) { toast.error(data.error ?? `Erro ao enviar evento ${eventName}`); return }
-                      toast.success(`Evento '${eventName}' enviado! Verifique no Events Manager.`)
-                    } catch {
-                      toast.error(`Erro ao enviar evento ${eventName}`)
-                    } finally {
-                      setTestingEvent(null)
-                    }
-                  }}
-                  className="flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs font-medium transition-colors disabled:opacity-50 hover:text-white"
-                  style={{ borderColor: 'rgba(63,63,70,1)', color: '#a1a1aa' }}
+                  onClick={() => { navigator.clipboard.writeText(utmLink); toast.success('Link copiado!') }}
+                  className="shrink-0 flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold text-blue-400 hover:text-blue-300 transition-colors"
+                  style={{ background: 'rgba(59,130,246,0.1)', border: '1px solid rgba(59,130,246,0.2)' }}
                 >
-                  {testingEvent === eventName
-                    ? <Loader2 className="h-3 w-3 animate-spin" />
-                    : <Send className="h-3 w-3" />
-                  }
-                  {eventName}
+                  <Copy className="h-3 w-3" /> Copiar
                 </button>
-              ))}
+              </div>
             </div>
-          </div>
-        </CardContent>
-      </Card>)}
+          )}
+        </div>
+      </>)}
 
     </div>
   )

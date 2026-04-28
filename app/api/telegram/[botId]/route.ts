@@ -15,6 +15,8 @@ import { getSetting } from '@/lib/settings'
 import { TelegramUpdate, Plan } from '@/types'
 import { getBotMessage } from '@/lib/messages'
 import { sendInitiateCheckoutEvent, sendViewContentEvent, sendLeadEvent } from '@/lib/meta'
+import { sendTikTokLead, sendTikTokCheckout } from '@/lib/tiktok'
+import { sendGA4Lead, sendGA4Checkout } from '@/lib/ga4'
 import { executeFlowStep } from '@/lib/flow-executor'
 
 export async function POST(
@@ -153,6 +155,8 @@ async function handleStart(bot: Record<string, unknown>, update: TelegramUpdate)
     firstName: from.first_name,
     botName: bot.name as string,
   }, botPixel).catch(() => {})
+  sendTikTokLead({ eventId: `tt_lead_${bot.id}_${from.id}_${Date.now()}`, telegramId: String(from.id), botName: bot.name as string }).catch(() => {})
+  sendGA4Lead({ telegramId: String(from.id), botName: bot.name as string }).catch(() => {})
 
   sendViewContentEvent({
     eventId: `view_${bot.id}_${from.id}_${Date.now()}`,
@@ -272,6 +276,8 @@ async function handleCallbackQuery(bot: Record<string, unknown>, update: Telegra
     telegramId: String(from.id),
     firstName: from.first_name,
   }, botPixelCq).catch(() => {})
+  sendTikTokCheckout({ eventId: `tt_checkout_${planId}_${from.id}_${Date.now()}`, value: Number(plan.price), planName: plan.name, planId, telegramId: String(from.id) }).catch(() => {})
+  sendGA4Checkout({ telegramId: String(from.id), value: Number(plan.price), planName: plan.name, planId }).catch(() => {})
 
   const { data: payment, error: paymentError } = await supabaseAdmin
     .from('payments').insert({
