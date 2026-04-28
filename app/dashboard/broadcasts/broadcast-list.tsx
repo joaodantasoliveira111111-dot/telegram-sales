@@ -59,6 +59,9 @@ export function BroadcastList({ initialBroadcasts, bots }: BroadcastListProps) {
   const [editingBroadcast, setEditingBroadcast] = useState<Broadcast | null>(null)
   const [sending, setSending] = useState<string | null>(null)
   const [runningCron, setRunningCron] = useState(false)
+  const [botFilter, setBotFilter] = useState<string>('all')
+
+  const filteredBroadcasts = botFilter === 'all' ? broadcasts : broadcasts.filter(b => b.bot_id === botFilter)
 
   async function handleRunScheduled() {
     setRunningCron(true)
@@ -127,6 +130,36 @@ export function BroadcastList({ initialBroadcasts, bots }: BroadcastListProps) {
 
   return (
     <div>
+      {/* Bot filter tabs */}
+      {bots.length > 1 && (
+        <div className="mb-5 flex flex-wrap gap-1.5">
+          <button
+            onClick={() => setBotFilter('all')}
+            className="rounded-xl px-3 py-1.5 text-xs font-semibold transition-all"
+            style={botFilter === 'all'
+              ? { background: 'rgba(59,130,246,0.2)', border: '1px solid rgba(59,130,246,0.4)', color: '#93c5fd' }
+              : { background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', color: '#64748b' }}
+          >
+            Todos ({broadcasts.length})
+          </button>
+          {bots.map(bot => {
+            const count = broadcasts.filter(b => b.bot_id === bot.id).length
+            return (
+              <button
+                key={bot.id}
+                onClick={() => setBotFilter(bot.id)}
+                className="rounded-xl px-3 py-1.5 text-xs font-semibold transition-all"
+                style={botFilter === bot.id
+                  ? { background: 'rgba(59,130,246,0.2)', border: '1px solid rgba(59,130,246,0.4)', color: '#93c5fd' }
+                  : { background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', color: '#64748b' }}
+              >
+                {bot.name} ({count})
+              </button>
+            )
+          })}
+        </div>
+      )}
+
       <div className="mb-5 flex justify-end gap-2">
         <Button variant="outline" onClick={handleRunScheduled} disabled={runningCron} size="sm">
           {runningCron ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <RefreshCw className="mr-2 h-4 w-4" />}
@@ -149,7 +182,7 @@ export function BroadcastList({ initialBroadcasts, bots }: BroadcastListProps) {
         </div>
       )}
 
-      {broadcasts.length === 0 && !showForm ? (
+      {filteredBroadcasts.length === 0 && !showForm ? (
         <div
           className="flex flex-col items-center justify-center rounded-2xl border-2 border-dashed py-16 text-center"
           style={{ borderColor: 'rgba(255,255,255,0.07)' }}
@@ -169,7 +202,7 @@ export function BroadcastList({ initialBroadcasts, bots }: BroadcastListProps) {
         </div>
       ) : (
         <div className="grid gap-4 sm:grid-cols-2">
-          {broadcasts.map((b) => {
+          {filteredBroadcasts.map((b) => {
             const target = targetLabels[b.target_type] ?? { label: b.target_type, icon: Users }
             const TargetIcon = target.icon
             const isSending = sending === b.id

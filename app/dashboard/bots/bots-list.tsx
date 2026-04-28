@@ -9,6 +9,7 @@ import { Badge } from '@/components/ui/badge'
 import { Plus, Pencil, Trash2, Bot, ArrowRight, Zap, Calendar, ToggleLeft, ToggleRight } from 'lucide-react'
 import { BotForm } from './bot-form'
 import { formatDate } from '@/lib/utils'
+import { toast } from 'sonner'
 
 interface BotsListProps {
   initialBots: BotType[]
@@ -137,9 +138,15 @@ export function BotsList({ initialBots }: BotsListProps) {
   const router = useRouter()
 
   async function handleDelete(id: string) {
-    if (!confirm('Tem certeza que deseja excluir este bot?')) return
+    if (!confirm('Tem certeza que deseja excluir este bot? Todos os planos, mensagens e dados relacionados serão removidos.')) return
     const res = await fetch(`/api/bots/${id}`, { method: 'DELETE' })
-    if (res.ok) setBots((prev) => prev.filter((b) => b.id !== id))
+    if (res.ok) {
+      setBots((prev) => prev.filter((b) => b.id !== id))
+      toast.success('Bot excluído com sucesso')
+    } else {
+      const data = await res.json().catch(() => ({}))
+      toast.error(data.error ?? 'Erro ao excluir bot. Verifique se não há dados vinculados.')
+    }
   }
 
   async function handleToggle(bot: BotType) {

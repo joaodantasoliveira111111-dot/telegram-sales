@@ -44,8 +44,17 @@ export async function DELETE(
     .single()
 
   if (bot) {
-    await deleteWebhook(bot.telegram_token)
+    await deleteWebhook(bot.telegram_token).catch(() => {})
   }
+
+  // Delete child records first to avoid FK violations
+  await supabaseAdmin.from('flow_sessions').delete().eq('bot_id', id)
+  await supabaseAdmin.from('bot_events').delete().eq('bot_id', id)
+  await supabaseAdmin.from('telegram_users').delete().eq('bot_id', id)
+  await supabaseAdmin.from('payments').delete().eq('bot_id', id)
+  await supabaseAdmin.from('subscriptions').delete().eq('bot_id', id)
+  await supabaseAdmin.from('bot_messages').delete().eq('bot_id', id)
+  await supabaseAdmin.from('plans').delete().eq('bot_id', id)
 
   const { error } = await supabaseAdmin.from('bots').delete().eq('id', id)
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
