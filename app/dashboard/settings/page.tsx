@@ -4,9 +4,11 @@ import { getSettings } from '@/lib/settings'
 import { SettingsForm } from './settings-form'
 
 const SETTING_KEYS = [
+  'active_gateway',
   'amplopay_public_key',
   'amplopay_secret_key',
   'amplopay_webhook_token',
+  'pushinpay_token',
   'meta_pixel_id',
   'meta_access_token',
   'meta_test_event_code',

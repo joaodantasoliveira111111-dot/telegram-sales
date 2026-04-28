@@ -108,24 +108,87 @@ export function SettingsForm({ initial }: Props) {
   }
 
   const amplopayKeys = ['amplopay_public_key', 'amplopay_secret_key', 'amplopay_webhook_token']
+  const pushinpayKeys = ['pushinpay_token']
+  const gatewayKey = ['active_gateway']
   const metaKeys = ['meta_pixel_id', 'meta_access_token', 'meta_test_event_code', 'meta_track_purchase', 'meta_track_initiate_checkout', 'meta_track_view_content']
+
+  const activeGateway = values.active_gateway || 'amplopay'
 
   return (
     <div className="space-y-6">
+
+      {/* Gateway selector */}
+      <Card>
+        <CardHeader className="pb-4">
+          <CardTitle className="text-base font-semibold text-zinc-100">Gateway Ativo</CardTitle>
+          <p className="mt-1 text-xs text-zinc-500">Escolha qual gateway processa os pagamentos PIX dos seus bots</p>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            {([
+              { id: 'amplopay',  label: 'AmploPay',  desc: 'Public Key + Secret Key', href: 'https://app.amplopay.com' },
+              { id: 'pushinpay', label: 'PushinPay', desc: 'Bearer Token único',       href: 'https://app.pushinpay.com.br' },
+            ] as const).map(({ id, label, desc, href }) => {
+              const active = activeGateway === id
+              return (
+                <button
+                  key={id}
+                  type="button"
+                  onClick={() => set('active_gateway', id)}
+                  className="flex items-center gap-4 rounded-xl border p-4 text-left transition-all"
+                  style={active
+                    ? { background: 'rgba(139,92,246,0.12)', borderColor: 'rgba(139,92,246,0.4)' }
+                    : { background: 'rgba(255,255,255,0.03)', borderColor: 'rgba(255,255,255,0.08)' }
+                  }
+                >
+                  <div className={[
+                    'flex h-4 w-4 shrink-0 rounded-full border-2 items-center justify-center',
+                    active ? 'border-violet-500' : 'border-zinc-600',
+                  ].join(' ')}>
+                    {active && <div className="h-2 w-2 rounded-full bg-violet-500" />}
+                  </div>
+                  <div className="min-w-0">
+                    <p className={['text-sm font-semibold', active ? 'text-violet-300' : 'text-zinc-300'].join(' ')}>{label}</p>
+                    <p className="text-xs text-zinc-500">{desc}</p>
+                  </div>
+                  <a href={href} target="_blank" rel="noopener noreferrer"
+                    onClick={e => e.stopPropagation()}
+                    className="ml-auto flex items-center gap-0.5 text-xs text-zinc-600 hover:text-zinc-400 transition-colors shrink-0">
+                    Painel <ExternalLink className="h-3 w-3" />
+                  </a>
+                </button>
+              )
+            })}
+          </div>
+
+          <div className="flex justify-end border-t border-zinc-800 pt-4">
+            <button
+              onClick={() => saveSection(gatewayKey)}
+              disabled={saving === 'active_gateway'}
+              className="flex items-center gap-2 rounded-xl bg-violet-600 px-5 py-2 text-sm font-semibold text-white shadow-lg shadow-violet-600/20 transition-all hover:bg-violet-500 disabled:opacity-60"
+            >
+              {saving === 'active_gateway' ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Save className="h-3.5 w-3.5" />}
+              Salvar escolha
+            </button>
+          </div>
+        </CardContent>
+      </Card>
+
       {/* AmploPay */}
       <Card>
         <CardHeader className="pb-4">
           <div className="flex items-start justify-between gap-4">
             <div>
-              <CardTitle className="text-base font-semibold text-zinc-100">AmploPay</CardTitle>
+              <CardTitle className="text-base font-semibold text-zinc-100">
+                AmploPay
+                {activeGateway === 'amplopay' && (
+                  <span className="ml-2 rounded-full bg-violet-600/20 px-2 py-0.5 text-[10px] font-semibold text-violet-400">ATIVO</span>
+                )}
+              </CardTitle>
               <p className="mt-1 text-xs text-zinc-500">Credenciais do gateway de pagamento Pix</p>
             </div>
-            <a
-              href="https://app.amplopay.com"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center gap-1 text-xs text-blue-400 hover:text-blue-300 transition-colors"
-            >
+            <a href="https://app.amplopay.com" target="_blank" rel="noopener noreferrer"
+              className="flex items-center gap-1 text-xs text-blue-400 hover:text-blue-300 transition-colors">
               Painel <ExternalLink className="h-3 w-3" />
             </a>
           </div>
@@ -140,6 +203,11 @@ export function SettingsForm({ initial }: Props) {
           <FieldRow label="Webhook Token" description="Token para validar notificações do gateway">
             <SecretInput value={values.amplopay_webhook_token ?? ''} onChange={(v) => set('amplopay_webhook_token', v)} placeholder="Token secreto do webhook" />
           </FieldRow>
+          <FieldRow label="Webhook URL" description="Configure este endereço no painel da AmploPay">
+            <div className="rounded-xl border border-zinc-700/60 bg-zinc-900/60 px-4 py-2.5">
+              <code className="text-xs text-zinc-400">/api/amplopay/webhook</code>
+            </div>
+          </FieldRow>
 
           <div className="flex justify-end border-t border-zinc-800 pt-4">
             <button
@@ -148,7 +216,49 @@ export function SettingsForm({ initial }: Props) {
               className="flex items-center gap-2 rounded-xl bg-blue-600 px-5 py-2 text-sm font-semibold text-white shadow-lg shadow-blue-600/20 transition-all hover:bg-blue-500 disabled:opacity-60"
             >
               {saving === 'amplopay_public_key' ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Save className="h-3.5 w-3.5" />}
-              Salvar Gateway
+              Salvar AmploPay
+            </button>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* PushinPay */}
+      <Card>
+        <CardHeader className="pb-4">
+          <div className="flex items-start justify-between gap-4">
+            <div>
+              <CardTitle className="text-base font-semibold text-zinc-100">
+                PushinPay
+                {activeGateway === 'pushinpay' && (
+                  <span className="ml-2 rounded-full bg-violet-600/20 px-2 py-0.5 text-[10px] font-semibold text-violet-400">ATIVO</span>
+                )}
+              </CardTitle>
+              <p className="mt-1 text-xs text-zinc-500">Gateway de pagamento PIX via Bearer Token</p>
+            </div>
+            <a href="https://app.pushinpay.com.br" target="_blank" rel="noopener noreferrer"
+              className="flex items-center gap-1 text-xs text-blue-400 hover:text-blue-300 transition-colors">
+              Painel <ExternalLink className="h-3 w-3" />
+            </a>
+          </div>
+        </CardHeader>
+        <CardContent className="space-y-5">
+          <FieldRow label="Bearer Token" description="Token de acesso gerado no painel PushinPay">
+            <SecretInput value={values.pushinpay_token ?? ''} onChange={(v) => set('pushinpay_token', v)} placeholder="Seu token de acesso..." />
+          </FieldRow>
+          <FieldRow label="Webhook URL" description="Configure este endereço no painel da PushinPay (campo webhook_url ao criar PIX)">
+            <div className="rounded-xl border border-zinc-700/60 bg-zinc-900/60 px-4 py-2.5">
+              <code className="text-xs text-zinc-400">/api/pushinpay/webhook</code>
+            </div>
+          </FieldRow>
+
+          <div className="flex justify-end border-t border-zinc-800 pt-4">
+            <button
+              onClick={() => saveSection(pushinpayKeys)}
+              disabled={saving === 'pushinpay_token'}
+              className="flex items-center gap-2 rounded-xl bg-blue-600 px-5 py-2 text-sm font-semibold text-white shadow-lg shadow-blue-600/20 transition-all hover:bg-blue-500 disabled:opacity-60"
+            >
+              {saving === 'pushinpay_token' ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Save className="h-3.5 w-3.5" />}
+              Salvar PushinPay
             </button>
           </div>
         </CardContent>
@@ -217,15 +327,6 @@ export function SettingsForm({ initial }: Props) {
         </CardContent>
       </Card>
 
-      {/* Future gateways placeholder */}
-      <Card className="border-dashed border-zinc-700/60 bg-zinc-900/30">
-        <CardContent className="flex items-center justify-center py-10">
-          <div className="text-center">
-            <p className="text-sm font-medium text-zinc-500">Mais gateways em breve</p>
-            <p className="mt-1 text-xs text-zinc-600">Mercado Pago, Stripe, Asaas e outros</p>
-          </div>
-        </CardContent>
-      </Card>
     </div>
   )
 }

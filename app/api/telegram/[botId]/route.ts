@@ -10,6 +10,8 @@ import {
   answerCallbackQuery,
 } from '@/lib/telegram'
 import { createPix } from '@/lib/amplopay'
+import { createPix as pushinpayCreatePix } from '@/lib/pushinpay'
+import { getSetting } from '@/lib/settings'
 import { TelegramUpdate, Plan } from '@/types'
 import { getBotMessage } from '@/lib/messages'
 import { sendInitiateCheckoutEvent, sendViewContentEvent } from '@/lib/meta'
@@ -279,23 +281,40 @@ async function handleCallbackQuery(bot: Record<string, unknown>, update: Telegra
 
   try {
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL
-    const pixResponse = await createPix({
-      identifier: `payment_${payment.id}_telegram_${from.id}`,
-      amount: Number(plan.price),
-      client: {
-        name: from.first_name || 'Cliente',
-        email: `telegram_${from.id}@cliente.com`,
-        phone: '11999999999',
-        document: '78189144472',
-      },
-      callbackUrl: baseUrl ? `${baseUrl}/api/amplopay/webhook` : undefined,
-    })
+    const gateway = await getSetting('active_gateway') || 'amplopay'
 
-    await supabaseAdmin.from('payments').update({
-      transaction_id: pixResponse.transactionId,
-      pix_code: pixResponse.pix?.code,
-      qr_code: pixResponse.pix?.qrCode,
-    }).eq('id', payment.id)
+    let pixCode: string | null = null
+
+    if (gateway === 'pushinpay') {
+      const r = await pushinpayCreatePix({
+        value: Number(plan.price),
+        webhookUrl: baseUrl ? `${baseUrl}/api/pushinpay/webhook` : undefined,
+      })
+      await supabaseAdmin.from('payments').update({
+        transaction_id: r.id,
+        pix_code: r.qr_code,
+        qr_code: r.qr_code_base64 ?? null,
+      }).eq('id', payment.id)
+      pixCode = r.qr_code
+    } else {
+      const r = await createPix({
+        identifier: `payment_${payment.id}_telegram_${from.id}`,
+        amount: Number(plan.price),
+        client: {
+          name: from.first_name || 'Cliente',
+          email: `telegram_${from.id}@cliente.com`,
+          phone: '11999999999',
+          document: '78189144472',
+        },
+        callbackUrl: baseUrl ? `${baseUrl}/api/amplopay/webhook` : undefined,
+      })
+      await supabaseAdmin.from('payments').update({
+        transaction_id: r.transactionId,
+        pix_code: r.pix?.code,
+        qr_code: r.pix?.qrCode,
+      }).eq('id', payment.id)
+      pixCode = r.pix?.code ?? null
+    }
 
     recordEvent(bot.id as string, String(from.id), 'pix_generated', { planId, abVariant })
 
@@ -307,16 +326,16 @@ async function handleCallbackQuery(bot: Record<string, unknown>, update: Telegra
     })
     await sendMessage(token, chatId, introMsg)
 
-    if (pixResponse.pix?.code) {
+    if (pixCode) {
       try {
-        const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(pixResponse.pix.code)}`
+        const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(pixCode)}`
         await sendPhoto(token, chatId, qrUrl)
       } catch { /* ignore */ }
     }
 
     const pixMsg = await getBotMessage(bot.id as string, 'pix_instructions')
     await sendMessage(token, chatId, pixMsg)
-    await sendMessage(token, chatId, `<code>${pixResponse.pix?.code}</code>`)
+    if (pixCode) await sendMessage(token, chatId, `<code>${pixCode}</code>`)
   } catch (err) {
     console.error('[Telegram] createPix error:', err)
     await supabaseAdmin.from('payments').delete().eq('id', payment.id)
