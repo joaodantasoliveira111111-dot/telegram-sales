@@ -38,9 +38,12 @@ export async function GET(
   const { slug } = await params
   const ua = request.headers.get('user-agent') ?? ''
 
+  // Vercel injects this header on all plans — no external API needed
+  const country = request.headers.get('x-vercel-ip-country') ?? ''
+
   const { data: cloaker } = await supabaseAdmin
     .from('cloakers')
-    .select('id, safe_url, is_active')
+    .select('id, safe_url, is_active, allowed_countries')
     .eq('slug', slug)
     .maybeSingle()
 
@@ -50,24 +53,27 @@ export async function GET(
 
   const { isBot, reason } = detectBot(ua)
 
+  // Country filter — if a whitelist is set, non-matching countries go to safe
+  const countries: string[] = cloaker.allowed_countries ?? []
+  const countryBlocked = countries.length > 0 && country && !countries.includes(country)
+
   void supabaseAdmin.from('cloaker_clicks').insert({
     cloaker_id: cloaker.id,
-    verdict: isBot ? 'bot' : 'human',
-    bot_reason: reason || null,
+    verdict: (isBot || countryBlocked) ? 'bot' : 'human',
+    bot_reason: isBot ? (reason || null) : countryBlocked ? `country:${country}` : null,
     user_agent: ua.slice(0, 250),
+    country: country || null,
   })
 
   void supabaseAdmin.rpc('increment_cloaker_clicks', {
     p_id: cloaker.id,
-    p_is_bot: isBot,
+    p_is_bot: isBot || countryBlocked,
   })
 
-  if (isBot) {
+  if (isBot || countryBlocked) {
     return NextResponse.redirect(cloaker.safe_url, { status: 302 })
   }
 
-  // Sign a session cookie so /api/cloakers/verify can confirm this browser
-  // actually visited this cloaker page (prevents direct token farming)
   const sessionToken = signSession(slug)
 
   const html = `<!DOCTYPE html>
@@ -89,13 +95,37 @@ export async function GET(
     !function(){
       function fp(){
         try{
+          // Automation flags
           if(navigator.webdriver)return'webdriver';
-          if(typeof navigator.plugins==='object'&&navigator.plugins.length===0&&/chrome/i.test(navigator.userAgent)&&!/edg|opr|brave/i.test(navigator.userAgent))return'no_plugins';
-          if(screen.width<200||screen.height<200)return'small_screen';
-          var c=document.createElement('canvas');
-          if(!c.getContext)return'no_canvas';
           if(window.callPhantom||window._phantom||window.__nightmare)return'phantom';
           if(/HeadlessChrome/i.test(navigator.userAgent))return'headless_chrome';
+
+          // Chrome without window.chrome object = fake Chrome UA
+          if(/chrome/i.test(navigator.userAgent)&&!(/edg|opr|brave/i.test(navigator.userAgent))&&!window.chrome)return'fake_chrome';
+
+          // No plugins on desktop Chrome = headless signal
+          if(typeof navigator.plugins==='object'&&navigator.plugins.length===0&&/chrome/i.test(navigator.userAgent)&&!/edg|opr|brave|mobile/i.test(navigator.userAgent))return'no_plugins';
+
+          // Language list empty = automation
+          if(!navigator.languages||navigator.languages.length===0)return'no_languages';
+
+          // Screen too small for any real device
+          if(screen.width<400||screen.height<400)return'small_screen';
+
+          // Zero or undefined CPU cores = virtual/bot environment
+          if(typeof navigator.hardwareConcurrency!=='undefined'&&navigator.hardwareConcurrency<1)return'no_cpu';
+
+          // WebGL renderer — detects virtual machines and software renderers
+          try{
+            var gl=document.createElement('canvas').getContext('webgl')||document.createElement('canvas').getContext('experimental-webgl');
+            if(!gl)return'no_webgl';
+            var dbg=gl.getExtension('WEBGL_debug_renderer_info');
+            if(dbg){
+              var renderer=gl.getParameter(dbg.UNMASKED_RENDERER_WEBGL)||'';
+              if(/swiftshader|llvmpipe|virtualbox|vmware|microsoft basic/i.test(renderer))return'virtual_gpu';
+            }
+          }catch(e){}
+
           return null;
         }catch(e){return'error'}
       }
@@ -129,7 +159,7 @@ export async function GET(
     httpOnly: true,
     sameSite: 'strict',
     secure: process.env.NODE_ENV === 'production',
-    maxAge: 600, // 10 minutes, matches verifySession window
+    maxAge: 600,
     path: '/',
   })
 

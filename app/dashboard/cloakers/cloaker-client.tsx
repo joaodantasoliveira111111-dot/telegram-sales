@@ -14,6 +14,19 @@ import { Label } from '@/components/ui/label'
 
 // ─── types ────────────────────────────────────────────────────────────────────
 
+const COUNTRY_OPTIONS = [
+  { code: 'BR', label: '🇧🇷 Brasil' },
+  { code: 'PT', label: '🇵🇹 Portugal' },
+  { code: 'AO', label: '🇦🇴 Angola' },
+  { code: 'MZ', label: '🇲🇿 Moçambique' },
+  { code: 'US', label: '🇺🇸 Estados Unidos' },
+  { code: 'AR', label: '🇦🇷 Argentina' },
+  { code: 'CL', label: '🇨🇱 Chile' },
+  { code: 'CO', label: '🇨🇴 Colômbia' },
+  { code: 'MX', label: '🇲🇽 México' },
+  { code: 'ES', label: '🇪🇸 Espanha' },
+]
+
 interface Cloaker {
   id: string
   bot_id: string | null
@@ -26,6 +39,7 @@ interface Cloaker {
   human_clicks: number
   bot_clicks: number
   created_at: string
+  allowed_countries: string[] | null
   bot?: { id: string; name: string } | null
 }
 
@@ -81,9 +95,22 @@ function CloakerForm({
     destination_url: initial?.destination_url ?? '',
     safe_url: initial?.safe_url ?? '',
     slug: initial?.slug ?? '',
+    allowed_countries: initial?.allowed_countries ?? [] as string[],
   })
 
   function set(k: string, v: string) { setForm(f => ({ ...f, [k]: v })) }
+
+  function toggleCountry(code: string) {
+    setForm(f => {
+      const current = f.allowed_countries
+      return {
+        ...f,
+        allowed_countries: current.includes(code)
+          ? current.filter(c => c !== code)
+          : [...current, code],
+      }
+    })
+  }
 
   // Auto-fill destination URL from selected bot
   function handleBotChange(botId: string) {
@@ -108,6 +135,7 @@ function CloakerForm({
           ...form,
           bot_id: form.bot_id || null,
           slug: form.slug || undefined,
+          allowed_countries: form.allowed_countries.length > 0 ? form.allowed_countries : null,
         }),
       })
       const data = await res.json()
@@ -193,6 +221,38 @@ function CloakerForm({
               required
             />
             <p className="text-[11px] text-slate-600">Página simples e sem infrações — blog, termos, landing page limpa</p>
+          </div>
+
+          {/* Country filter */}
+          <div className="space-y-2 sm:col-span-2">
+            <Label className="flex items-center gap-1.5">
+              Filtrar por país
+              <span className="text-[10px] text-slate-600 font-normal">(opcional — sem seleção = aceita todos)</span>
+            </Label>
+            <div className="flex flex-wrap gap-2">
+              {COUNTRY_OPTIONS.map(({ code, label }) => {
+                const active = form.allowed_countries.includes(code)
+                return (
+                  <button
+                    key={code}
+                    type="button"
+                    onClick={() => toggleCountry(code)}
+                    className="text-xs px-2.5 py-1 rounded-lg transition-all"
+                    style={active
+                      ? { background: 'rgba(59,130,246,0.18)', border: '1px solid rgba(59,130,246,0.4)', color: '#93c5fd' }
+                      : { background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', color: '#64748b' }
+                    }
+                  >
+                    {label}
+                  </button>
+                )
+              })}
+            </div>
+            {form.allowed_countries.length > 0 && (
+              <p className="text-[11px] text-blue-400">
+                Apenas visitantes de {form.allowed_countries.join(', ')} verão o link de destino.
+              </p>
+            )}
           </div>
         </div>
 
@@ -462,6 +522,22 @@ function CloakerCard({
           </div>
         ))}
       </div>
+
+      {/* Country filter badge */}
+      {cloaker.allowed_countries && cloaker.allowed_countries.length > 0 && (
+        <div className="flex items-center gap-2 flex-wrap">
+          <span className="text-[10px] text-slate-600 font-medium">Países:</span>
+          {cloaker.allowed_countries.map(c => (
+            <span
+              key={c}
+              className="text-[10px] px-2 py-0.5 rounded-full font-medium"
+              style={{ background: 'rgba(59,130,246,0.1)', color: '#93c5fd', border: '1px solid rgba(59,130,246,0.2)' }}
+            >
+              {COUNTRY_OPTIONS.find(o => o.code === c)?.label ?? c}
+            </span>
+          ))}
+        </div>
+      )}
 
       {/* Click log */}
       <ClickLog cloakerId={cloaker.id} />

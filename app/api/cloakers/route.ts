@@ -17,7 +17,7 @@ export async function GET() {
 
 export async function POST(request: NextRequest) {
   const body = await request.json()
-  const { bot_id, name, destination_url, safe_url, slug: customSlug } = body
+  const { bot_id, name, destination_url, safe_url, slug: customSlug, allowed_countries } = body
 
   if (!name || !destination_url || !safe_url) {
     return NextResponse.json({ error: 'Campos obrigatórios: nome, URL de destino, URL segura' }, { status: 400 })
@@ -31,9 +31,12 @@ export async function POST(request: NextRequest) {
     .from('cloakers').select('id').eq('slug', slug).maybeSingle()
   if (existing) slug = randomSlug()
 
+  const countries = Array.isArray(allowed_countries) && allowed_countries.length > 0
+    ? allowed_countries : null
+
   const { data, error } = await supabaseAdmin
     .from('cloakers')
-    .insert({ bot_id: bot_id ?? null, name, destination_url, safe_url, slug })
+    .insert({ bot_id: bot_id ?? null, name, destination_url, safe_url, slug, allowed_countries: countries })
     .select('*, bot:bots(id, name)')
     .single()
 

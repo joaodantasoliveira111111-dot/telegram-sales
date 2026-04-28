@@ -7,7 +7,7 @@ export async function PATCH(
 ) {
   const { id } = await params
   const body = await request.json()
-  const allowed = ['name', 'destination_url', 'safe_url', 'is_active']
+  const allowed = ['name', 'destination_url', 'safe_url', 'is_active', 'allowed_countries']
   const update: Record<string, unknown> = { updated_at: new Date().toISOString() }
   for (const key of allowed) {
     if (key in body) update[key] = body[key]
