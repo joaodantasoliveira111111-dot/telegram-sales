@@ -31,7 +31,7 @@ export function BotForm({ bot, onSaved, onCancel }: BotFormProps) {
   const [abEnabled, setAbEnabled] = useState<boolean>(botAny?.ab_test_enabled ?? false)
   const [flowTypeB, setFlowTypeB] = useState<FlowType>(botAny?.flow_type_b as FlowType ?? 'presentation')
   const [protectContent, setProtectContent] = useState<boolean>(botAny?.protect_content ?? false)
-  const [gateway, setGateway] = useState<'default' | 'amplopay' | 'pushinpay'>((botAny as Record<string, unknown>)?.gateway as 'amplopay' | 'pushinpay' ?? 'default')
+  const [gateway, setGateway] = useState<'default' | 'amplopay' | 'pushinpay'>(((bot as unknown) as Record<string, unknown>)?.gateway as 'amplopay' | 'pushinpay' ?? 'default')
   const [selectedTemplate, setSelectedTemplate] = useState<FunnelTemplate | null>(null)
   const [form, setForm] = useState<CreateBotForm & { bot_type?: string; flow_type?: string }>({
     name: bot?.name ?? '',
