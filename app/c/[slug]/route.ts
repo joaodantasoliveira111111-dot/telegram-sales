@@ -1,45 +1,32 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase'
+import { signSession } from '@/lib/cloaker-crypto'
 
 export const runtime = 'nodejs'
 
-// ─── Known bot / crawler user-agents ─────────────────────────────────────────
 const BOT_UA_PATTERNS = [
-  // Meta / Facebook
   'facebookexternalhit', 'facebot', 'facebookcatalog', 'meta-externalagent',
-  // TikTok / ByteDance
   'bytespider', 'tiktokspider', 'tiktok',
-  // Google
   'googlebot', 'google-structured-data-testing-tool', 'google-inspectiontool',
   'googleweblight', 'adsbot-google', 'mediapartners-google',
-  // Bing / Microsoft
   'bingbot', 'msnbot', 'adidxbot',
-  // Apple / Twitter / LinkedIn / Snap
   'applebot', 'twitterbot', 'linkedinbot', 'snapchat',
-  // SEO tools
   'semrushbot', 'ahrefsbot', 'mj12bot', 'dotbot', 'petalbot', 'rogerbot',
   'screaming frog', 'seokicks', 'sistrix',
-  // Generic crawler patterns
   'spider', 'crawler', 'scraper', 'bot/', '/bot',
-  // Headless browsers / automation
   'headlesschrome', 'phantomjs', 'selenium', 'puppeteer', 'playwright',
   'webdriver', 'htmlunit', 'python-requests', 'python-urllib',
   'go-http-client', 'okhttp', 'axios/', 'node-fetch',
   'curl/', 'wget/', 'java/',
-  // Ad verification / brand safety
   'adscore', 'integral-ads', 'doubleverify', 'moat/', 'iasds01',
   'whatsapp', 'slackbot', 'discordbot', 'telegrambot',
 ]
 
 function detectBot(ua: string): { isBot: boolean; reason: string } {
-  if (!ua || ua.trim().length < 10) {
-    return { isBot: true, reason: 'empty_ua' }
-  }
+  if (!ua || ua.trim().length < 10) return { isBot: true, reason: 'empty_ua' }
   const lower = ua.toLowerCase()
   for (const pattern of BOT_UA_PATTERNS) {
-    if (lower.includes(pattern)) {
-      return { isBot: true, reason: `ua:${pattern}` }
-    }
+    if (lower.includes(pattern)) return { isBot: true, reason: `ua:${pattern}` }
   }
   return { isBot: false, reason: '' }
 }
@@ -51,21 +38,18 @@ export async function GET(
   const { slug } = await params
   const ua = request.headers.get('user-agent') ?? ''
 
-  // Fetch cloaker
   const { data: cloaker } = await supabaseAdmin
     .from('cloakers')
-    .select('id, destination_url, safe_url, is_active')
+    .select('id, safe_url, is_active')
     .eq('slug', slug)
     .maybeSingle()
 
-  // Unknown slug or inactive → simple redirect to google (neutral)
   if (!cloaker || !cloaker.is_active) {
     return NextResponse.redirect('https://www.google.com', { status: 302 })
   }
 
   const { isBot, reason } = detectBot(ua)
 
-  // Record click + increment counters (async, non-blocking)
   void supabaseAdmin.from('cloaker_clicks').insert({
     cloaker_id: cloaker.id,
     verdict: isBot ? 'bot' : 'human',
@@ -78,21 +62,19 @@ export async function GET(
     p_is_bot: isBot,
   })
 
-  // Layer 1: Server-side bot detected → silent redirect to safe page
   if (isBot) {
     return NextResponse.redirect(cloaker.safe_url, { status: 302 })
   }
 
-  // Layer 2: Serve HTML with JS fingerprinting for edge cases
-  const dest = cloaker.destination_url.replace(/'/g, "\\'")
-  const safe = cloaker.safe_url.replace(/'/g, "\\'")
+  // Sign a session cookie so /api/cloakers/verify can confirm this browser
+  // actually visited this cloaker page (prevents direct token farming)
+  const sessionToken = signSession(slug)
 
   const html = `<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta http-equiv="refresh" content="3;url=${cloaker.safe_url}">
   <title>Aguarde...</title>
   <style>
     *{margin:0;padding:0;box-sizing:border-box}
@@ -105,8 +87,7 @@ export async function GET(
   <div class="ring"></div>
   <script>
     !function(){
-      var d='${dest}',s='${safe}';
-      function b(){
+      function fp(){
         try{
           if(navigator.webdriver)return'webdriver';
           if(typeof navigator.plugins==='object'&&navigator.plugins.length===0&&/chrome/i.test(navigator.userAgent)&&!/edg|opr|brave/i.test(navigator.userAgent))return'no_plugins';
@@ -118,16 +99,24 @@ export async function GET(
           return null;
         }catch(e){return'error'}
       }
-      var t=setTimeout(function(){window.location.replace(s)},3000);
-      var r=b();
-      clearTimeout(t);
-      window.location.replace(r?s:d);
+      var result=fp();
+      fetch('/api/cloakers/verify',{
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({slug:'${slug}',verdict:result?'s':'h'})
+      })
+      .then(function(r){return r.json()})
+      .then(function(d){
+        if(d.token)window.location.replace('/c/go/'+d.token);
+        else window.location.replace('https://www.google.com');
+      })
+      .catch(function(){window.location.replace('https://www.google.com')});
     }();
   </script>
 </body>
 </html>`
 
-  return new NextResponse(html, {
+  const response = new NextResponse(html, {
     status: 200,
     headers: {
       'Content-Type': 'text/html; charset=utf-8',
@@ -135,4 +124,14 @@ export async function GET(
       'X-Robots-Tag': 'noindex, nofollow',
     },
   })
+
+  response.cookies.set('_ck', sessionToken, {
+    httpOnly: true,
+    sameSite: 'strict',
+    secure: process.env.NODE_ENV === 'production',
+    maxAge: 600, // 10 minutes, matches verifySession window
+    path: '/',
+  })
+
+  return response
 }
