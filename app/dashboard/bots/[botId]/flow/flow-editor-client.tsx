@@ -1139,7 +1139,7 @@ function EditorInner({ botId, initialFlowConfig, plans }: { botId: string; initi
             </div>
           ) : (
             <div className="h-full rounded-2xl flex flex-col items-center justify-center gap-4 p-5 text-center"
-              style={{ background: 'rgba(255,255,255,0.01)', border: '1px dashed rgba(255,255,255,0.80)' }}>
+              style={{ background: 'rgba(139,92,246,0.02)', border: '1px dashed rgba(139,92,246,0.20)' }}>
               <div className="h-12 w-12 rounded-2xl flex items-center justify-center" style={{ background: 'rgba(255,255,255,0.75)' }}>
                 <MousePointer2 className="h-5 w-5 text-slate-700" />
               </div>

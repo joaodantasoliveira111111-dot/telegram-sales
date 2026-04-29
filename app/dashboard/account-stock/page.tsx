@@ -1,6 +1,9 @@
 export const dynamic = 'force-dynamic'
 
+import { cookies } from 'next/headers'
+import { redirect } from 'next/navigation'
 import { supabaseAdmin } from '@/lib/supabase'
+import { getSessionFromCookies } from '@/lib/session'
 import { AccountStockList } from './account-stock-list'
 
 async function getData() {
@@ -42,6 +45,10 @@ async function getData() {
 }
 
 export default async function AccountStockPage() {
+  const cookieStore = await cookies()
+  const session = await getSessionFromCookies(cookieStore)
+  if (session?.type === 'user') redirect('/dashboard')
+
   const { accounts, stats, lowStockPlans, bots, plans } = await getData()
 
   return (

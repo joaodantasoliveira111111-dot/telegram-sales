@@ -1,7 +1,9 @@
 ﻿export const dynamic = 'force-dynamic'
 
 import { Suspense } from 'react'
+import { cookies } from 'next/headers'
 import { supabaseAdmin } from '@/lib/supabase'
+import { getSessionFromCookies, getUserBotIds } from '@/lib/session'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { RevenueChart } from '@/components/revenue-chart'
@@ -87,11 +89,32 @@ function getMilestoneData(revenue: number) {
 
 // ─── Server data ──────────────────────────────────────────────────────────────
 
-async function getStats(period: string) {
+async function getStats(period: string, botIds?: string[]) {
   const { since, until } = getPeriodRange(period)
+
+  // If a SaaS user has no bots, return zeroed stats
+  if (botIds !== undefined && botIds.length === 0) {
+    return {
+      bots: 0, paidPayments: 0, activeSubscriptions: 0,
+      totalRevenue: 0, avgTicket: 0, overallConvPct: '—' as string,
+      recentPayments: [] as Record<string, unknown>[],
+      funnel: { started: 0, initiated: 0, paid: 0 },
+      byPlan: [] as { name: string; revenue: number; sales: number }[],
+      maxPlanRevenue: 1,
+      conversionByBot: [] as { id: string; name: string; started: number; checkouts: number; sales: number; convPct: string | number }[],
+      pixelStatus: { meta: false, tiktok: false, ga4: false, gtm: false, kwai: false },
+      activePixels: 0, allTimeRevenue: 0, allTimeSales: 0, adminName: 'Admin',
+    }
+  }
 
   function addUntil<T extends { lt: (col: string, val: string) => T }>(q: T): T {
     return until ? q.lt('created_at', until) : q
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  function scopeBots<T>(q: T, col: string): T {
+    if (botIds === undefined) return q
+    return (q as any).in(col, botIds) as T
   }
 
   const [
@@ -100,19 +123,19 @@ async function getStats(period: string) {
     allPaymentsRes, usersPerBotRes, settingsRes,
     allTimeRevRes, allTimeSalesRes, adminSettingsRes,
   ] = await Promise.all([
-    supabaseAdmin.from('bots').select('id', { count: 'exact', head: true }).eq('is_active', true),
-    addUntil(supabaseAdmin.from('payments').select('plan_price, plan:plans(price)').eq('status', 'paid').gte('created_at', since)),
-    addUntil(supabaseAdmin.from('payments').select('id', { count: 'exact', head: true }).eq('status', 'paid').gte('created_at', since)),
-    supabaseAdmin.from('subscriptions').select('id', { count: 'exact', head: true }).eq('status', 'active'),
-    addUntil(supabaseAdmin.from('payments').select('*, plan:plans(name, price), bot:bots(name)').eq('status', 'paid').gte('created_at', since).order('created_at', { ascending: false }).limit(8)),
-    addUntil(supabaseAdmin.from('telegram_users').select('id', { count: 'exact', head: true }).gte('created_at', since)),
-    addUntil(supabaseAdmin.from('payments').select('id', { count: 'exact', head: true }).gte('created_at', since)),
-    supabaseAdmin.from('bots').select('id, name').eq('is_active', true),
-    addUntil(supabaseAdmin.from('payments').select('bot_id, status').gte('created_at', since)),
-    addUntil(supabaseAdmin.from('telegram_users').select('bot_id').gte('created_at', since)),
+    scopeBots(supabaseAdmin.from('bots').select('id', { count: 'exact', head: true }).eq('is_active', true), 'id'),
+    scopeBots(addUntil(supabaseAdmin.from('payments').select('plan_price, plan:plans(price)').eq('status', 'paid').gte('created_at', since)), 'bot_id'),
+    scopeBots(addUntil(supabaseAdmin.from('payments').select('id', { count: 'exact', head: true }).eq('status', 'paid').gte('created_at', since)), 'bot_id'),
+    scopeBots(supabaseAdmin.from('subscriptions').select('id', { count: 'exact', head: true }).eq('status', 'active'), 'bot_id'),
+    scopeBots(addUntil(supabaseAdmin.from('payments').select('*, plan:plans(name, price), bot:bots(name)').eq('status', 'paid').gte('created_at', since).order('created_at', { ascending: false }).limit(8)), 'bot_id'),
+    scopeBots(addUntil(supabaseAdmin.from('telegram_users').select('id', { count: 'exact', head: true }).gte('created_at', since)), 'bot_id'),
+    scopeBots(addUntil(supabaseAdmin.from('payments').select('id', { count: 'exact', head: true }).gte('created_at', since)), 'bot_id'),
+    scopeBots(supabaseAdmin.from('bots').select('id, name').eq('is_active', true), 'id'),
+    scopeBots(addUntil(supabaseAdmin.from('payments').select('bot_id, status').gte('created_at', since)), 'bot_id'),
+    scopeBots(addUntil(supabaseAdmin.from('telegram_users').select('bot_id').gte('created_at', since)), 'bot_id'),
     supabaseAdmin.from('settings').select('key, value').in('key', ['meta_pixel_id', 'tiktok_pixel_id', 'ga4_measurement_id', 'gtm_container_id', 'kwai_pixel_id']),
-    supabaseAdmin.from('payments').select('plan_price, plan:plans(price)').eq('status', 'paid'),
-    supabaseAdmin.from('payments').select('id', { count: 'exact', head: true }).eq('status', 'paid'),
+    scopeBots(supabaseAdmin.from('payments').select('plan_price, plan:plans(price)').eq('status', 'paid'), 'bot_id'),
+    scopeBots(supabaseAdmin.from('payments').select('id', { count: 'exact', head: true }).eq('status', 'paid'), 'bot_id'),
     supabaseAdmin.from('settings').select('key, value').in('key', ['admin_name', 'company_name', 'site_name']),
   ])
 
@@ -132,7 +155,7 @@ async function getStats(period: string) {
   const startedCount = startedRes.count ?? 0
   const overallConvPct = startedCount > 0 ? ((paidCount / startedCount) * 100).toFixed(1) : '—'
 
-  const allPaidRes = await addUntil(supabaseAdmin.from('payments').select('plan_id, plan_name, plan_price, plan:plans(name, price)').eq('status', 'paid').gte('created_at', since))
+  const allPaidRes = await scopeBots(addUntil(supabaseAdmin.from('payments').select('plan_id, plan_name, plan_price, plan:plans(name, price)').eq('status', 'paid').gte('created_at', since)), 'bot_id')
   const planMap: Record<string, { name: string; revenue: number; sales: number }> = {}
   for (const p of allPaidRes.data ?? []) {
     const id = (p.plan_id ?? 'deleted') as string
@@ -206,9 +229,17 @@ interface PageProps {
 }
 
 export default async function DashboardPage({ searchParams }: PageProps) {
+  const cookieStore = await cookies()
+  const session = await getSessionFromCookies(cookieStore)
+
+  let botIds: string[] | undefined
+  if (session?.type === 'user') {
+    botIds = await getUserBotIds(session.userId!)
+  }
+
   const { period: periodParam } = await searchParams
   const period = periodParam ?? '30d'
-  const stats = await getStats(period)
+  const stats = await getStats(period, botIds)
 
   const milestone = getMilestoneData(stats.allTimeRevenue)
 

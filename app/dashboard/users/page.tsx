@@ -1,6 +1,9 @@
 export const dynamic = 'force-dynamic'
 
+import { cookies } from 'next/headers'
+import { redirect } from 'next/navigation'
 import { supabaseAdmin } from '@/lib/supabase'
+import { getSessionFromCookies } from '@/lib/session'
 import { UsersClient } from './users-client'
 
 export default async function UsersPage({
@@ -8,6 +11,10 @@ export default async function UsersPage({
 }: {
   searchParams: Promise<{ page?: string; plan?: string; status?: string; q?: string }>
 }) {
+  const cookieStore = await cookies()
+  const session = await getSessionFromCookies(cookieStore)
+  if (session?.type === 'user') redirect('/dashboard')
+
   const params = await searchParams
   const page = Math.max(1, parseInt(params.page ?? '1'))
   const limit = 20

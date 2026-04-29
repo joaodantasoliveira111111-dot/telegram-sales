@@ -1,6 +1,8 @@
 export const dynamic = 'force-dynamic'
 
+import { cookies } from 'next/headers'
 import { supabaseAdmin } from '@/lib/supabase'
+import { getSessionFromCookies, getUserBotIds } from '@/lib/session'
 import { Badge } from '@/components/ui/badge'
 import { formatDate } from '@/lib/utils'
 import { SubscriptionStatus } from '@/types'
@@ -16,6 +18,14 @@ export default async function SubscriptionsPage({
 }: {
   searchParams: Promise<{ page?: string; status?: string }>
 }) {
+  const cookieStore = await cookies()
+  const session = await getSessionFromCookies(cookieStore)
+
+  let userBotIds: string[] | null = null
+  if (session?.type === 'user') {
+    userBotIds = await getUserBotIds(session.userId!)
+  }
+
   const params = await searchParams
   const page = parseInt(params.page ?? '1')
   const limit = 20
@@ -27,6 +37,10 @@ export default async function SubscriptionsPage({
     .order('created_at', { ascending: false })
     .range(offset, offset + limit - 1)
 
+  if (userBotIds !== null) {
+    if (userBotIds.length === 0) query = query.in('bot_id', ['__none__'])
+    else query = query.in('bot_id', userBotIds)
+  }
   if (params.status) query = query.eq('status', params.status)
 
   const { data: subscriptions, count } = await query
