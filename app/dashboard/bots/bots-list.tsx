@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState } from 'react'
 import Link from 'next/link'
@@ -16,8 +16,8 @@ interface BotsListProps {
 }
 
 const cardStyle: React.CSSProperties = {
-  background: 'rgba(255,255,255,0.03)',
-  border: '1px solid rgba(255,255,255,0.08)',
+  background: 'rgba(255,255,255,0.72)',
+  border: '1px solid rgba(255,255,255,0.84)',
   backdropFilter: 'blur(20px)',
 }
 
@@ -57,8 +57,8 @@ function BotCard({ bot, onToggle, onEdit, onDelete }: {
             style={{
               background: bot.is_active
                 ? 'linear-gradient(135deg, rgba(59,130,246,0.25), rgba(99,102,241,0.15))'
-                : 'rgba(255,255,255,0.05)',
-              border: bot.is_active ? '1px solid rgba(59,130,246,0.3)' : '1px solid rgba(255,255,255,0.08)',
+                : 'rgba(255,255,255,0.78)',
+              border: bot.is_active ? '1px solid rgba(59,130,246,0.3)' : '1px solid rgba(255,255,255,0.84)',
             }}
           >
             <Bot className={`h-5 w-5 ${bot.is_active ? 'text-blue-400' : 'text-slate-600'}`} />
@@ -209,7 +209,7 @@ export function BotsList({ initialBots }: BotsListProps) {
       {bots.length === 0 && !showForm ? (
         <div
           className="flex flex-col items-center justify-center rounded-2xl border-2 border-dashed py-20 text-center"
-          style={{ borderColor: 'rgba(255,255,255,0.08)' }}
+          style={{ borderColor: 'rgba(255,255,255,0.84)' }}
         >
           <div
             className="mb-4 flex h-16 w-16 items-center justify-center rounded-2xl"

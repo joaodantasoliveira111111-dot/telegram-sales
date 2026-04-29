@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
@@ -27,7 +27,7 @@ function StatCard({ icon: Icon, label, value, sub, color }: {
 }) {
   return (
     <div className="rounded-2xl p-4 flex items-start gap-3"
-      style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }}>
+      style={{ background: 'rgba(255,255,255,0.75)', border: '1px solid rgba(255,255,255,0.84)' }}>
       <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl"
         style={{ background: `${color}20`, border: `1px solid ${color}40` }}>
         <Icon className="h-4 w-4" style={{ color }} />
@@ -142,7 +142,7 @@ export function UsersClient({ users, total, page, limit, stats, filters }: Props
 
       {/* Filters */}
       <div className="flex flex-wrap items-center gap-2 rounded-2xl p-3"
-        style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)' }}>
+        style={{ background: 'rgba(255,255,255,0.72)', border: '1px solid rgba(255,255,255,0.82)' }}>
         <Filter className="h-3.5 w-3.5 text-zinc-500 shrink-0" />
 
         {/* Search */}
@@ -152,7 +152,7 @@ export function UsersClient({ users, total, page, limit, stats, filters }: Props
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Nome ou e-mail..."
             className="rounded-lg px-3 py-1 text-xs bg-white/5 border text-zinc-300 placeholder-zinc-600 outline-none"
-            style={{ borderColor: 'rgba(255,255,255,0.1)' }}
+            style={{ borderColor: 'rgba(255,255,255,0.88)' }}
           />
           <button type="submit" className="rounded-lg p-1.5 text-zinc-500 hover:text-zinc-300 transition-colors">
             <Search className="h-3.5 w-3.5" />
@@ -167,7 +167,7 @@ export function UsersClient({ users, total, page, limit, stats, filters }: Props
             className="rounded-lg px-2.5 py-1 text-xs font-medium transition-all"
             style={(filters.plan ?? '') === p
               ? { background: 'rgba(139,92,246,0.2)', color: '#a78bfa', border: '1px solid rgba(139,92,246,0.3)' }
-              : { background: 'rgba(255,255,255,0.04)', color: '#71717a', border: '1px solid rgba(255,255,255,0.07)' }}>
+              : { background: 'rgba(255,255,255,0.75)', color: '#71717a', border: '1px solid rgba(255,255,255,0.82)' }}>
             {p === '' ? 'Todos os planos' : PLAN_LABELS[p]}
           </Link>
         ))}
@@ -180,17 +180,17 @@ export function UsersClient({ users, total, page, limit, stats, filters }: Props
             className="rounded-lg px-2.5 py-1 text-xs font-medium transition-all"
             style={(filters.status ?? '') === v
               ? { background: 'rgba(139,92,246,0.2)', color: '#a78bfa', border: '1px solid rgba(139,92,246,0.3)' }
-              : { background: 'rgba(255,255,255,0.04)', color: '#71717a', border: '1px solid rgba(255,255,255,0.07)' }}>
+              : { background: 'rgba(255,255,255,0.75)', color: '#71717a', border: '1px solid rgba(255,255,255,0.82)' }}>
             {l}
           </Link>
         ))}
       </div>
 
       {/* Table */}
-      <div className="overflow-x-auto rounded-2xl" style={{ border: '1px solid rgba(255,255,255,0.08)' }}>
+      <div className="overflow-x-auto rounded-2xl" style={{ border: '1px solid rgba(255,255,255,0.84)' }}>
         <table className="w-full text-sm">
           <thead>
-            <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.06)', background: 'rgba(255,255,255,0.03)' }}>
+            <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.80)', background: 'rgba(255,255,255,0.72)' }}>
               {['Usuário', 'Plano', 'Vendas/Ciclo', 'Taxas Pendentes', 'A Repassar', 'Status', 'Cadastro', 'Ações'].map((h) => (
                 <th key={h} className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-zinc-500">{h}</th>
               ))}
@@ -199,7 +199,7 @@ export function UsersClient({ users, total, page, limit, stats, filters }: Props
           <tbody>
             {users.map((user, i) => (
               <tr key={user.id} className="table-row-hover transition-colors"
-                style={{ borderBottom: i < users.length - 1 ? '1px solid rgba(255,255,255,0.05)' : undefined }}>
+                style={{ borderBottom: i < users.length - 1 ? '1px solid rgba(255,255,255,0.78)' : undefined }}>
                 <td className="px-4 py-3">
                   <div>
                     <p className="text-xs font-medium text-zinc-200">{user.name}</p>
@@ -279,14 +279,14 @@ export function UsersClient({ users, total, page, limit, stats, filters }: Props
             {page > 1 && (
               <Link href={filterUrl({ page: String(page - 1) })}
                 className="rounded-xl px-3 py-1.5 text-xs font-medium text-zinc-400 hover:text-zinc-200 transition-colors"
-                style={{ border: '1px solid rgba(255,255,255,0.1)' }}>
+                style={{ border: '1px solid rgba(255,255,255,0.88)' }}>
                 Anterior
               </Link>
             )}
             {page < totalPages && (
               <Link href={filterUrl({ page: String(page + 1) })}
                 className="rounded-xl px-3 py-1.5 text-xs font-medium text-zinc-400 hover:text-zinc-200 transition-colors"
-                style={{ border: '1px solid rgba(255,255,255,0.1)' }}>
+                style={{ border: '1px solid rgba(255,255,255,0.88)' }}>
                 Próximo
               </Link>
             )}

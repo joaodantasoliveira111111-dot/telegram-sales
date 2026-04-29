@@ -1,4 +1,4 @@
-export const dynamic = 'force-dynamic'
+﻿export const dynamic = 'force-dynamic'
 
 import { cookies } from 'next/headers'
 import { supabaseAdmin } from '@/lib/supabase'
@@ -25,7 +25,7 @@ function StatCard({ icon: Icon, label, value, sub, color }: {
   return (
     <div
       className="rounded-2xl p-4 flex items-start gap-3"
-      style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }}
+      style={{ background: 'rgba(255,255,255,0.75)', border: '1px solid rgba(255,255,255,0.84)' }}
     >
       <div
         className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl"
@@ -136,11 +136,11 @@ export default async function PaymentsPage({
       {/* Table */}
       <div
         className="overflow-x-auto rounded-2xl"
-        style={{ border: '1px solid rgba(255,255,255,0.08)' }}
+        style={{ border: '1px solid rgba(255,255,255,0.84)' }}
       >
         <table className="w-full text-sm">
           <thead>
-            <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.06)', background: 'rgba(255,255,255,0.03)' }}>
+            <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.80)', background: 'rgba(255,255,255,0.72)' }}>
               <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-zinc-500">Telegram ID</th>
               <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-zinc-500">Bot</th>
               <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-zinc-500">Plano</th>
@@ -157,7 +157,7 @@ export default async function PaymentsPage({
                 <tr
                   key={p.id}
                   className="table-row-hover transition-colors"
-                  style={{ borderBottom: i < (payments ?? []).length - 1 ? '1px solid rgba(255,255,255,0.05)' : undefined }}
+                  style={{ borderBottom: i < (payments ?? []).length - 1 ? '1px solid rgba(255,255,255,0.78)' : undefined }}
                 >
                   <td className="px-4 py-3 font-mono text-xs text-zinc-400">{p.telegram_id}</td>
                   <td className="px-4 py-3 text-zinc-300 text-xs">{(p.bot as { name: string } | null)?.name ?? '—'}</td>
@@ -192,7 +192,7 @@ export default async function PaymentsPage({
               <Link
                 href={filterUrl({ page: String(page - 1) })}
                 className="rounded-xl px-3 py-1.5 text-xs font-medium text-zinc-400 hover:text-zinc-200 transition-colors"
-                style={{ border: '1px solid rgba(255,255,255,0.1)' }}
+                style={{ border: '1px solid rgba(255,255,255,0.88)' }}
               >
                 Anterior
               </Link>
@@ -201,7 +201,7 @@ export default async function PaymentsPage({
               <Link
                 href={filterUrl({ page: String(page + 1) })}
                 className="rounded-xl px-3 py-1.5 text-xs font-medium text-zinc-400 hover:text-zinc-200 transition-colors"
-                style={{ border: '1px solid rgba(255,255,255,0.1)' }}
+                style={{ border: '1px solid rgba(255,255,255,0.88)' }}
               >
                 Próximo
               </Link>

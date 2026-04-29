@@ -2,11 +2,11 @@ import * as React from 'react'
 import { cn } from '@/lib/utils'
 
 const cardStyle: React.CSSProperties = {
-  background: 'rgba(255,255,255,0.045)',
-  borderColor: 'rgba(255,255,255,0.09)',
+  background: 'rgba(255,255,255,0.78)',
+  borderColor: 'rgba(0,0,0,0.07)',
   backdropFilter: 'blur(48px) saturate(180%)',
   WebkitBackdropFilter: 'blur(48px) saturate(180%)',
-  boxShadow: '0 8px 40px rgba(0,0,0,0.45), 0 1px 0 rgba(255,255,255,0.07) inset',
+  boxShadow: '0 4px 20px rgba(0,0,0,0.06), 0 1px 0 rgba(255,255,255,0.95) inset',
 }
 
 const Card = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(

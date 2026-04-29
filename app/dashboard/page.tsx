@@ -1,4 +1,4 @@
-export const dynamic = 'force-dynamic'
+﻿export const dynamic = 'force-dynamic'
 
 import { Suspense } from 'react'
 import { supabaseAdmin } from '@/lib/supabase'
@@ -255,7 +255,7 @@ export default async function DashboardPage({ searchParams }: PageProps) {
 
       {/* ── Welcome header ──────────────────────────────────────────────── */}
       <div className="relative flex flex-col items-center py-5 px-4 rounded-2xl text-center overflow-hidden"
-        style={{ background: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.07)' }}>
+        style={{ background: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.82)' }}>
         <div className="absolute inset-0 pointer-events-none"
           style={{ background: 'radial-gradient(ellipse 60% 80% at 50% 0%, rgba(96,165,250,0.08) 0%, transparent 70%)' }} />
         <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-zinc-500 mb-1.5">Painel de Controle</p>
@@ -277,7 +277,7 @@ export default async function DashboardPage({ searchParams }: PageProps) {
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
         {kpis.map(({ label, value, sub, Icon, color, glow, bg }) => (
           <div key={label} className="relative overflow-hidden rounded-2xl p-4 transition-all hover:scale-[1.01]"
-            style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(40px)', WebkitBackdropFilter: 'blur(40px)', boxShadow: '0 0 0 1px rgba(255,255,255,0.04) inset, 0 4px 24px rgba(0,0,0,0.3)' }}>
+            style={{ background: 'rgba(255,255,255,0.75)', border: '1px solid rgba(255,255,255,0.84)', backdropFilter: 'blur(40px)', WebkitBackdropFilter: 'blur(40px)', boxShadow: '0 0 0 1px rgba(255,255,255,0.75) inset, 0 4px 24px rgba(0,0,0,0.05)' }}>
             <div className="absolute bottom-0 left-0 h-20 w-20 rounded-full pointer-events-none"
               style={{ background: glow, filter: 'blur(20px)', transform: 'translate(-30%, 30%)' }} />
             <div className="relative">
@@ -298,7 +298,7 @@ export default async function DashboardPage({ searchParams }: PageProps) {
       <div className="grid gap-4 lg:grid-cols-2">
         {/* Revenue Goal */}
         <div className="rounded-2xl p-5"
-          style={{ background: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.07)' }}>
+          style={{ background: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.82)' }}>
           <div className="flex items-start justify-between mb-4">
             <div>
               <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-zinc-500">META DE FATURAMENTO</p>
@@ -318,10 +318,10 @@ export default async function DashboardPage({ searchParams }: PageProps) {
               <span className="font-bold" style={{ color: '#34d399' }}>{milestone.pct}% concluído</span>
               <span>{formatCurrency(milestone.current)}</span>
             </div>
-            <div className="h-3.5 w-full rounded-full overflow-hidden" style={{ background: 'rgba(255,255,255,0.06)' }}>
+            <div className="h-3.5 w-full rounded-full overflow-hidden" style={{ background: 'rgba(255,255,255,0.80)' }}>
               <div className="h-full rounded-full transition-all duration-1000 relative overflow-hidden"
                 style={{ width: `${milestone.pct}%`, background: 'linear-gradient(90deg, #059669, #10b981, #34d399)' }}>
-                <div className="absolute inset-0 animate-pulse" style={{ background: 'linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.2) 50%, transparent 100%)' }} />
+                <div className="absolute inset-0 animate-pulse" style={{ background: 'linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.96) 50%, transparent 100%)' }} />
               </div>
             </div>
             <p className="text-[11px] text-zinc-500 mt-2">
@@ -338,7 +338,7 @@ export default async function DashboardPage({ searchParams }: PageProps) {
                 <div key={m} className="shrink-0 flex flex-col items-center" style={{ minWidth: 40 }}>
                   <div className="h-1.5 w-1.5 rounded-full mb-1.5 transition-all"
                     style={{
-                      background: done ? '#34d399' : isCurrent ? 'rgba(52,211,153,0.3)' : 'rgba(255,255,255,0.08)',
+                      background: done ? '#34d399' : isCurrent ? 'rgba(52,211,153,0.3)' : 'rgba(255,255,255,0.84)',
                       boxShadow: done ? '0 0 6px rgba(52,211,153,0.8)' : isCurrent ? '0 0 8px rgba(52,211,153,0.4)' : 'none',
                       width: isCurrent ? 10 : 6,
                       height: isCurrent ? 10 : 6,
@@ -355,13 +355,13 @@ export default async function DashboardPage({ searchParams }: PageProps) {
 
         {/* Achievements */}
         <div className="rounded-2xl p-5"
-          style={{ background: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.07)' }}>
+          style={{ background: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.82)' }}>
           <div className="flex items-center justify-between mb-4">
             <div>
               <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-zinc-500">CONQUISTAS</p>
               <p className="text-[11px] text-zinc-400 mt-0.5">{unlockedCount} de {achievements.length} desbloqueadas</p>
             </div>
-            <div className="h-1.5 flex-1 mx-3 rounded-full overflow-hidden" style={{ background: 'rgba(255,255,255,0.06)' }}>
+            <div className="h-1.5 flex-1 mx-3 rounded-full overflow-hidden" style={{ background: 'rgba(255,255,255,0.80)' }}>
               <div className="h-full rounded-full" style={{ width: `${Math.round((unlockedCount / achievements.length) * 100)}%`, background: 'linear-gradient(90deg,#6d28d9,#8b5cf6)' }} />
             </div>
             <p className="text-[11px] font-bold text-violet-400">{Math.round((unlockedCount / achievements.length) * 100)}%</p>
@@ -371,12 +371,12 @@ export default async function DashboardPage({ searchParams }: PageProps) {
               <div key={a.name} title={`${a.name}: ${a.desc}`}
                 className="flex flex-col items-center gap-1.5 rounded-xl p-2 transition-all cursor-default"
                 style={{
-                  background: a.unlocked ? `rgba(${a.rgb},0.08)` : 'rgba(255,255,255,0.02)',
+                  background: a.unlocked ? `rgba(${a.rgb},0.08)` : 'rgba(255,255,255,0.68)',
                   border: `1px solid rgba(${a.unlocked ? a.rgb : '255,255,255'},${a.unlocked ? 0.2 : 0.05})`,
                   opacity: a.unlocked ? 1 : 0.3,
                 }}>
                 <div className="flex h-8 w-8 items-center justify-center rounded-xl"
-                  style={{ background: a.unlocked ? `rgba(${a.rgb},0.15)` : 'rgba(255,255,255,0.04)' }}>
+                  style={{ background: a.unlocked ? `rgba(${a.rgb},0.15)` : 'rgba(255,255,255,0.75)' }}>
                   <a.Icon className="h-3.5 w-3.5" style={{ color: a.unlocked ? `rgb(${a.rgb})` : '#3f3f46' }} />
                 </div>
                 <p className="text-[8px] font-bold text-center leading-tight"
@@ -396,7 +396,7 @@ export default async function DashboardPage({ searchParams }: PageProps) {
 
       {/* ── Rastreamento & Eventos ────────────────────────────────────────── */}
       <div className="rounded-2xl p-4"
-        style={{ background: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.07)', backdropFilter: 'blur(40px)' }}>
+        style={{ background: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.82)', backdropFilter: 'blur(40px)' }}>
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
           <div>
             <p className="text-[11px] font-bold uppercase tracking-[0.12em] text-zinc-500">Rastreamento & Eventos de Conversão</p>
@@ -416,8 +416,8 @@ export default async function DashboardPage({ searchParams }: PageProps) {
           {pixelPlatforms.map(({ id, name, active }) => (
             <div key={id} className="rounded-xl p-3 transition-all"
               style={{
-                background: active ? 'rgba(52,211,153,0.04)' : 'rgba(255,255,255,0.02)',
-                border: `1px solid ${active ? 'rgba(52,211,153,0.18)' : 'rgba(255,255,255,0.06)'}`,
+                background: active ? 'rgba(52,211,153,0.04)' : 'rgba(255,255,255,0.68)',
+                border: `1px solid ${active ? 'rgba(52,211,153,0.18)' : 'rgba(255,255,255,0.80)'}`,
               }}>
               <div className="flex items-center gap-2.5 mb-3">
                 <PlatformIcon id={id} />
@@ -492,7 +492,7 @@ export default async function DashboardPage({ searchParams }: PageProps) {
                     <span className="text-[11px] text-zinc-600">{plan.sales}×</span>
                     <span className="text-[12px] font-bold text-emerald-400 shrink-0">{formatCurrency(plan.revenue)}</span>
                   </div>
-                  <div className="h-1 w-full overflow-hidden rounded-full" style={{ background: 'rgba(255,255,255,0.05)' }}>
+                  <div className="h-1 w-full overflow-hidden rounded-full" style={{ background: 'rgba(255,255,255,0.78)' }}>
                     <div className="h-full rounded-full transition-all duration-700"
                       style={{ width: `${barPct}%`, background: 'linear-gradient(90deg, #10b981, #34d399)' }} />
                   </div>
@@ -514,14 +514,14 @@ export default async function DashboardPage({ searchParams }: PageProps) {
               const isGood = convNum >= 5
               return (
                 <div key={bot.id} className="rounded-xl p-3 transition-all"
-                  style={{ background: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.06)' }}>
+                  style={{ background: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.80)' }}>
                   <div className="flex items-center gap-2.5 mb-2">
                     <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-lg text-white" style={{ background: 'linear-gradient(135deg,#8b5cf6,#6d28d9)' }}>
                       <Bot className="h-3 w-3" />
                     </div>
                     <p className="flex-1 text-[12px] font-semibold text-zinc-200 truncate">{bot.name}</p>
                     <div className="shrink-0 rounded-lg px-2 py-0.5 text-[11px] font-bold"
-                      style={{ background: isGood ? 'rgba(52,211,153,0.12)' : 'rgba(255,255,255,0.05)', color: isGood ? '#34d399' : '#71717a' }}>
+                      style={{ background: isGood ? 'rgba(52,211,153,0.12)' : 'rgba(255,255,255,0.78)', color: isGood ? '#34d399' : '#71717a' }}>
                       {bot.convPct === '—' ? '—' : `${bot.convPct}%`}
                     </div>
                   </div>
@@ -532,7 +532,7 @@ export default async function DashboardPage({ searchParams }: PageProps) {
                     <span>·</span>
                     <span className="text-emerald-500 font-semibold">{bot.sales} vendas</span>
                   </div>
-                  <div className="h-0.5 w-full overflow-hidden rounded-full" style={{ background: 'rgba(255,255,255,0.05)' }}>
+                  <div className="h-0.5 w-full overflow-hidden rounded-full" style={{ background: 'rgba(255,255,255,0.78)' }}>
                     <div className="h-full rounded-full" style={{ width: `${Math.min(100, convNum * 5)}%`, background: isGood ? 'linear-gradient(90deg,#10b981,#34d399)' : 'rgba(139,92,246,0.4)', transition: 'width 0.7s ease' }} />
                   </div>
                 </div>
@@ -554,7 +554,7 @@ export default async function DashboardPage({ searchParams }: PageProps) {
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
-                <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+                <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.80)' }}>
                   <th className="px-5 py-3 text-left text-[10px] font-semibold uppercase tracking-[0.1em] text-zinc-600">Telegram ID</th>
                   <th className="hidden px-5 py-3 text-left text-[10px] font-semibold uppercase tracking-[0.1em] text-zinc-600 sm:table-cell">Plano</th>
                   <th className="px-5 py-3 text-left text-[10px] font-semibold uppercase tracking-[0.1em] text-zinc-600">Valor</th>
@@ -567,7 +567,7 @@ export default async function DashboardPage({ searchParams }: PageProps) {
                   const status = p.status as PaymentStatus
                   const cfg = statusConfig[status] ?? { label: status, variant: 'outline' as const }
                   return (
-                    <tr key={p.id} className="table-row-hover transition-colors" style={{ borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
+                    <tr key={p.id} className="table-row-hover transition-colors" style={{ borderBottom: '1px solid rgba(255,255,255,0.75)' }}>
                       <td className="px-5 py-3.5 font-mono text-[11px] text-zinc-500">{p.telegram_id}</td>
                       <td className="hidden px-5 py-3.5 text-[12px] text-zinc-300 sm:table-cell">{(p.plan as unknown as { name: string } | null)?.name ?? '—'}</td>
                       <td className="px-5 py-3.5 text-[12px] font-semibold text-emerald-400">{formatCurrency((p.plan as unknown as { price: number } | null)?.price ?? 0)}</td>

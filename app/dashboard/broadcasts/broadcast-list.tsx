@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState } from 'react'
 import { toast } from 'sonner'
@@ -48,8 +48,8 @@ interface BroadcastListProps {
 }
 
 const cardStyle: React.CSSProperties = {
-  background: 'rgba(255,255,255,0.03)',
-  border: '1px solid rgba(255,255,255,0.08)',
+  background: 'rgba(255,255,255,0.72)',
+  border: '1px solid rgba(255,255,255,0.84)',
   backdropFilter: 'blur(20px)',
 }
 
@@ -138,7 +138,7 @@ export function BroadcastList({ initialBroadcasts, bots }: BroadcastListProps) {
             className="rounded-xl px-3 py-1.5 text-xs font-semibold transition-all"
             style={botFilter === 'all'
               ? { background: 'rgba(59,130,246,0.2)', border: '1px solid rgba(59,130,246,0.4)', color: '#93c5fd' }
-              : { background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', color: '#64748b' }}
+              : { background: 'rgba(255,255,255,0.75)', border: '1px solid rgba(255,255,255,0.84)', color: '#64748b' }}
           >
             Todos ({broadcasts.length})
           </button>
@@ -151,7 +151,7 @@ export function BroadcastList({ initialBroadcasts, bots }: BroadcastListProps) {
                 className="rounded-xl px-3 py-1.5 text-xs font-semibold transition-all"
                 style={botFilter === bot.id
                   ? { background: 'rgba(59,130,246,0.2)', border: '1px solid rgba(59,130,246,0.4)', color: '#93c5fd' }
-                  : { background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', color: '#64748b' }}
+                  : { background: 'rgba(255,255,255,0.75)', border: '1px solid rgba(255,255,255,0.84)', color: '#64748b' }}
               >
                 {bot.name} ({count})
               </button>
@@ -185,11 +185,11 @@ export function BroadcastList({ initialBroadcasts, bots }: BroadcastListProps) {
       {filteredBroadcasts.length === 0 && !showForm ? (
         <div
           className="flex flex-col items-center justify-center rounded-2xl border-2 border-dashed py-16 text-center"
-          style={{ borderColor: 'rgba(255,255,255,0.07)' }}
+          style={{ borderColor: 'rgba(255,255,255,0.82)' }}
         >
           <div
             className="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl"
-            style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }}
+            style={{ background: 'rgba(255,255,255,0.75)', border: '1px solid rgba(255,255,255,0.84)' }}
           >
             <Megaphone className="h-7 w-7 text-slate-600" />
           </div>
@@ -224,13 +224,13 @@ export function BroadcastList({ initialBroadcasts, bots }: BroadcastListProps) {
                 <div className="mb-4 flex flex-wrap gap-1.5">
                   <span
                     className="flex items-center gap-1 rounded-full px-2 py-0.5 text-xs text-slate-400"
-                    style={{ background: 'rgba(255,255,255,0.06)' }}
+                    style={{ background: 'rgba(255,255,255,0.80)' }}
                   >
                     <TargetIcon className="h-3 w-3" />
                     {target.label}
                   </span>
                   {b.media_type && (
-                    <span className="rounded-full px-2 py-0.5 text-xs text-slate-400" style={{ background: 'rgba(255,255,255,0.06)' }}>
+                    <span className="rounded-full px-2 py-0.5 text-xs text-slate-400" style={{ background: 'rgba(255,255,255,0.80)' }}>
                       {b.media_type === 'image' ? '📷 Imagem' : '🎥 Vídeo'}
                     </span>
                   )}

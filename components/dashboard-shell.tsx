@@ -24,15 +24,15 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
         {/* Blobs */}
         <div
           className="blob-1 absolute -top-48 -left-48 h-[700px] w-[700px] rounded-full"
-          style={{ background: 'radial-gradient(circle at 40% 40%, rgba(99,102,241,0.12) 0%, transparent 65%)', filter: 'blur(1px)' }}
+          style={{ background: 'radial-gradient(circle at 40% 40%, rgba(124,58,237,0.10) 0%, transparent 65%)', filter: 'blur(1px)' }}
         />
         <div
           className="blob-2 absolute top-1/3 -right-64 h-[600px] w-[600px] rounded-full"
-          style={{ background: 'radial-gradient(circle at 60% 50%, rgba(139,92,246,0.09) 0%, transparent 65%)', filter: 'blur(1px)' }}
+          style={{ background: 'radial-gradient(circle at 60% 50%, rgba(139,92,246,0.08) 0%, transparent 65%)', filter: 'blur(1px)' }}
         />
         <div
           className="blob-3 absolute -bottom-40 left-1/4 h-[500px] w-[500px] rounded-full"
-          style={{ background: 'radial-gradient(circle at 50% 60%, rgba(6,182,212,0.07) 0%, transparent 65%)', filter: 'blur(1px)' }}
+          style={{ background: 'radial-gradient(circle at 50% 60%, rgba(99,102,241,0.07) 0%, transparent 65%)', filter: 'blur(1px)' }}
         />
 
         {/* Top glow bar */}
@@ -46,7 +46,7 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
       {open && (
         <div
           className="fixed inset-0 z-40 backdrop-blur-sm lg:hidden"
-          style={{ background: 'rgba(5,4,14,0.8)' }}
+          style={{ background: 'rgba(20,10,60,0.35)' }}
           onClick={() => setOpen(false)}
         />
       )}
@@ -70,15 +70,16 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
         <header
           className="flex h-12 shrink-0 items-center gap-3 px-4 lg:hidden"
           style={{
-            background: 'rgba(6,4,18,0.85)',
+            background: 'rgba(245,243,255,0.88)',
             backdropFilter: 'blur(40px)',
             WebkitBackdropFilter: 'blur(40px)',
-            borderBottom: '1px solid rgba(255,255,255,0.06)',
+            borderBottom: '1px solid rgba(0,0,0,0.07)',
           }}
         >
           <button
             onClick={() => setOpen(true)}
-            className="rounded-xl p-2 text-zinc-500 transition-all hover:text-zinc-200 hover:bg-white/5"
+            className="rounded-xl p-2 transition-all"
+            style={{ color: '#6b7280' }}
             aria-label="Abrir menu"
           >
             <Menu className="h-[15px] w-[15px]" />
@@ -88,8 +89,8 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
               <img src="/logo.svg" alt="FlowBot" className="h-6 w-6" />
             </div>
             <span
-              className="text-[13px] font-bold text-zinc-100 tracking-tight"
-              style={{ fontFamily: 'var(--font-sans)' }}
+              className="text-[13px] font-bold tracking-tight"
+              style={{ color: '#1a1625', fontFamily: 'var(--font-sans)' }}
             >
               FlowBot
             </span>

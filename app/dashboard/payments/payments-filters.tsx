@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
@@ -32,7 +32,7 @@ export function PaymentsFilters({ currentStatus, currentBotId, bots }: Props) {
   return (
     <div
       className="flex flex-wrap items-center gap-2 rounded-2xl p-3"
-      style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)' }}
+      style={{ background: 'rgba(255,255,255,0.72)', border: '1px solid rgba(255,255,255,0.82)' }}
     >
       <Filter className="h-3.5 w-3.5 text-zinc-500 shrink-0" />
       <span className="text-xs text-zinc-500 mr-1">Filtrar:</span>
@@ -45,7 +45,7 @@ export function PaymentsFilters({ currentStatus, currentBotId, bots }: Props) {
           style={
             (currentStatus ?? '') === s
               ? { background: 'rgba(139,92,246,0.2)', color: '#a78bfa', border: '1px solid rgba(139,92,246,0.3)' }
-              : { background: 'rgba(255,255,255,0.04)', color: '#71717a', border: '1px solid rgba(255,255,255,0.07)' }
+              : { background: 'rgba(255,255,255,0.75)', color: '#71717a', border: '1px solid rgba(255,255,255,0.82)' }
           }
         >
           {s === '' ? 'Todos' : statusConfig[s as PaymentStatus] ?? s}
@@ -56,7 +56,7 @@ export function PaymentsFilters({ currentStatus, currentBotId, bots }: Props) {
 
       <select
         className="rounded-lg px-2.5 py-1 text-xs bg-transparent border text-zinc-400 cursor-pointer"
-        style={{ border: '1px solid rgba(255,255,255,0.1)' }}
+        style={{ border: '1px solid rgba(255,255,255,0.88)' }}
         value={currentBotId ?? ''}
         onChange={(e) => {
           const url = filterUrl({ status: currentStatus, bot_id: currentBotId }, { bot_id: e.target.value || undefined })

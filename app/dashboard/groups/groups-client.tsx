@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState } from 'react'
 import { toast } from 'sonner'
@@ -37,8 +37,8 @@ interface Props {
 }
 
 const cardStyle: React.CSSProperties = {
-  background: 'rgba(255,255,255,0.03)',
-  border: '1px solid rgba(255,255,255,0.08)',
+  background: 'rgba(255,255,255,0.72)',
+  border: '1px solid rgba(255,255,255,0.84)',
   backdropFilter: 'blur(20px)',
 }
 
@@ -265,8 +265,8 @@ export function GroupsClient({ initialGroups, bots, connectedAccount }: Props) {
 
       {/* Groups list */}
       {groups.length === 0 && !showCreate ? (
-        <div className="flex flex-col items-center justify-center rounded-2xl border-2 border-dashed py-16 text-center" style={{ borderColor: 'rgba(255,255,255,0.07)' }}>
-          <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }}>
+        <div className="flex flex-col items-center justify-center rounded-2xl border-2 border-dashed py-16 text-center" style={{ borderColor: 'rgba(255,255,255,0.82)' }}>
+          <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl" style={{ background: 'rgba(255,255,255,0.75)', border: '1px solid rgba(255,255,255,0.84)' }}>
             <Users className="h-7 w-7 text-slate-600" />
           </div>
           <p className="font-medium text-slate-400">Nenhum grupo ou canal</p>
@@ -321,7 +321,7 @@ export function GroupsClient({ initialGroups, bots, connectedAccount }: Props) {
 
               {/* Send message panel */}
               {sendingTo === g.id ? (
-                <div className="space-y-3 rounded-xl p-3" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)' }}>
+                <div className="space-y-3 rounded-xl p-3" style={{ background: 'rgba(255,255,255,0.72)', border: '1px solid rgba(255,255,255,0.82)' }}>
                   <Textarea
                     placeholder="Mensagem (suporta HTML: <b>negrito</b>)"
                     className="min-h-[80px] text-sm"

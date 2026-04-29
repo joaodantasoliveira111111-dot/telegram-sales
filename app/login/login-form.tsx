@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
@@ -51,8 +51,8 @@ export function LoginForm() {
     }
   }
 
-  const inputCls = "w-full rounded-xl border px-4 py-3 text-sm text-zinc-100 placeholder-zinc-600 outline-none transition-all bg-white/5 focus:ring-2 focus:ring-violet-500/30"
-  const inputStyle = { borderColor: 'rgba(255,255,255,0.1)' }
+  const inputCls = "w-full rounded-xl border px-4 py-3 text-sm outline-none transition-all focus:ring-2 focus:ring-violet-500/30"
+  const inputStyle = { borderColor: 'rgba(0,0,0,0.12)', background: 'rgba(255,255,255,0.80)', color: '#1a1625' }
 
   return (
     <div className="flex min-h-screen items-center justify-center px-4"
@@ -73,14 +73,14 @@ export function LoginForm() {
             style={{ boxShadow: '0 0 32px rgba(139,92,246,0.4)', border: '1px solid rgba(139,92,246,0.3)' }}>
             <img src="/logo.svg" alt="FlowBot" className="h-14 w-14" />
           </div>
-          <h1 className="text-2xl font-bold tracking-tight text-zinc-100">FlowBot</h1>
+          <h1 className="text-2xl font-bold tracking-tight" style={{ color: '#1a1625' }}>FlowBot</h1>
           <p className="mt-1 text-sm text-zinc-500">Acesse seu painel</p>
         </div>
 
         {/* Mode tabs */}
         <div
           className="flex gap-1 rounded-xl p-1 mb-6"
-          style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }}
+          style={{ background: 'rgba(255,255,255,0.75)', border: '1px solid rgba(255,255,255,0.84)' }}
         >
           {(['user', 'admin'] as LoginMode[]).map((m) => (
             <button
@@ -102,7 +102,7 @@ export function LoginForm() {
         {/* Card */}
         <div
           className="rounded-2xl p-7"
-          style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.09)' }}
+          style={{ background: 'rgba(255,255,255,0.75)', border: '1px solid rgba(255,255,255,0.86)' }}
         >
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-1.5">
@@ -137,7 +137,8 @@ export function LoginForm() {
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 text-zinc-500 hover:text-zinc-300 transition-colors"
+                  className="absolute right-4 top-1/2 -translate-y-1/2 transition-colors"
+                  style={{ color: '#a1a1aa' }}
                 >
                   {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                 </button>
@@ -164,9 +165,9 @@ export function LoginForm() {
         </div>
 
         {mode === 'user' && (
-          <p className="mt-5 text-center text-xs text-zinc-600">
+          <p className="mt-5 text-center text-xs" style={{ color: '#71717a' }}>
             Não tem conta?{' '}
-            <Link href="/register" className="text-violet-400 hover:text-violet-300 transition-colors font-medium">
+            <Link href="/register" className="font-medium transition-colors" style={{ color: '#7c3aed' }}>
               Criar conta grátis
             </Link>
           </p>

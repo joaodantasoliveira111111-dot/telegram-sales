@@ -62,23 +62,23 @@ function useScrollEntrance() {
 // ─── Tokens ───────────────────────────────────────────────────────────────────
 
 const pill: React.CSSProperties = {
-  background: 'rgba(139,92,246,0.1)',
-  border: '1px solid rgba(139,92,246,0.22)',
+  background: 'rgba(255,255,255,0.80)',
+  border: '1px solid rgba(139,92,246,0.20)',
   backdropFilter: 'blur(16px)',
 }
 
 const card: React.CSSProperties = {
-  background: 'rgba(139,92,246,0.07)',
+  background: 'rgba(255,255,255,0.72)',
   border: '1px solid rgba(139,92,246,0.15)',
   backdropFilter: 'blur(24px) saturate(160%)',
-  boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.05), 0 8px 32px rgba(0,0,0,0.35)',
+  boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.95), 0 4px 20px rgba(0,0,0,0.07)',
 }
 
 const cardStrong: React.CSSProperties = {
-  background: 'rgba(139,92,246,0.1)',
-  border: '1px solid rgba(139,92,246,0.22)',
+  background: 'rgba(255,255,255,0.88)',
+  border: '1px solid rgba(139,92,246,0.18)',
   backdropFilter: 'blur(24px) saturate(160%)',
-  boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.07), 0 12px 48px rgba(0,0,0,0.5)',
+  boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.98), 0 8px 32px rgba(0,0,0,0.09)',
 }
 
 // ─── Navbar ───────────────────────────────────────────────────────────────────
@@ -97,10 +97,10 @@ function Navbar() {
       <div className="mx-auto max-w-7xl px-6 pt-3">
         <nav className="flex items-center justify-between rounded-2xl px-5 h-14 transition-all duration-300"
           style={{
-            background: up ? 'rgba(6,4,15,0.92)' : 'rgba(6,4,15,0.5)',
+            background: up ? 'rgba(245,243,255,0.94)' : 'rgba(245,243,255,0.75)',
             backdropFilter: 'blur(24px) saturate(180%)',
-            border: `1px solid ${up ? 'rgba(139,92,246,0.18)' : 'rgba(139,92,246,0.08)'}`,
-            boxShadow: up ? '0 4px 40px rgba(0,0,0,0.6)' : 'none',
+            border: `1px solid ${up ? 'rgba(139,92,246,0.20)' : 'rgba(139,92,246,0.10)'}`,
+            boxShadow: up ? '0 4px 24px rgba(0,0,0,0.08)' : 'none',
           }}>
           <Link href="/" className="flex items-center gap-2.5">
             <Logo size={28} />
@@ -129,7 +129,7 @@ function Navbar() {
 
         {open && (
           <div className="md:hidden mt-2 rounded-2xl p-4 space-y-1"
-            style={{ background: 'rgba(6,4,15,0.96)', border: '1px solid rgba(139,92,246,0.15)', backdropFilter: 'blur(24px)' }}>
+            style={{ background: 'rgba(245,243,255,0.97)', border: '1px solid rgba(139,92,246,0.15)', backdropFilter: 'blur(24px)' }}>
             {[['Recursos', '#recursos'], ['Exemplos', '#como-funciona'], ['Templates', '#templates'], ['Preços', '#precos']].map(([l, h]) => (
               <a key={h} href={h} onClick={() => setOpen(false)} className="block text-sm text-zinc-400 px-3 py-2.5 rounded-xl hover:text-white hover:bg-white/[0.04] transition-all">{l}</a>
             ))}
@@ -178,10 +178,10 @@ function PhoneMockup() {
 
       {/* Phone frame */}
       <div className="animate-pulse-glow rounded-[38px] overflow-hidden"
-        style={{ background: '#0c0918', border: '2px solid rgba(139,92,246,0.25)', boxShadow: '0 40px 100px rgba(0,0,0,0.8), 0 0 80px rgba(139,92,246,0.12)' }}>
+        style={{ background: '#ede9ff', border: '2px solid rgba(139,92,246,0.25)', boxShadow: '0 40px 100px rgba(0,0,0,0.8), 0 0 80px rgba(139,92,246,0.12)' }}>
         {/* Notch */}
         <div className="flex justify-center pt-2 pb-1">
-          <div className="w-24 h-5 rounded-full" style={{ background: '#060410' }} />
+          <div className="w-24 h-5 rounded-full" style={{ background: '#f5f3ff' }} />
         </div>
         {/* Chat header */}
         <div className="flex items-center gap-2 px-4 py-2"
@@ -199,7 +199,7 @@ function PhoneMockup() {
           </div>
         </div>
         {/* Messages */}
-        <div className="px-3 py-3 space-y-2.5 min-h-[340px]" style={{ background: '#080615' }}>
+        <div className="px-3 py-3 space-y-2.5 min-h-[340px]" style={{ background: '#eeeaff' }}>
           {MSGS.map((m, i) => (
             <div key={i} className={`flex ${m.from === 'user' ? 'justify-end' : 'justify-start'}`}
               style={{ animation: 'fade-in-up 0.4s ease-out forwards', animationDelay: m.delay, opacity: 0 }}>
@@ -207,7 +207,7 @@ function PhoneMockup() {
                 <div className="rounded-xl p-2" style={{ background: 'rgba(139,92,246,0.09)', border: '1px solid rgba(139,92,246,0.18)' }}>
                   <div className="inline-block p-1.5 rounded" style={{ background: '#fff' }}>
                     <svg viewBox="0 0 8 8" width="60" height="60" shapeRendering="crispEdges">
-                      {QR.map((f, j) => <rect key={j} x={j%8} y={Math.floor(j/8)} width="1" height="1" fill={f?'#06040f':'#fff'}/>)}
+                      {QR.map((f, j) => <rect key={j} x={j%8} y={Math.floor(j/8)} width="1" height="1" fill={f?'#1a1625':'#fff'}/>)}
                     </svg>
                   </div>
                   <p className="text-[9px] text-zinc-600 mt-1 text-center">PIX copia e cola</p>
@@ -219,13 +219,13 @@ function PhoneMockup() {
                 </div>
               ) : (
                 <div className="rounded-2xl rounded-bl-sm px-3 py-2 max-w-[84%] text-xs"
-                  style={{ background: 'rgba(139,92,246,0.1)', border: '1px solid rgba(139,92,246,0.16)', color: '#e2e8f0' }}>
+                  style={{ background: 'rgba(139,92,246,0.09)', border: '1px solid rgba(139,92,246,0.16)', color: '#3d2b6e' }}>
                   {'text' in m && <p style={{ whiteSpace: 'pre-line', fontSize: 11 }}>{m.text}</p>}
                   {'btns' in m && m.btns && (
                     <div className="mt-2 space-y-1">
                       {['🔥 7 dias — R$ 24,90','💎 30 dias — R$ 59,90','👑 90 dias — R$ 139,90'].map(b => (
-                        <div key={b} className="rounded-lg px-2 py-1.5 text-[10px] font-semibold text-center text-violet-300"
-                          style={{ border: '1px solid rgba(139,92,246,0.3)', background: 'rgba(139,92,246,0.1)' }}>{b}</div>
+                        <div key={b} className="rounded-lg px-2 py-1.5 text-[10px] font-semibold text-center"
+                          style={{ color: '#6d28d9', border: '1px solid rgba(139,92,246,0.3)', background: 'rgba(139,92,246,0.1)' }}>{b}</div>
                       ))}
                     </div>
                   )}
@@ -235,9 +235,9 @@ function PhoneMockup() {
           ))}
         </div>
         {/* Input bar */}
-        <div className="px-3 py-2 flex items-center gap-2" style={{ borderTop: '1px solid rgba(139,92,246,0.08)', background: '#0c0918' }}>
-          <div className="flex-1 rounded-full px-3 py-1.5 text-[10px] text-zinc-600"
-            style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)' }}>
+        <div className="px-3 py-2 flex items-center gap-2" style={{ borderTop: '1px solid rgba(139,92,246,0.08)', background: '#ede9ff' }}>
+          <div className="flex-1 rounded-full px-3 py-1.5 text-[10px]"
+            style={{ background: 'rgba(255,255,255,0.80)', border: '1px solid rgba(0,0,0,0.09)', color: '#71717a' }}>
             Mensagem
           </div>
           <div className="flex h-7 w-7 items-center justify-center rounded-full"
@@ -289,7 +289,7 @@ function Hero() {
               <div className="flex -space-x-1.5">
                 {['#8b5cf6','#6d28d9','#a855f7'].map((c,i) => (
                   <div key={i} className="h-5 w-5 rounded-full border-2 flex items-center justify-center text-[8px] font-bold text-white"
-                    style={{ background: c, borderColor: '#06040f' }}>V</div>
+                    style={{ background: c, borderColor: '#f5f3ff' }}>V</div>
                 ))}
               </div>
               <span className="text-xs font-semibold text-zinc-300">+2.400 vendedores já usam o FlowBot</span>
@@ -365,7 +365,7 @@ function Marquee() {
     { icon: Banknote, text: 'Sem taxa por mensagem' },
   ]
   return (
-    <div className="relative overflow-hidden py-4" style={{ background: '#0c0918', borderTop: '1px solid rgba(139,92,246,0.09)', borderBottom: '1px solid rgba(139,92,246,0.09)' }}>
+    <div className="relative overflow-hidden py-4" style={{ background: '#ede9ff', borderTop: '1px solid rgba(139,92,246,0.09)', borderBottom: '1px solid rgba(139,92,246,0.09)' }}>
       <div className="flex animate-marquee whitespace-nowrap" style={{ gap: '3rem' }}>
         {[...items, ...items].map((item, i) => {
           const Icon = item.icon
@@ -403,7 +403,7 @@ function BeforeAfter() {
     'Você trabalha uma vez e recebe para sempre',
   ]
   return (
-    <section className="py-24" style={{ background: '#06040f' }}>
+    <section className="py-24" style={{ background: '#f5f3ff' }}>
       <div className="mx-auto max-w-7xl px-6">
         <div className="text-center mb-14" data-animate>
           <p className="text-xs font-bold uppercase tracking-widest text-violet-500 mb-3">A transformação</p>
@@ -473,7 +473,7 @@ function BeforeAfter() {
 // ─── Feature Rows ─────────────────────────────────────────────────────────────
 
 function FeatureRow({
-  tag, title, desc, bullets, visual, reverse = false, bg = '#06040f',
+  tag, title, desc, bullets, visual, reverse = false, bg = '#f5f3ff',
 }: {
   tag: string; title: React.ReactNode; desc: string; bullets: string[]
   visual: React.ReactNode; reverse?: boolean; bg?: string
@@ -624,7 +624,7 @@ function CrmMock() {
       <div className="px-4 pb-4 space-y-2">
         {customers.map((c, i) => (
           <div key={i} className="flex items-center gap-3 rounded-xl px-3 py-2.5"
-            style={{ background: 'rgba(255,255,255,0.03)' }}>
+            style={{ background: 'rgba(255,255,255,0.72)' }}>
             <div className="flex h-7 w-7 items-center justify-center rounded-full text-[10px] font-black text-white shrink-0"
               style={{ background: 'linear-gradient(135deg,#8b5cf6,#6d28d9)' }}>
               {c.name[0]}
@@ -659,7 +659,7 @@ function Features() {
           'Veja o fluxo completo antes de publicar',
         ]}
         visual={<FlowEditorMock />}
-        bg="#06040f"
+        bg="#f0ecff"
       />
       <FeatureRow
         tag="PIX Automático"
@@ -672,7 +672,7 @@ function Features() {
         ]}
         visual={<PixFlowVisual />}
         reverse
-        bg="#0c0918"
+        bg="#ede9ff"
       />
       <FeatureRow
         tag="CRM & Inteligência"
@@ -684,7 +684,7 @@ function Features() {
           'Tags, notas e segmentação por comportamento',
         ]}
         visual={<CrmMock />}
-        bg="#06040f"
+        bg="#f0ecff"
       />
     </section>
   )
@@ -700,7 +700,7 @@ function MoreFeatures() {
     { icon: Globe, color: '#67e8f9', title: 'Links inteligentes por país', desc: 'Visitantes de países diferentes vão para destinos diferentes. Protege seu tráfego pago de anúncios.' },
   ]
   return (
-    <div className="py-20" style={{ background: '#0c0918' }}>
+    <div className="py-20" style={{ background: '#ede9ff' }}>
       <div className="mx-auto max-w-7xl px-6">
         <div className="text-center mb-12">
           <p className="text-xs font-bold uppercase tracking-widest text-violet-500 mb-3">E mais</p>
@@ -809,7 +809,7 @@ function MarketingIntegrations() {
   ]
 
   return (
-    <div className="py-16" style={{ background: '#06040f', borderTop: '1px solid rgba(139,92,246,0.09)', borderBottom: '1px solid rgba(139,92,246,0.09)' }}>
+    <div className="py-16" style={{ background: '#f5f3ff', borderTop: '1px solid rgba(139,92,246,0.09)', borderBottom: '1px solid rgba(139,92,246,0.09)' }}>
       <div className="mx-auto max-w-4xl px-6">
         <p className="text-center text-xs font-bold uppercase tracking-widest text-violet-500 mb-2">
           Rastreamento &amp; Marketing
@@ -824,8 +824,8 @@ function MarketingIntegrations() {
               data-animate
               className="opacity-0 flex flex-col items-center gap-3 rounded-2xl px-6 py-5 transition-all hover:scale-[1.03]"
               style={{
-                background: 'rgba(255,255,255,0.03)',
-                border: '1px solid rgba(255,255,255,0.07)',
+                background: 'rgba(255,255,255,0.72)',
+                border: '1px solid rgba(255,255,255,0.82)',
                 minWidth: 120,
               }}
             >
@@ -848,7 +848,7 @@ function HowItWorks() {
     { n: '03', icon: TrendingUp, title: 'Ative e acompanhe as vendas', desc: 'Seu bot começa a vender imediatamente. Acompanhe conversões, receita e churn no painel.' },
   ]
   return (
-    <section id="como-funciona" className="py-24" style={{ background: '#06040f' }}>
+    <section id="como-funciona" className="py-24" style={{ background: '#f5f3ff' }}>
       <div className="mx-auto max-w-7xl px-6">
         <div className="text-center mb-16">
           <p className="text-xs font-bold uppercase tracking-widest text-violet-500 mb-3">Simples assim</p>
@@ -956,7 +956,7 @@ function Templates() {
     { icon: <IconMentoring />, iconBg: 'rgba(244,114,182,0.12)', iconBorder: 'rgba(244,114,182,0.25)', name: 'Mentoria', niche: 'Serviços', tips: ['Funil consultivo', 'Cobrança recorrente', 'Direciona para WhatsApp'] },
   ]
   return (
-    <section id="templates" className="py-24" style={{ background: '#0c0918' }}>
+    <section id="templates" className="py-24" style={{ background: '#ede9ff' }}>
       <div className="mx-auto max-w-7xl px-6">
         <div className="text-center mb-14">
           <p className="text-xs font-bold uppercase tracking-widest text-violet-500 mb-3">Templates prontos</p>
@@ -1034,7 +1034,7 @@ function Testimonials() {
     { quote: 'Migrei em um dia. O editor visual é mais rápido e o PIX cai certinho sem precisar monitorar nada.', name: 'Lucas A.', niche: 'Streaming', initials: 'LA' },
   ]
   return (
-    <section className="py-24" style={{ background: '#06040f' }}>
+    <section className="py-24" style={{ background: '#f5f3ff' }}>
       <div className="mx-auto max-w-7xl px-6">
         <div className="text-center mb-12">
           <h2 className="text-2xl md:text-3xl font-black text-white">Quem já usa não volta para o manual</h2>
@@ -1123,7 +1123,7 @@ function Pricing() {
   ]
 
   return (
-    <section id="precos" className="py-24 relative overflow-hidden" style={{ background: '#0c0918' }}>
+    <section id="precos" className="py-24 relative overflow-hidden" style={{ background: '#ede9ff' }}>
       <div className="blob-2 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[700px] rounded-full pointer-events-none"
         style={{ background: 'radial-gradient(circle, rgba(139,92,246,0.1) 0%, transparent 60%)', filter: 'blur(80px)' }} />
       <div className="relative z-10 mx-auto max-w-7xl px-6">
@@ -1137,8 +1137,8 @@ function Pricing() {
           {plans.map((p, i) => (
             <div key={i} data-animate className={`opacity-0 rounded-3xl p-7 flex flex-col relative transition-all ${p.highlight ? 'md:-mt-4 md:mb-4' : ''}`}
               style={p.highlight
-                ? { background: 'rgba(139,92,246,0.1)', border: '1px solid rgba(139,92,246,0.35)', boxShadow: '0 0 80px rgba(139,92,246,0.18), inset 0 1px 0 rgba(255,255,255,0.07)' }
-                : { background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)' }}>
+                ? { background: 'rgba(139,92,246,0.1)', border: '1px solid rgba(139,92,246,0.35)', boxShadow: '0 0 80px rgba(139,92,246,0.18), inset 0 1px 0 rgba(255,255,255,0.82)' }
+                : { background: 'rgba(255,255,255,0.72)', border: '1px solid rgba(255,255,255,0.82)' }}>
               {p.highlight && (
                 <div className="absolute top-0 left-8 right-8 h-px rounded-full"
                   style={{ background: 'linear-gradient(90deg, transparent, rgba(139,92,246,0.9), transparent)' }} />
@@ -1176,7 +1176,7 @@ function Pricing() {
                 className="block text-center rounded-2xl py-3.5 text-sm font-black transition-all hover:scale-[1.02] hover:brightness-110"
                 style={p.highlight
                   ? { background: 'linear-gradient(135deg,#8b5cf6,#6d28d9)', color: '#fff', boxShadow: '0 8px 24px rgba(139,92,246,0.45)' }
-                  : { background: 'rgba(255,255,255,0.06)', color: '#d4d4d8', border: '1px solid rgba(255,255,255,0.1)' }}>
+                  : { background: 'rgba(255,255,255,0.80)', color: '#d4d4d8', border: '1px solid rgba(255,255,255,0.88)' }}>
                 {p.cta}
               </Link>
             </div>
@@ -1202,7 +1202,7 @@ function FAQ() {
     { q: 'Tem suporte?', a: 'Sim, via Telegram. Retorno em até 4 horas nos dias úteis. Clientes com plano ativo têm prioridade.' },
   ]
   return (
-    <section id="faq" className="py-24" style={{ background: '#06040f' }}>
+    <section id="faq" className="py-24" style={{ background: '#f5f3ff' }}>
       <div className="mx-auto max-w-2xl px-6">
         <div className="text-center mb-12">
           <h2 className="text-2xl md:text-3xl font-black text-white">Dúvidas frequentes</h2>
@@ -1257,7 +1257,7 @@ function FooterCTA() {
 
 function Footer() {
   return (
-    <footer className="py-14" style={{ background: '#06040f', borderTop: '1px solid rgba(139,92,246,0.08)' }}>
+    <footer className="py-14" style={{ background: '#f5f3ff', borderTop: '1px solid rgba(139,92,246,0.08)' }}>
       <div className="mx-auto max-w-7xl px-6 grid grid-cols-2 md:grid-cols-4 gap-8 mb-12">
         <div className="col-span-2 md:col-span-1">
           <div className="flex items-center gap-2.5 mb-3">
@@ -1308,7 +1308,7 @@ function Footer() {
 export function LandingPage() {
   useScrollEntrance()
   return (
-    <main style={{ background: 'var(--background)' }}>
+    <main className="landing-light" style={{ background: 'var(--background)' }}>
       <Navbar />
       <Hero />
       <Marquee />

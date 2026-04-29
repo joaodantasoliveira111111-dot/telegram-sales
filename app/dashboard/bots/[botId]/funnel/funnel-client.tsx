@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState, useEffect, useCallback } from 'react'
 import { Users, MousePointerClick, QrCode, CheckCircle2, TrendingDown, Loader2, RefreshCw, FlaskConical, Trophy } from 'lucide-react'
@@ -66,7 +66,7 @@ function FunnelBar({
           <span className="text-slate-100 font-semibold tabular-nums">{fmt(value)}</span>
         </div>
       </div>
-      <div className="h-9 rounded-xl overflow-hidden" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)' }}>
+      <div className="h-9 rounded-xl overflow-hidden" style={{ background: 'rgba(255,255,255,0.75)', border: '1px solid rgba(255,255,255,0.80)' }}>
         <div
           className="h-full rounded-xl transition-all duration-700 ease-out flex items-center px-3"
           style={{
@@ -104,8 +104,8 @@ function VariantCard({
     <div
       className="rounded-2xl p-5 space-y-4 flex-1"
       style={{
-        background: winner ? `${color}08` : 'rgba(255,255,255,0.02)',
-        border: `1px solid ${winner ? color + '30' : 'rgba(255,255,255,0.07)'}`,
+        background: winner ? `${color}08` : 'rgba(255,255,255,0.68)',
+        border: `1px solid ${winner ? color + '30' : 'rgba(255,255,255,0.82)'}`,
         boxShadow: winner ? `0 0 30px ${color}10` : undefined,
       }}
     >
@@ -131,14 +131,14 @@ function VariantCard({
           { label: 'Geraram Pix', value: data.pix_generated },
           { label: 'Pagaram', value: data.paid },
         ].map(({ label, value }) => (
-          <div key={label} className="rounded-xl p-3 text-center" style={{ background: 'rgba(255,255,255,0.03)' }}>
+          <div key={label} className="rounded-xl p-3 text-center" style={{ background: 'rgba(255,255,255,0.72)' }}>
             <p className="text-lg font-bold text-slate-100">{fmt(value)}</p>
             <p className="text-xs text-slate-500">{label}</p>
           </div>
         ))}
       </div>
 
-      <div className="rounded-xl p-3 text-center" style={{ background: winner ? `${color}12` : 'rgba(255,255,255,0.03)', border: winner ? `1px solid ${color}25` : 'none' }}>
+      <div className="rounded-xl p-3 text-center" style={{ background: winner ? `${color}12` : 'rgba(255,255,255,0.72)', border: winner ? `1px solid ${color}25` : 'none' }}>
         <p className="text-2xl font-bold" style={{ color: winner ? color : undefined }}>{convRate}%</p>
         <p className="text-xs text-slate-500 mt-0.5">Taxa de conversão</p>
       </div>
@@ -189,7 +189,7 @@ export function FunnelClient({
           <p className="text-sm text-slate-500 mt-0.5">Do primeiro contato ao pagamento confirmado</p>
         </div>
         <div className="flex items-center gap-2">
-          <div className="flex rounded-xl overflow-hidden" style={{ border: '1px solid rgba(255,255,255,0.08)' }}>
+          <div className="flex rounded-xl overflow-hidden" style={{ border: '1px solid rgba(255,255,255,0.84)' }}>
             {PERIOD_OPTIONS.map((opt) => (
               <button
                 key={opt.value}
@@ -200,7 +200,7 @@ export function FunnelClient({
                   color: '#93c5fd',
                   borderRight: '1px solid rgba(59,130,246,0.2)',
                 } : {
-                  background: 'rgba(255,255,255,0.02)',
+                  background: 'rgba(255,255,255,0.68)',
                   color: '#64748b',
                 }}
               >
@@ -228,7 +228,7 @@ export function FunnelClient({
                 <div
                   key={step.key}
                   className="rounded-2xl p-4 text-center"
-                  style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)' }}
+                  style={{ background: 'rgba(255,255,255,0.72)', border: '1px solid rgba(255,255,255,0.82)' }}
                 >
                   <step.icon className="h-4 w-4 mx-auto mb-2" style={{ color: step.color }} />
                   <p className="text-2xl font-bold text-slate-100">{fmt(val)}</p>
@@ -241,7 +241,7 @@ export function FunnelClient({
           {/* Funnel bars */}
           <div
             className="rounded-2xl p-5 space-y-5"
-            style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.07)' }}
+            style={{ background: 'rgba(255,255,255,0.68)', border: '1px solid rgba(255,255,255,0.82)' }}
           >
             <div className="flex items-center justify-between">
               <p className="text-sm font-semibold text-slate-300">Jornada completa</p>
@@ -276,7 +276,7 @@ export function FunnelClient({
           {abEnabled && (
             <div
               className="rounded-2xl p-5 space-y-4"
-              style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.07)' }}
+              style={{ background: 'rgba(255,255,255,0.68)', border: '1px solid rgba(255,255,255,0.82)' }}
             >
               <div className="flex items-center gap-2">
                 <div
@@ -330,7 +330,7 @@ export function FunnelClient({
           {overall.starts === 0 && (
             <div
               className="rounded-2xl p-8 text-center"
-              style={{ background: 'rgba(255,255,255,0.02)', border: '1px dashed rgba(255,255,255,0.08)' }}
+              style={{ background: 'rgba(255,255,255,0.68)', border: '1px dashed rgba(255,255,255,0.84)' }}
             >
               <Users className="h-8 w-8 mx-auto text-slate-600 mb-3" />
               <p className="text-slate-400 font-medium">Nenhum dado ainda</p>

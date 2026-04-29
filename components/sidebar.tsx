@@ -77,10 +77,10 @@ export function Sidebar({ onClose }: SidebarProps) {
       className="flex h-full flex-col"
       style={{
         width: 'var(--sidebar-w)',
-        background: 'rgba(6,4,18,0.88)',
+        background: 'rgba(255,255,255,0.82)',
         backdropFilter: 'blur(60px) saturate(160%)',
         WebkitBackdropFilter: 'blur(60px) saturate(160%)',
-        borderRight: '1px solid rgba(255,255,255,0.07)',
+        borderRight: '1px solid rgba(0,0,0,0.07)',
       }}
     >
       {/* Logo */}
@@ -93,7 +93,7 @@ export function Sidebar({ onClose }: SidebarProps) {
             <img src="/logo.svg" alt="FlowBot" className="h-8 w-8" />
           </div>
           <div>
-            <p className="text-[13px] font-bold text-zinc-100 tracking-tight leading-none">FlowBot</p>
+            <p className="text-[13px] font-bold tracking-tight leading-none" style={{ color: '#1a1625' }}>FlowBot</p>
             <p className="text-[9px] tracking-[0.12em] uppercase mt-0.5" style={{ color: 'rgba(139,92,246,0.7)' }}>
               Painel
             </p>
@@ -102,7 +102,8 @@ export function Sidebar({ onClose }: SidebarProps) {
         {onClose && (
           <button
             onClick={onClose}
-            className="rounded-lg p-1.5 text-zinc-600 transition-colors hover:text-zinc-400 lg:hidden"
+            className="rounded-lg p-1.5 transition-colors lg:hidden"
+            style={{ color: '#6b7280' }}
           >
             <X className="h-3.5 w-3.5" />
           </button>
@@ -110,7 +111,7 @@ export function Sidebar({ onClose }: SidebarProps) {
       </div>
 
       {/* Divider */}
-      <div className="mx-4 h-px" style={{ background: 'rgba(255,255,255,0.05)' }} />
+      <div className="mx-4 h-px" style={{ background: 'rgba(0,0,0,0.07)' }} />
 
       {/* Nav */}
       <nav className="flex flex-1 flex-col overflow-y-auto px-2.5 py-3 gap-0.5">
@@ -119,7 +120,7 @@ export function Sidebar({ onClose }: SidebarProps) {
             {group.label && (
               <p
                 className="mb-1 px-2.5 text-[9px] font-bold uppercase tracking-[0.14em]"
-                style={{ color: 'rgba(255,255,255,0.22)' }}
+                style={{ color: 'rgba(0,0,0,0.38)' }}
               >
                 {group.label}
               </p>
@@ -131,34 +132,28 @@ export function Sidebar({ onClose }: SidebarProps) {
                 <Link
                   key={href}
                   href={href}
-                  className={cn(
-                    'group relative flex items-center gap-2.5 rounded-xl px-2.5 py-2 text-[13px] font-medium transition-all duration-150',
-                    active
-                      ? 'sidebar-active-bar text-violet-300'
-                      : 'text-zinc-500 hover:text-zinc-200'
-                  )}
+                  className="group relative flex items-center gap-2.5 rounded-xl px-2.5 py-2 text-[13px] font-medium transition-all duration-150 sidebar-active-bar"
                   style={
                     active
                       ? {
-                          background: 'linear-gradient(90deg, rgba(139,92,246,0.14), rgba(139,92,246,0.04))',
-                          border: '1px solid rgba(139,92,246,0.2)',
+                          background: 'linear-gradient(90deg, rgba(124,58,237,0.10), rgba(124,58,237,0.03))',
+                          border: '1px solid rgba(124,58,237,0.18)',
+                          color: '#6d28d9',
                         }
-                      : undefined
+                      : { color: '#52525b' }
                   }
                 >
                   {/* Hover bg */}
                   {!active && (
                     <div
                       className="absolute inset-0 rounded-xl opacity-0 transition-opacity duration-150 group-hover:opacity-100"
-                      style={{ background: 'rgba(255,255,255,0.03)' }}
+                      style={{ background: 'rgba(0,0,0,0.04)' }}
                     />
                   )}
 
                   <Icon
-                    className={cn(
-                      'relative h-[15px] w-[15px] shrink-0 transition-colors duration-150',
-                      active ? 'text-violet-400' : 'text-zinc-600 group-hover:text-zinc-400'
-                    )}
+                    className="relative h-[15px] w-[15px] shrink-0 transition-colors duration-150"
+                    style={{ color: active ? '#7c3aed' : '#a1a1aa' }}
                   />
                   <span className="relative flex-1 leading-none">{label}</span>
 
@@ -177,51 +172,46 @@ export function Sidebar({ onClose }: SidebarProps) {
       </nav>
 
       {/* Divider */}
-      <div className="mx-4 h-px mb-2" style={{ background: 'rgba(255,255,255,0.05)' }} />
+      <div className="mx-4 h-px mb-2" style={{ background: 'rgba(0,0,0,0.07)' }} />
 
       {/* Footer */}
       <div className="shrink-0 px-2.5 pb-4 space-y-0.5">
         <Link
           href="/dashboard/settings"
-          className={cn(
-            'group relative flex items-center gap-2.5 rounded-xl px-2.5 py-2 text-[13px] font-medium transition-all duration-150',
-            pathname.startsWith('/dashboard/settings')
-              ? 'sidebar-active-bar text-violet-300'
-              : 'text-zinc-500 hover:text-zinc-200'
-          )}
+          className="group relative flex items-center gap-2.5 rounded-xl px-2.5 py-2 text-[13px] font-medium transition-all duration-150 sidebar-active-bar"
           style={
             pathname.startsWith('/dashboard/settings')
               ? {
-                  background: 'linear-gradient(90deg, rgba(139,92,246,0.14), rgba(139,92,246,0.04))',
-                  border: '1px solid rgba(139,92,246,0.2)',
+                  background: 'linear-gradient(90deg, rgba(124,58,237,0.10), rgba(124,58,237,0.03))',
+                  border: '1px solid rgba(124,58,237,0.18)',
+                  color: '#6d28d9',
                 }
-              : undefined
+              : { color: '#52525b' }
           }
         >
           {!pathname.startsWith('/dashboard/settings') && (
             <div
               className="absolute inset-0 rounded-xl opacity-0 transition-opacity duration-150 group-hover:opacity-100"
-              style={{ background: 'rgba(255,255,255,0.03)' }}
+              style={{ background: 'rgba(0,0,0,0.04)' }}
             />
           )}
           <Settings
-            className={cn(
-              'relative h-[15px] w-[15px] shrink-0',
-              pathname.startsWith('/dashboard/settings') ? 'text-violet-400' : 'text-zinc-600 group-hover:text-zinc-400'
-            )}
+            className="relative h-[15px] w-[15px] shrink-0"
+            style={{ color: pathname.startsWith('/dashboard/settings') ? '#7c3aed' : '#a1a1aa' }}
           />
           <span className="relative flex-1 leading-none">Configurações</span>
         </Link>
 
         <button
           onClick={handleLogout}
-          className="group relative flex w-full items-center gap-2.5 rounded-xl px-2.5 py-2 text-[13px] font-medium text-zinc-500 transition-all duration-150 hover:text-red-400"
+          className="group relative flex w-full items-center gap-2.5 rounded-xl px-2.5 py-2 text-[13px] font-medium transition-all duration-150"
+          style={{ color: '#6b7280' }}
         >
           <div
             className="absolute inset-0 rounded-xl opacity-0 transition-opacity duration-150 group-hover:opacity-100"
             style={{ background: 'rgba(239,68,68,0.06)' }}
           />
-          <LogOut className="relative h-[15px] w-[15px] shrink-0 text-zinc-600 group-hover:text-red-500 transition-colors" />
+          <LogOut className="relative h-[15px] w-[15px] shrink-0 transition-colors" style={{ color: '#a1a1aa' }} />
           <span className="relative leading-none">Sair</span>
         </button>
       </div>

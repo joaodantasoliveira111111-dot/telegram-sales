@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState, useRef, useCallback } from 'react'
 import { toast } from 'sonner'
@@ -177,8 +177,8 @@ function DropZone({
       style={{
         border: dragging
           ? '2px dashed rgba(139,92,246,0.6)'
-          : '2px dashed rgba(255,255,255,0.1)',
-        background: dragging ? 'rgba(139,92,246,0.06)' : 'rgba(255,255,255,0.02)',
+          : '2px dashed rgba(255,255,255,0.88)',
+        background: dragging ? 'rgba(139,92,246,0.06)' : 'rgba(255,255,255,0.68)',
       }}
     >
       <input
@@ -333,7 +333,7 @@ function ToolPanel({ tool }: { tool: Tool }) {
               <p className="text-xs font-semibold uppercase tracking-wider text-slate-500">Antes</p>
               <div
                 className="rounded-xl overflow-hidden"
-                style={{ border: '1px solid rgba(255,255,255,0.08)' }}
+                style={{ border: '1px solid rgba(255,255,255,0.84)' }}
               >
                 <img src={originalUrl} alt="Original" className="w-full h-48 object-contain" style={{ background: '#000' }} />
               </div>
@@ -392,10 +392,10 @@ export function ToolsClient() {
               key={tool.id}
               className="rounded-2xl overflow-hidden transition-all duration-200"
               style={{
-                background: 'rgba(255,255,255,0.02)',
+                background: 'rgba(255,255,255,0.68)',
                 border: isOpen
                   ? '1px solid rgba(139,92,246,0.25)'
-                  : '1px solid rgba(255,255,255,0.07)',
+                  : '1px solid rgba(255,255,255,0.82)',
               }}
             >
               {/* Card header */}
@@ -405,7 +405,7 @@ export function ToolsClient() {
               >
                 <div
                   className="flex h-10 w-10 items-center justify-center rounded-xl flex-shrink-0"
-                  style={{ background: tool.accentBg, border: '1px solid rgba(255,255,255,0.07)' }}
+                  style={{ background: tool.accentBg, border: '1px solid rgba(255,255,255,0.82)' }}
                 >
                   <Icon className={`h-5 w-5 ${tool.accentColor}`} />
                 </div>
@@ -435,7 +435,7 @@ export function ToolsClient() {
               {isOpen && (
                 <div
                   className="px-5 pb-5"
-                  style={{ borderTop: '1px solid rgba(255,255,255,0.06)' }}
+                  style={{ borderTop: '1px solid rgba(255,255,255,0.80)' }}
                 >
                   <ToolPanel tool={tool} />
                 </div>

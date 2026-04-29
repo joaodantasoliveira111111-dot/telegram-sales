@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
@@ -89,14 +89,14 @@ function PixWaiting({ pixCode, pixQr, amount, planName }: {
             style={{ background: 'rgba(34,197,94,0.15)', border: '1px solid rgba(34,197,94,0.3)' }}>
             <Zap className="h-8 w-8 text-emerald-400" />
           </div>
-          <h1 className="text-2xl font-bold text-zinc-100">Quase lá!</h1>
+          <h1 className="text-2xl font-bold" style={{ color: '#1a1625' }}>Quase lá!</h1>
           <p className="text-zinc-500 mt-1 text-sm">
             Pague R$ {amount},00 no PIX para ativar o plano <strong className="text-violet-400">{planName}</strong>
           </p>
         </div>
 
         <div className="rounded-2xl p-6 mb-4"
-          style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.09)' }}>
+          style={{ background: 'rgba(255,255,255,0.75)', border: '1px solid rgba(255,255,255,0.86)' }}>
           {/* QR Code */}
           {pixQr && (
             <div className="mb-4 flex justify-center">
@@ -108,7 +108,7 @@ function PixWaiting({ pixCode, pixQr, amount, planName }: {
 
           {/* PIX code */}
           <div className="mb-4 rounded-xl p-3 text-left"
-            style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }}>
+            style={{ background: 'rgba(255,255,255,0.75)', border: '1px solid rgba(255,255,255,0.84)' }}>
             <p className="text-xs text-zinc-500 mb-1">Código PIX Copia e Cola</p>
             <p className="text-xs text-zinc-300 font-mono break-all leading-relaxed">{pixCode}</p>
           </div>
@@ -195,8 +195,8 @@ export function RegisterForm() {
     return <PixWaiting pixCode={pixData.pix_code} pixQr={pixData.pix_qr} amount={pixData.amount} planName={planName} />
   }
 
-  const inputCls = "w-full rounded-xl border px-4 py-3 text-sm text-zinc-100 placeholder-zinc-600 outline-none transition-all bg-white/5 focus:ring-2 focus:ring-violet-500/30"
-  const inputStyle = { borderColor: 'rgba(255,255,255,0.1)' }
+  const inputCls = "w-full rounded-xl border px-4 py-3 text-sm outline-none transition-all focus:ring-2 focus:ring-violet-500/30"
+  const inputStyle = { borderColor: 'rgba(0,0,0,0.12)', background: 'rgba(255,255,255,0.80)', color: '#1a1625' }
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center px-4 py-12" style={{ background: 'var(--background)' }}>
@@ -213,7 +213,7 @@ export function RegisterForm() {
             style={{ boxShadow: '0 0 32px rgba(139,92,246,0.4)', border: '1px solid rgba(139,92,246,0.3)' }}>
             <img src="/logo.svg" alt="FlowBot" className="h-12 w-12" />
           </div>
-          <h1 className="text-2xl font-bold text-zinc-100">Criar sua conta FlowBot</h1>
+          <h1 className="text-2xl font-bold" style={{ color: '#1a1625' }}>Criar sua conta FlowBot</h1>
           <p className="text-sm text-zinc-500 mt-1">Comece a vender no Telegram em minutos</p>
         </div>
 
@@ -225,12 +225,12 @@ export function RegisterForm() {
               <div key={s} className="flex items-center gap-2">
                 <div className="flex items-center gap-1.5">
                   <div className="flex h-6 w-6 items-center justify-center rounded-full text-xs font-bold"
-                    style={i <= current ? { background: '#8b5cf6', color: 'white' } : { background: 'rgba(255,255,255,0.08)', color: '#52525b' }}>
+                    style={i <= current ? { background: '#8b5cf6', color: 'white' } : { background: 'rgba(0,0,0,0.07)', color: '#52525b' }}>
                     {i < current ? <Check className="h-3 w-3" /> : i + 1}
                   </div>
-                  <span className="text-xs" style={{ color: i <= current ? '#a78bfa' : '#52525b' }}>{s}</span>
+                  <span className="text-xs" style={{ color: i <= current ? '#7c3aed' : '#52525b' }}>{s}</span>
                 </div>
-                {i < 1 && <div className="w-8 h-px" style={{ background: i < current ? '#8b5cf6' : 'rgba(255,255,255,0.1)' }} />}
+                {i < 1 && <div className="w-8 h-px" style={{ background: i < current ? '#8b5cf6' : 'rgba(0,0,0,0.12)' }} />}
               </div>
             )
           })}
@@ -243,8 +243,8 @@ export function RegisterForm() {
                 <button key={plan.id} type="button" onClick={() => setSelectedPlan(plan.id)}
                   className="relative rounded-2xl p-5 text-left transition-all duration-200"
                   style={{
-                    background: selectedPlan === plan.id ? 'linear-gradient(135deg, rgba(139,92,246,0.15), rgba(99,102,241,0.08))' : 'rgba(255,255,255,0.03)',
-                    border: selectedPlan === plan.id ? '1px solid rgba(139,92,246,0.4)' : '1px solid rgba(255,255,255,0.08)',
+                    background: selectedPlan === plan.id ? 'linear-gradient(135deg, rgba(139,92,246,0.10), rgba(99,102,241,0.05))' : 'rgba(255,255,255,0.80)',
+                    border: selectedPlan === plan.id ? '1px solid rgba(139,92,246,0.4)' : '1px solid rgba(0,0,0,0.09)',
                     boxShadow: selectedPlan === plan.id ? '0 0 24px rgba(139,92,246,0.15)' : undefined,
                   }}>
                   {plan.highlight && (
@@ -257,7 +257,7 @@ export function RegisterForm() {
                       <p className="text-xs text-zinc-500 mt-0.5">{plan.desc}</p>
                     </div>
                     <div className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full border transition-all"
-                      style={{ borderColor: selectedPlan === plan.id ? '#8b5cf6' : 'rgba(255,255,255,0.2)', background: selectedPlan === plan.id ? '#8b5cf6' : 'transparent' }}>
+                      style={{ borderColor: selectedPlan === plan.id ? '#8b5cf6' : 'rgba(0,0,0,0.18)', background: selectedPlan === plan.id ? '#8b5cf6' : 'transparent' }}>
                       {selectedPlan === plan.id && <Check className="h-3 w-3 text-white" />}
                     </div>
                   </div>
@@ -300,7 +300,7 @@ export function RegisterForm() {
               </span>
             </div>
 
-            <div className="rounded-2xl p-7" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.09)' }}>
+            <div className="rounded-2xl p-7" style={{ background: 'rgba(255,255,255,0.75)', border: '1px solid rgba(255,255,255,0.86)' }}>
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div className="space-y-1.5">
                   <label className="text-xs font-semibold uppercase tracking-wider text-zinc-500">Nome completo *</label>

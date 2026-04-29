@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState } from 'react'
 import { toast } from 'sonner'
@@ -199,7 +199,7 @@ export function SettingsForm({ initial }: Props) {
       {/* Tab selector */}
       <div
         className="flex gap-1 rounded-xl p-1 w-fit"
-        style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)' }}
+        style={{ background: 'rgba(255,255,255,0.75)', border: '1px solid rgba(255,255,255,0.82)' }}
       >
         {([
           { key: 'gateway', label: 'Gateway de Pagamento' },
@@ -261,11 +261,11 @@ export function SettingsForm({ initial }: Props) {
                   className="relative flex items-center gap-4 rounded-xl border p-4 text-left transition-all disabled:cursor-wait"
                   style={active
                     ? { background: 'rgba(139,92,246,0.12)', borderColor: 'rgba(139,92,246,0.4)', boxShadow: '0 0 20px rgba(139,92,246,0.1)' }
-                    : { background: 'rgba(255,255,255,0.03)', borderColor: 'rgba(255,255,255,0.08)' }
+                    : { background: 'rgba(255,255,255,0.72)', borderColor: 'rgba(255,255,255,0.84)' }
                   }
                 >
                   {isSaving && active && (
-                    <div className="absolute inset-0 flex items-center justify-center rounded-xl" style={{ background: 'rgba(0,0,0,0.3)' }}>
+                    <div className="absolute inset-0 flex items-center justify-center rounded-xl" style={{ background: 'rgba(0,0,0,0.05)' }}>
                       <Loader2 className="h-4 w-4 animate-spin text-violet-400" />
                     </div>
                   )}
@@ -446,10 +446,10 @@ export function SettingsForm({ initial }: Props) {
                     key={p.id}
                     className="rounded-2xl overflow-hidden transition-all duration-200"
                     style={{
-                      background: expanded ? 'rgba(255,255,255,0.04)' : 'rgba(255,255,255,0.02)',
+                      background: expanded ? 'rgba(255,255,255,0.75)' : 'rgba(255,255,255,0.68)',
                       border: expanded
-                        ? '1px solid rgba(255,255,255,0.12)'
-                        : '1px solid rgba(255,255,255,0.06)',
+                        ? '1px solid rgba(255,255,255,0.90)'
+                        : '1px solid rgba(255,255,255,0.80)',
                     }}
                   >
                     {/* Platform header row */}
@@ -478,7 +478,7 @@ export function SettingsForm({ initial }: Props) {
                           className="flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider"
                           style={isConfigured
                             ? { background: 'rgba(16,185,129,0.12)', color: '#34d399', border: '1px solid rgba(16,185,129,0.2)' }
-                            : { background: 'rgba(255,255,255,0.05)', color: '#71717a', border: '1px solid rgba(255,255,255,0.08)' }
+                            : { background: 'rgba(255,255,255,0.78)', color: '#71717a', border: '1px solid rgba(255,255,255,0.84)' }
                           }
                         >
                           <span
@@ -584,7 +584,7 @@ export function SettingsForm({ initial }: Props) {
         {/* UTM Builder */}
         <div
           className="rounded-2xl p-5 space-y-4 mt-2"
-          style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.07)' }}
+          style={{ background: 'rgba(255,255,255,0.68)', border: '1px solid rgba(255,255,255,0.82)' }}
         >
           <div>
             <p className="text-sm font-semibold text-zinc-200">Construtor de Links UTM</p>
@@ -647,8 +647,8 @@ export function SettingsForm({ initial }: Props) {
             ? ['saas_billing_gateway', 'saas_billing_amplopay_public_key', 'saas_billing_amplopay_secret_key', 'saas_billing_amplopay_webhook_token']
             : ['saas_billing_gateway', 'saas_billing_pushinpay_token']
           return (
-            <div className="rounded-2xl overflow-hidden" style={{ border: '1px solid rgba(255,255,255,0.07)' }}>
-              <div className="px-5 py-4" style={{ background: 'rgba(255,255,255,0.03)', borderBottom: '1px solid rgba(255,255,255,0.07)' }}>
+            <div className="rounded-2xl overflow-hidden" style={{ border: '1px solid rgba(255,255,255,0.82)' }}>
+              <div className="px-5 py-4" style={{ background: 'rgba(255,255,255,0.72)', borderBottom: '1px solid rgba(255,255,255,0.82)' }}>
                 <p className="text-sm font-semibold text-zinc-100">Gateway de Cobrança SaaS</p>
                 <p className="text-xs text-zinc-500 mt-0.5">Gateway que receberá os pagamentos das mensalidades dos usuários da plataforma</p>
               </div>

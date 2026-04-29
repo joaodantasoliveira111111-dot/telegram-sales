@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState, useRef, useCallback } from 'react'
 import { toast } from 'sonner'
@@ -152,8 +152,8 @@ function TelegramPreview({ content }: { content: string }) {
     .replace(/&lt;i&gt;([\s\S]*?)&lt;\/i&gt;/g, '<i>$1</i>')
     .replace(/&lt;u&gt;([\s\S]*?)&lt;\/u&gt;/g, '<u>$1</u>')
     .replace(/&lt;s&gt;([\s\S]*?)&lt;\/s&gt;/g, '<s>$1</s>')
-    .replace(/&lt;code&gt;([\s\S]*?)&lt;\/code&gt;/g, '<code style="background:rgba(255,255,255,0.1);padding:1px 4px;border-radius:3px;font-family:monospace;font-size:11px">$1</code>')
-    .replace(/&lt;pre&gt;([\s\S]*?)&lt;\/pre&gt;/g, '<pre style="background:rgba(255,255,255,0.08);padding:6px 8px;border-radius:4px;font-family:monospace;font-size:11px;overflow-x:auto">$1</pre>')
+    .replace(/&lt;code&gt;([\s\S]*?)&lt;\/code&gt;/g, '<code style="background:rgba(255,255,255,0.88);padding:1px 4px;border-radius:3px;font-family:monospace;font-size:11px">$1</code>')
+    .replace(/&lt;pre&gt;([\s\S]*?)&lt;\/pre&gt;/g, '<pre style="background:rgba(255,255,255,0.84);padding:6px 8px;border-radius:4px;font-family:monospace;font-size:11px;overflow-x:auto">$1</pre>')
     .replace(/\n/g, '<br>')
 
   return (
@@ -162,8 +162,8 @@ function TelegramPreview({ content }: { content: string }) {
       <div
         className="rounded-2xl rounded-tl-sm px-3.5 py-2.5 text-xs leading-relaxed text-slate-200 max-w-[280px]"
         style={{
-          background: 'rgba(255,255,255,0.07)',
-          border: '1px solid rgba(255,255,255,0.06)',
+          background: 'rgba(255,255,255,0.82)',
+          border: '1px solid rgba(255,255,255,0.80)',
           wordBreak: 'break-word',
         }}
         dangerouslySetInnerHTML={{ __html: html || '<span style="opacity:0.3">Nenhum conteúdo</span>' }}
@@ -243,12 +243,12 @@ function MessageCard({ msg, botId, botType, flowType, groupColor, onContentChang
     <div
       className="rounded-xl overflow-hidden transition-all duration-200"
       style={{
-        background: expanded ? 'rgba(255,255,255,0.03)' : 'rgba(255,255,255,0.02)',
+        background: expanded ? 'rgba(255,255,255,0.72)' : 'rgba(255,255,255,0.68)',
         border: expanded
           ? `1px solid ${c.border}`
           : dirty
             ? '1px solid rgba(245,158,11,0.3)'
-            : '1px solid rgba(255,255,255,0.06)',
+            : '1px solid rgba(255,255,255,0.80)',
       }}
     >
       {/* Header */}
@@ -295,8 +295,8 @@ function MessageCard({ msg, botId, botType, flowType, groupColor, onContentChang
             <div
               className="flex items-center gap-2 rounded-lg px-3 py-2"
               style={{
-                background: active ? c.bg : 'rgba(255,255,255,0.02)',
-                border: `1px solid ${active ? c.border : 'rgba(255,255,255,0.06)'}`,
+                background: active ? c.bg : 'rgba(255,255,255,0.68)',
+                border: `1px solid ${active ? c.border : 'rgba(255,255,255,0.80)'}`,
               }}
             >
               <div className={`h-1.5 w-1.5 rounded-full flex-shrink-0 ${active ? c.dot : 'bg-slate-600'}`} />
@@ -422,7 +422,7 @@ export function MessagesEditor({ botId, botName, botType, flowType, initialMessa
       <div className="flex flex-wrap gap-2">
         <div
           className="flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs"
-          style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }}
+          style={{ background: 'rgba(255,255,255,0.75)', border: '1px solid rgba(255,255,255,0.84)' }}
         >
           <Bot className="h-3 w-3 text-slate-400" />
           <span className="text-slate-400">Tipo:</span>
@@ -430,7 +430,7 @@ export function MessagesEditor({ botId, botName, botType, flowType, initialMessa
         </div>
         <div
           className="flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs"
-          style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }}
+          style={{ background: 'rgba(255,255,255,0.75)', border: '1px solid rgba(255,255,255,0.84)' }}
         >
           <Workflow className="h-3 w-3 text-slate-400" />
           <span className="text-slate-400">Fluxo:</span>
@@ -474,7 +474,7 @@ export function MessagesEditor({ botId, botName, botType, flowType, initialMessa
             </div>
 
             {/* Messages */}
-            <div className="space-y-2 pl-2" style={{ borderLeft: `2px solid rgba(255,255,255,0.05)` }}>
+            <div className="space-y-2 pl-2" style={{ borderLeft: `2px solid rgba(255,255,255,0.78)` }}>
               {msgs.map((m) => (
                 <MessageCard
                   key={m.key}

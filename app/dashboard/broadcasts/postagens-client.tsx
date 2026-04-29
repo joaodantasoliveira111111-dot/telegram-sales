@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState, useRef } from 'react'
 import { toast } from 'sonner'
@@ -51,10 +51,10 @@ const SEGMENTS = [
 ]
 
 const glass = {
-  card: { background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)' } as React.CSSProperties,
-  input: { background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)' } as React.CSSProperties,
+  card: { background: 'rgba(255,255,255,0.72)', border: '1px solid rgba(255,255,255,0.84)' } as React.CSSProperties,
+  input: { background: 'rgba(255,255,255,0.78)', border: '1px solid rgba(255,255,255,0.88)' } as React.CSSProperties,
   activeTab: { background: 'rgba(139,92,246,0.15)', border: '1px solid rgba(139,92,246,0.3)', color: '#c4b5fd' } as React.CSSProperties,
-  inactiveTab: { background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', color: '#64748b' } as React.CSSProperties,
+  inactiveTab: { background: 'rgba(255,255,255,0.75)', border: '1px solid rgba(255,255,255,0.84)', color: '#64748b' } as React.CSSProperties,
 }
 
 function formatDt(iso: string) {
@@ -69,7 +69,7 @@ function StatusPill({ status, label }: { status: string; label: string }) {
     status === 'sent' ? { background: 'rgba(52,211,153,0.12)', color: '#6ee7b7' }
     : status === 'scheduled' || status === 'pending' ? { background: 'rgba(251,191,36,0.12)', color: '#fcd34d' }
     : status === 'failed' ? { background: 'rgba(239,68,68,0.12)', color: '#fca5a5' }
-    : { background: 'rgba(255,255,255,0.08)', color: '#64748b' }
+    : { background: 'rgba(255,255,255,0.84)', color: '#64748b' }
   return (
     <span className="shrink-0 rounded-full px-2 py-0.5 text-[10px] font-semibold" style={style}>
       {label}
@@ -99,7 +99,7 @@ function BroadcastCard({ b, onSend, onDelete, isSending }: {
       <div className="mb-3 flex flex-wrap gap-1.5">
         {seg && (
           <span className="flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] text-slate-500"
-            style={{ background: 'rgba(255,255,255,0.05)' }}>
+            style={{ background: 'rgba(255,255,255,0.78)' }}>
             <Users className="h-2.5 w-2.5" />{seg.label}
           </span>
         )}
@@ -163,7 +163,7 @@ function ScheduledPostCard({ p, onDelete, onSend }: {
 
       <div className="mb-3 flex flex-wrap gap-1.5">
         <span className="flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] text-slate-500"
-          style={{ background: 'rgba(255,255,255,0.05)' }}>
+          style={{ background: 'rgba(255,255,255,0.78)' }}>
           <Clock className="h-2.5 w-2.5" />
           {p.status === 'sent' && p.sent_at ? `Enviado ${formatDt(p.sent_at)}` : formatDt(p.scheduled_at)}
         </span>
@@ -437,9 +437,9 @@ export function PostagensClient({ broadcasts: init, scheduledPosts: initSched, b
                       className="flex items-center gap-3 rounded-xl p-3 text-left transition-all"
                       style={active
                         ? { background: 'rgba(139,92,246,0.15)', border: '1px solid rgba(139,92,246,0.35)' }
-                        : { background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)' }}>
+                        : { background: 'rgba(255,255,255,0.72)', border: '1px solid rgba(255,255,255,0.82)' }}>
                       <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg"
-                        style={{ background: active ? 'rgba(139,92,246,0.2)' : 'rgba(255,255,255,0.05)' }}>
+                        style={{ background: active ? 'rgba(139,92,246,0.2)' : 'rgba(255,255,255,0.78)' }}>
                         <Icon className={cn('h-4 w-4', active ? 'text-violet-400' : 'text-slate-600')} />
                       </div>
                       <div>
@@ -475,7 +475,7 @@ export function PostagensClient({ broadcasts: init, scheduledPosts: initSched, b
                           className="flex items-center gap-2 rounded-xl px-3 py-2.5 text-left transition-all"
                           style={active
                             ? { background: 'rgba(139,92,246,0.12)', border: '1px solid rgba(139,92,246,0.3)' }
-                            : { background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' }}>
+                            : { background: 'rgba(255,255,255,0.72)', border: '1px solid rgba(255,255,255,0.80)' }}>
                           <Icon className={cn('h-3.5 w-3.5 shrink-0', active ? 'text-violet-400' : 'text-slate-600')} />
                           <div className="min-w-0">
                             <p className={cn('text-xs font-semibold truncate', active ? 'text-violet-300' : 'text-slate-400')}>{seg.label}</p>
@@ -540,7 +540,7 @@ export function PostagensClient({ broadcasts: init, scheduledPosts: initSched, b
                       <button key={title} title={title} type="button"
                         onMouseDown={e => { e.preventDefault(); insertFormat(open, close) }}
                         className="flex h-7 w-7 items-center justify-center rounded-lg text-slate-500 transition-all hover:text-slate-200"
-                        style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)' }}>
+                        style={{ background: 'rgba(255,255,255,0.78)', border: '1px solid rgba(255,255,255,0.84)' }}>
                         <Icon className="h-3.5 w-3.5" />
                       </button>
                     ))}
@@ -592,7 +592,7 @@ export function PostagensClient({ broadcasts: init, scheduledPosts: initSched, b
                 <div className="space-y-2">
                   {buttonRows.map((row, ri) => (
                     <div key={ri} className="space-y-2 rounded-xl p-3"
-                      style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)' }}>
+                      style={{ background: 'rgba(255,255,255,0.68)', border: '1px solid rgba(255,255,255,0.80)' }}>
                       <div className="flex items-center justify-between">
                         <span className="text-[10px] text-slate-600">Linha {ri + 1}</span>
                         <button type="button" onClick={() => addBtn(ri)}
@@ -618,7 +618,7 @@ export function PostagensClient({ broadcasts: init, scheduledPosts: initSched, b
                           />
                           <button type="button" onClick={() => removeBtn(ri, bi)}
                             className="flex h-6 w-6 shrink-0 items-center justify-center rounded-lg text-slate-600 transition-colors hover:text-red-400"
-                            style={{ background: 'rgba(255,255,255,0.04)' }}>
+                            style={{ background: 'rgba(255,255,255,0.75)' }}>
                             <X className="h-3 w-3" />
                           </button>
                         </div>
@@ -641,7 +641,7 @@ export function PostagensClient({ broadcasts: init, scheduledPosts: initSched, b
                 <button type="button"
                   onClick={() => set('isScheduled', !form.isScheduled)}
                   className="relative h-5 w-9 rounded-full transition-all"
-                  style={{ background: form.isScheduled ? '#8b5cf6' : 'rgba(255,255,255,0.1)' }}>
+                  style={{ background: form.isScheduled ? '#8b5cf6' : 'rgba(255,255,255,0.88)' }}>
                   <span
                     className="absolute top-0.5 h-4 w-4 rounded-full bg-white shadow transition-all duration-200"
                     style={{ left: form.isScheduled ? '18px' : '2px' }}
@@ -677,10 +677,10 @@ export function PostagensClient({ broadcasts: init, scheduledPosts: initSched, b
               <p className="mb-3 text-xs font-bold uppercase tracking-wider text-slate-600">Preview ao vivo</p>
 
               <div className="overflow-hidden rounded-2xl"
-                style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.07)' }}>
+                style={{ background: 'rgba(255,255,255,0.68)', border: '1px solid rgba(255,255,255,0.82)' }}>
                 {/* Chat header */}
                 <div className="flex items-center gap-3 px-4 py-3"
-                  style={{ background: '#0d1117', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+                  style={{ background: '#0d1117', borderBottom: '1px solid rgba(255,255,255,0.80)' }}>
                   <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-xs font-bold text-white"
                     style={{ background: 'linear-gradient(135deg, #8b5cf6, #6d28d9)' }}>
                     {selectedBot?.name?.slice(0, 1)?.toUpperCase() ?? 'B'}
@@ -704,7 +704,7 @@ export function PostagensClient({ broadcasts: init, scheduledPosts: initSched, b
                       <div className="rounded-2xl rounded-tl-none px-3.5 py-2.5" style={{ background: '#182533' }}>
                         {form.media_url && (
                           <div className="mb-2 flex items-center gap-1.5 rounded-lg px-2 py-1.5"
-                            style={{ background: 'rgba(255,255,255,0.06)' }}>
+                            style={{ background: 'rgba(255,255,255,0.80)' }}>
                             <ImageIcon className="h-3 w-3 text-slate-500" />
                             <span className="truncate text-[10px] text-slate-500">{form.media_type} anexado</span>
                           </div>
@@ -761,7 +761,7 @@ export function PostagensClient({ broadcasts: init, scheduledPosts: initSched, b
         <div className="space-y-6">
           {totalScheduled === 0 ? (
             <div className="flex flex-col items-center justify-center rounded-2xl py-16 text-center"
-              style={{ background: 'rgba(255,255,255,0.02)', border: '1px dashed rgba(255,255,255,0.08)' }}>
+              style={{ background: 'rgba(255,255,255,0.68)', border: '1px dashed rgba(255,255,255,0.84)' }}>
               <CalendarClock className="mb-3 h-10 w-10 text-slate-700" />
               <p className="font-medium text-slate-400">Nenhuma postagem agendada</p>
               <p className="mt-1 text-sm text-slate-600">Ative o agendamento ao criar uma postagem</p>
@@ -808,7 +808,7 @@ export function PostagensClient({ broadcasts: init, scheduledPosts: initSched, b
         <div className="space-y-6">
           {sentBroadcasts.length === 0 && sentPosts.length === 0 ? (
             <div className="flex flex-col items-center justify-center rounded-2xl py-16 text-center"
-              style={{ background: 'rgba(255,255,255,0.02)', border: '1px dashed rgba(255,255,255,0.08)' }}>
+              style={{ background: 'rgba(255,255,255,0.68)', border: '1px dashed rgba(255,255,255,0.84)' }}>
               <History className="mb-3 h-10 w-10 text-slate-700" />
               <p className="font-medium text-slate-400">Nenhum envio ainda</p>
             </div>

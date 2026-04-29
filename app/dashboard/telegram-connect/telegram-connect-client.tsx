@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
@@ -28,8 +28,8 @@ interface Props {
 type Step = 'idle' | 'sent_code' | 'needs_2fa' | 'connected'
 
 const glassCard: React.CSSProperties = {
-  background: 'rgba(255,255,255,0.03)',
-  border: '1px solid rgba(255,255,255,0.08)',
+  background: 'rgba(255,255,255,0.72)',
+  border: '1px solid rgba(255,255,255,0.84)',
   backdropFilter: 'blur(20px)',
 }
 
@@ -163,7 +163,7 @@ export function TelegramConnectClient({ initialSession, hasApiKeys }: Props) {
 
             <div
               className="mt-5 rounded-xl p-4 space-y-2"
-              style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' }}
+              style={{ background: 'rgba(255,255,255,0.72)', border: '1px solid rgba(255,255,255,0.80)' }}
             >
               <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">O que você pode fazer</p>
               {[
@@ -322,7 +322,7 @@ export function TelegramConnectClient({ initialSession, hasApiKeys }: Props) {
       {/* Info card */}
       <div
         className="flex items-start gap-3 rounded-2xl p-4"
-        style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)' }}
+        style={{ background: 'rgba(255,255,255,0.68)', border: '1px solid rgba(255,255,255,0.80)' }}
       >
         <Info className="mt-0.5 h-4 w-4 shrink-0 text-slate-500" />
         <div className="space-y-1 text-xs text-slate-600">

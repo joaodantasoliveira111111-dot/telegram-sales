@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState } from 'react'
 import { Plan } from '@/types'
@@ -33,8 +33,8 @@ const contentLabel = {
 }
 
 const cardStyle: React.CSSProperties = {
-  background: 'rgba(255,255,255,0.03)',
-  border: '1px solid rgba(255,255,255,0.08)',
+  background: 'rgba(255,255,255,0.72)',
+  border: '1px solid rgba(255,255,255,0.84)',
   backdropFilter: 'blur(20px)',
 }
 
@@ -86,11 +86,11 @@ export function BotPlansList({ botId, botName, initialPlans }: BotPlansListProps
       {plans.length === 0 && !showForm ? (
         <div
           className="flex flex-col items-center justify-center rounded-2xl border-2 border-dashed py-16 text-center"
-          style={{ borderColor: 'rgba(255,255,255,0.07)' }}
+          style={{ borderColor: 'rgba(255,255,255,0.82)' }}
         >
           <div
             className="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl"
-            style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)' }}
+            style={{ background: 'rgba(255,255,255,0.78)', border: '1px solid rgba(255,255,255,0.84)' }}
           >
             <ListOrdered className="h-7 w-7 text-slate-600" />
           </div>

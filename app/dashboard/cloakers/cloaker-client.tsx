@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState, useCallback } from 'react'
 import { toast } from 'sonner'
@@ -150,7 +150,7 @@ function CloakerForm({
   return (
     <div
       className="rounded-2xl p-5 space-y-4"
-      style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.09)' }}
+      style={{ background: 'rgba(255,255,255,0.72)', border: '1px solid rgba(255,255,255,0.86)' }}
     >
       <div className="flex items-center justify-between">
         <h3 className="text-sm font-semibold text-slate-200">
@@ -176,7 +176,7 @@ function CloakerForm({
               value={form.bot_id}
               onChange={e => handleBotChange(e.target.value)}
               className="w-full rounded-xl px-3 py-2.5 text-sm text-slate-200 outline-none transition-all"
-              style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)' }}
+              style={{ background: 'rgba(255,255,255,0.78)', border: '1px solid rgba(255,255,255,0.88)' }}
             >
               <option value="">— Nenhum —</option>
               {bots.map(b => <option key={b.id} value={b.id}>{b.name}</option>)}
@@ -240,7 +240,7 @@ function CloakerForm({
                     className="text-xs px-2.5 py-1 rounded-lg transition-all"
                     style={active
                       ? { background: 'rgba(59,130,246,0.18)', border: '1px solid rgba(59,130,246,0.4)', color: '#93c5fd' }
-                      : { background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', color: '#64748b' }
+                      : { background: 'rgba(255,255,255,0.75)', border: '1px solid rgba(255,255,255,0.84)', color: '#64748b' }
                     }
                   >
                     {label}
@@ -303,7 +303,7 @@ function ClickLog({ cloakerId }: { cloakerId: string }) {
             <div
               key={c.id}
               className="flex items-start justify-between gap-3 rounded-lg px-3 py-2"
-              style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.05)' }}
+              style={{ background: 'rgba(255,255,255,0.68)', border: '1px solid rgba(255,255,255,0.78)' }}
             >
               <div className="flex items-center gap-2 min-w-0">
                 {c.verdict === 'bot' ? (
@@ -396,10 +396,10 @@ function CloakerCard({
     <div
       className="rounded-2xl p-5 space-y-4 transition-all duration-200"
       style={{
-        background: 'rgba(255,255,255,0.02)',
+        background: 'rgba(255,255,255,0.68)',
         border: cloaker.is_active
           ? '1px solid rgba(59,130,246,0.15)'
-          : '1px solid rgba(255,255,255,0.06)',
+          : '1px solid rgba(255,255,255,0.80)',
       }}
     >
       {/* Header */}
@@ -408,8 +408,8 @@ function CloakerCard({
           <div
             className="flex h-9 w-9 items-center justify-center rounded-xl flex-shrink-0 mt-0.5"
             style={{
-              background: cloaker.is_active ? 'rgba(59,130,246,0.12)' : 'rgba(255,255,255,0.04)',
-              border: `1px solid ${cloaker.is_active ? 'rgba(59,130,246,0.25)' : 'rgba(255,255,255,0.08)'}`,
+              background: cloaker.is_active ? 'rgba(59,130,246,0.12)' : 'rgba(255,255,255,0.75)',
+              border: `1px solid ${cloaker.is_active ? 'rgba(59,130,246,0.25)' : 'rgba(255,255,255,0.84)'}`,
             }}
           >
             <Shield className={`h-4 w-4 ${cloaker.is_active ? 'text-blue-400' : 'text-slate-600'}`} />
@@ -421,7 +421,7 @@ function CloakerCard({
                 className="text-[10px] font-semibold px-2 py-0.5 rounded-full"
                 style={cloaker.is_active
                   ? { background: 'rgba(52,211,153,0.12)', color: '#34d399' }
-                  : { background: 'rgba(255,255,255,0.05)', color: '#64748b' }
+                  : { background: 'rgba(255,255,255,0.78)', color: '#64748b' }
                 }
               >
                 {cloaker.is_active ? 'Ativo' : 'Inativo'}
@@ -448,7 +448,7 @@ function CloakerCard({
           <button
             onClick={copy}
             className="flex h-8 w-8 items-center justify-center rounded-lg text-slate-500 hover:text-slate-200 transition-colors"
-            style={{ background: 'rgba(255,255,255,0.04)' }}
+            style={{ background: 'rgba(255,255,255,0.75)' }}
             title="Copiar link"
           >
             {copied ? <Check className="h-3.5 w-3.5 text-emerald-400" /> : <Copy className="h-3.5 w-3.5" />}
@@ -457,7 +457,7 @@ function CloakerCard({
             onClick={toggleActive}
             disabled={toggling}
             className="flex h-8 w-8 items-center justify-center rounded-lg text-slate-500 hover:text-slate-200 transition-colors"
-            style={{ background: 'rgba(255,255,255,0.04)' }}
+            style={{ background: 'rgba(255,255,255,0.75)' }}
             title={cloaker.is_active ? 'Desativar' : 'Ativar'}
           >
             {cloaker.is_active
@@ -468,7 +468,7 @@ function CloakerCard({
           <button
             onClick={() => setEditing(true)}
             className="flex h-8 w-8 items-center justify-center rounded-lg text-slate-500 hover:text-slate-200 transition-colors"
-            style={{ background: 'rgba(255,255,255,0.04)' }}
+            style={{ background: 'rgba(255,255,255,0.75)' }}
             title="Editar"
           >
             <Pencil className="h-3.5 w-3.5" />
@@ -476,7 +476,7 @@ function CloakerCard({
           <button
             onClick={handleDelete}
             className="flex h-8 w-8 items-center justify-center rounded-lg text-slate-500 hover:text-red-400 transition-colors"
-            style={{ background: 'rgba(255,255,255,0.04)' }}
+            style={{ background: 'rgba(255,255,255,0.75)' }}
             title="Excluir"
           >
             <Trash2 className="h-3.5 w-3.5" />
@@ -487,11 +487,11 @@ function CloakerCard({
       {/* Stats */}
       <div className="grid grid-cols-3 gap-2">
         {[
-          { icon: MousePointerClick, label: 'Total', value: cloaker.total_clicks, color: 'text-slate-300', bg: 'rgba(255,255,255,0.04)' },
+          { icon: MousePointerClick, label: 'Total', value: cloaker.total_clicks, color: 'text-slate-300', bg: 'rgba(255,255,255,0.75)' },
           { icon: Users, label: 'Reais', value: `${cloaker.human_clicks} (${convRate})`, color: 'text-emerald-400', bg: 'rgba(52,211,153,0.07)' },
           { icon: Bot, label: 'Bloqueados', value: `${cloaker.bot_clicks} (${botRate})`, color: 'text-red-400', bg: 'rgba(239,68,68,0.07)' },
         ].map(({ icon: Icon, label, value, color, bg }) => (
-          <div key={label} className="rounded-xl px-3 py-2.5 text-center" style={{ background: bg, border: '1px solid rgba(255,255,255,0.05)' }}>
+          <div key={label} className="rounded-xl px-3 py-2.5 text-center" style={{ background: bg, border: '1px solid rgba(255,255,255,0.78)' }}>
             <Icon className={`h-3.5 w-3.5 mx-auto mb-1 ${color}`} />
             <p className={`text-sm font-bold ${color}`}>{value}</p>
             <p className="text-[10px] text-slate-600">{label}</p>
@@ -505,7 +505,7 @@ function CloakerCard({
           { label: 'Destino (usuários)', url: cloaker.destination_url, dot: 'bg-emerald-400' },
           { label: 'Segura (revisores)', url: cloaker.safe_url, dot: 'bg-blue-400' },
         ].map(({ label, url, dot }) => (
-          <div key={label} className="rounded-lg px-3 py-2" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.05)' }}>
+          <div key={label} className="rounded-lg px-3 py-2" style={{ background: 'rgba(255,255,255,0.68)', border: '1px solid rgba(255,255,255,0.78)' }}>
             <div className="flex items-center gap-1.5 mb-0.5">
               <span className={`h-1.5 w-1.5 rounded-full ${dot}`} />
               <p className="text-[10px] text-slate-600 font-medium">{label}</p>
@@ -613,7 +613,7 @@ export function CloakerClient({ initialCloakers, bots, baseUrl }: Props) {
       {cloakers.length === 0 && !creating ? (
         <div
           className="flex flex-col items-center justify-center rounded-2xl py-16 text-center"
-          style={{ background: 'rgba(255,255,255,0.02)', border: '1px dashed rgba(255,255,255,0.08)' }}
+          style={{ background: 'rgba(255,255,255,0.68)', border: '1px dashed rgba(255,255,255,0.84)' }}
         >
           <Shield className="h-10 w-10 text-slate-700 mb-3" />
           <p className="text-slate-400 font-medium">Nenhum cloaker criado</p>

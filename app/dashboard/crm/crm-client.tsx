@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState, useEffect, useCallback } from 'react'
 import { toast } from 'sonner'
@@ -55,13 +55,13 @@ function FunnelJourney({ lead }: { lead: Lead }) {
                   style={step.done
                     ? { background: `${step.color}20`, border: `1px solid ${step.color}60` }
                     : isActive
-                    ? { background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.15)' }
-                    : { background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.05)' }}>
+                    ? { background: 'rgba(255,255,255,0.80)', border: '1px solid rgba(255,255,255,0.93)' }
+                    : { background: 'rgba(255,255,255,0.68)', border: '1px solid rgba(255,255,255,0.78)' }}>
                   <Icon className="h-3 w-3" style={{ color: step.done ? step.color : isActive ? '#71717a' : '#3f3f46' }} />
                 </div>
                 {i < steps.length - 1 && (
                   <div className="w-px h-4 mt-0.5"
-                    style={{ background: i < currentStep ? 'rgba(52,211,153,0.3)' : 'rgba(255,255,255,0.05)' }} />
+                    style={{ background: i < currentStep ? 'rgba(52,211,153,0.3)' : 'rgba(255,255,255,0.78)' }} />
                 )}
               </div>
               <div className="pb-2 pt-0.5">
@@ -153,13 +153,13 @@ export function CrmClient({ bots }: { bots: { id: string; name: string }[] }) {
         </div>
         <select value={botFilter} onChange={e => setBotFilter(e.target.value)}
           className="rounded-xl px-3 py-2 text-sm text-slate-300 outline-none"
-          style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)' }}>
+          style={{ background: 'rgba(255,255,255,0.78)', border: '1px solid rgba(255,255,255,0.88)' }}>
           <option value="">Todos os bots</option>
           {bots.map(b => <option key={b.id} value={b.id}>{b.name}</option>)}
         </select>
         <select value={tagFilter} onChange={e => setTagFilter(e.target.value)}
           className="rounded-xl px-3 py-2 text-sm text-slate-300 outline-none"
-          style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)' }}>
+          style={{ background: 'rgba(255,255,255,0.78)', border: '1px solid rgba(255,255,255,0.88)' }}>
           <option value="">Todas as tags</option>
           {TAG_PRESETS.map(t => <option key={t} value={t}>{t}</option>)}
         </select>
@@ -175,7 +175,7 @@ export function CrmClient({ bots }: { bots: { id: string; name: string }[] }) {
               className="w-full text-left rounded-xl p-3 transition-all"
               style={selected?.id === lead.id
                 ? { background: 'rgba(59,130,246,0.12)', border: '1px solid rgba(59,130,246,0.25)' }
-                : { background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)' }}>
+                : { background: 'rgba(255,255,255,0.68)', border: '1px solid rgba(255,255,255,0.80)' }}>
               <div className="flex items-center justify-between gap-2">
                 <div className="min-w-0">
                   <p className="text-sm font-medium text-slate-200 truncate">
@@ -201,16 +201,16 @@ export function CrmClient({ bots }: { bots: { id: string; name: string }[] }) {
           ))}
           {total > 30 && (
             <div className="flex justify-center gap-2 pt-2">
-              <button disabled={page === 1} onClick={() => load(page - 1)} className="text-xs px-3 py-1.5 rounded-lg disabled:opacity-40" style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', color: '#94a3b8' }}>← Anterior</button>
+              <button disabled={page === 1} onClick={() => load(page - 1)} className="text-xs px-3 py-1.5 rounded-lg disabled:opacity-40" style={{ background: 'rgba(255,255,255,0.78)', border: '1px solid rgba(255,255,255,0.84)', color: '#94a3b8' }}>← Anterior</button>
               <span className="text-xs text-slate-500 py-1.5">{page} / {Math.ceil(total / 30)}</span>
-              <button disabled={page >= Math.ceil(total / 30)} onClick={() => load(page + 1)} className="text-xs px-3 py-1.5 rounded-lg disabled:opacity-40" style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', color: '#94a3b8' }}>Próxima →</button>
+              <button disabled={page >= Math.ceil(total / 30)} onClick={() => load(page + 1)} className="text-xs px-3 py-1.5 rounded-lg disabled:opacity-40" style={{ background: 'rgba(255,255,255,0.78)', border: '1px solid rgba(255,255,255,0.84)', color: '#94a3b8' }}>Próxima →</button>
             </div>
           )}
         </div>
 
         {/* Lead detail */}
         {selected ? (
-          <div className="rounded-2xl p-5 space-y-4" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.08)' }}>
+          <div className="rounded-2xl p-5 space-y-4" style={{ background: 'rgba(255,255,255,0.68)', border: '1px solid rgba(255,255,255,0.84)' }}>
             <div className="flex items-start justify-between">
               <div>
                 <p className="text-sm font-semibold text-slate-100">
@@ -229,7 +229,7 @@ export function CrmClient({ bots }: { bots: { id: string; name: string }[] }) {
                 { icon: Clock, label: 'PIX gerados', value: String(selected.total_pix), color: 'text-blue-400' },
                 { icon: AlertTriangle, label: 'Churn', value: CHURN_LABELS[selected.churn_score], color: CHURN_COLORS[selected.churn_score] },
               ].map(({ icon: Icon, label, value, color }) => (
-                <div key={label} className="rounded-xl p-2.5 text-center" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.05)' }}>
+                <div key={label} className="rounded-xl p-2.5 text-center" style={{ background: 'rgba(255,255,255,0.72)', border: '1px solid rgba(255,255,255,0.78)' }}>
                   <Icon className={`h-3.5 w-3.5 mx-auto mb-1 ${color}`} />
                   <p className={`text-sm font-bold ${color}`}>{value}</p>
                   <p className="text-[10px] text-slate-600">{label}</p>
@@ -251,7 +251,7 @@ export function CrmClient({ bots }: { bots: { id: string; name: string }[] }) {
                       className="text-[10px] px-2 py-1 rounded-lg transition-all"
                       style={active
                         ? { background: 'rgba(139,92,246,0.2)', border: '1px solid rgba(139,92,246,0.4)', color: '#a78bfa' }
-                        : { background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', color: '#64748b' }}>
+                        : { background: 'rgba(255,255,255,0.75)', border: '1px solid rgba(255,255,255,0.84)', color: '#64748b' }}>
                       {tag}
                     </button>
                   )
@@ -268,7 +268,7 @@ export function CrmClient({ bots }: { bots: { id: string; name: string }[] }) {
                 placeholder="Anotações sobre este lead..."
                 rows={3}
                 className="w-full rounded-xl px-3 py-2 text-xs text-slate-300 outline-none resize-none"
-                style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }}
+                style={{ background: 'rgba(255,255,255,0.75)', border: '1px solid rgba(255,255,255,0.84)' }}
               />
               <button
                 onClick={() => saveUser(selected, { notes: editNotes })}
@@ -280,7 +280,7 @@ export function CrmClient({ bots }: { bots: { id: string; name: string }[] }) {
             </div>
           </div>
         ) : (
-          <div className="flex items-center justify-center rounded-2xl" style={{ background: 'rgba(255,255,255,0.01)', border: '1px dashed rgba(255,255,255,0.06)' }}>
+          <div className="flex items-center justify-center rounded-2xl" style={{ background: 'rgba(255,255,255,0.01)', border: '1px dashed rgba(255,255,255,0.80)' }}>
             <p className="text-sm text-slate-600">Clique em um lead para ver o perfil</p>
           </div>
         )}

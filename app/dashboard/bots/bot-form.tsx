@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState } from 'react'
 import { Bot, CreateBotForm } from '@/types'
@@ -214,8 +214,8 @@ export function BotForm({ bot, onSaved, onCancel }: BotFormProps) {
                         border: '1px solid rgba(59,130,246,0.4)',
                         boxShadow: '0 0 16px rgba(59,130,246,0.12)',
                       } : {
-                        background: 'rgba(255,255,255,0.02)',
-                        border: '1px solid rgba(255,255,255,0.07)',
+                        background: 'rgba(255,255,255,0.68)',
+                        border: '1px solid rgba(255,255,255,0.82)',
                       }}
                     >
                       {active && (
@@ -268,8 +268,8 @@ export function BotForm({ bot, onSaved, onCancel }: BotFormProps) {
                       border: '1px solid rgba(59,130,246,0.4)',
                       boxShadow: '0 0 20px rgba(59,130,246,0.15)',
                     } : {
-                      background: 'rgba(255,255,255,0.03)',
-                      border: '1px solid rgba(255,255,255,0.08)',
+                      background: 'rgba(255,255,255,0.72)',
+                      border: '1px solid rgba(255,255,255,0.84)',
                     }}
                   >
                     <div className="mb-2">{opt.icon}</div>
@@ -306,8 +306,8 @@ export function BotForm({ bot, onSaved, onCancel }: BotFormProps) {
                       border: `1px solid ${c.border}`,
                       boxShadow: `0 0 16px ${c.border}`,
                     } : {
-                      background: 'rgba(255,255,255,0.02)',
-                      border: '1px solid rgba(255,255,255,0.06)',
+                      background: 'rgba(255,255,255,0.68)',
+                      border: '1px solid rgba(255,255,255,0.80)',
                     }}
                   >
                     <div className="flex items-center justify-between">
@@ -317,7 +317,7 @@ export function BotForm({ bot, onSaved, onCancel }: BotFormProps) {
                       </div>
                       <span
                         className="text-[10px] font-semibold px-2 py-0.5 rounded-full"
-                        style={{ background: active ? c.badgeBg : 'rgba(255,255,255,0.05)', color: active ? undefined : '#64748b' }}
+                        style={{ background: active ? c.badgeBg : 'rgba(255,255,255,0.78)', color: active ? undefined : '#64748b' }}
                       >
                         {opt.badge}
                       </span>
@@ -343,7 +343,7 @@ export function BotForm({ bot, onSaved, onCancel }: BotFormProps) {
                 type="button"
                 onClick={() => setAbEnabled((s) => !s)}
                 className="relative h-5 w-9 rounded-full transition-colors duration-200 flex-shrink-0"
-                style={{ background: abEnabled ? 'rgba(139,92,246,0.6)' : 'rgba(255,255,255,0.1)' }}
+                style={{ background: abEnabled ? 'rgba(139,92,246,0.6)' : 'rgba(255,255,255,0.88)' }}
               >
                 <span
                   className="absolute top-0.5 left-0.5 h-4 w-4 rounded-full bg-white transition-transform duration-200"
@@ -376,8 +376,8 @@ export function BotForm({ bot, onSaved, onCancel }: BotFormProps) {
                           background: 'rgba(139,92,246,0.12)',
                           border: '1px solid rgba(139,92,246,0.3)',
                         } : {
-                          background: 'rgba(255,255,255,0.02)',
-                          border: '1px solid rgba(255,255,255,0.06)',
+                          background: 'rgba(255,255,255,0.68)',
+                          border: '1px solid rgba(255,255,255,0.80)',
                         }}
                       >
                         <span className={flowTypeB === opt.value ? 'text-violet-400' : 'text-slate-500'}>{opt.icon}</span>
@@ -410,7 +410,7 @@ export function BotForm({ bot, onSaved, onCancel }: BotFormProps) {
                 type="button"
                 onClick={() => setProtectContent((s) => !s)}
                 className="relative h-5 w-9 rounded-full transition-colors duration-200 flex-shrink-0"
-                style={{ background: protectContent ? 'rgba(239,68,68,0.6)' : 'rgba(255,255,255,0.1)' }}
+                style={{ background: protectContent ? 'rgba(239,68,68,0.6)' : 'rgba(255,255,255,0.88)' }}
               >
                 <span
                   className="absolute top-0.5 left-0.5 h-4 w-4 rounded-full bg-white transition-transform duration-200"
@@ -447,8 +447,8 @@ export function BotForm({ bot, onSaved, onCancel }: BotFormProps) {
                       background: 'rgba(52,211,153,0.12)',
                       border: '1px solid rgba(52,211,153,0.35)',
                     } : {
-                      background: 'rgba(255,255,255,0.02)',
-                      border: '1px solid rgba(255,255,255,0.06)',
+                      background: 'rgba(255,255,255,0.68)',
+                      border: '1px solid rgba(255,255,255,0.80)',
                     }}
                   >
                     <p className={`text-xs font-semibold ${active ? 'text-emerald-300' : 'text-slate-400'}`}>{opt.label}</p>

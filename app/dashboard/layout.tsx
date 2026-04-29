@@ -8,13 +8,14 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       <DashboardShell>{children}</DashboardShell>
       <PaymentNotifier />
       <Toaster
-        theme="dark"
+        theme="light"
         position="bottom-right"
         toastOptions={{
           style: {
-            background: '#18181b',
-            border: '1px solid #27272a',
-            color: '#f4f4f5',
+            background: '#ffffff',
+            border: '1px solid rgba(0,0,0,0.10)',
+            color: '#1a1625',
+            boxShadow: '0 4px 20px rgba(0,0,0,0.10)',
           },
         }}
       />

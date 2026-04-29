@@ -2,23 +2,23 @@
 
 /* ─── Design tokens ─────────────────────────────────────────────────────────── */
 :root {
-  --background: #05040e;
-  --foreground: #eef0f6;
-  --muted: #71717a;
+  --background: #f5f3ff;
+  --foreground: #1a1625;
+  --muted: #6b7280;
 
-  /* Glass */
-  --glass-bg:         rgba(255,255,255,0.04);
-  --glass-bg-strong:  rgba(255,255,255,0.07);
-  --glass-border:     rgba(255,255,255,0.09);
-  --glass-border-hi:  rgba(255,255,255,0.15);
+  /* Glass — light theme */
+  --glass-bg:         rgba(255,255,255,0.72);
+  --glass-bg-strong:  rgba(255,255,255,0.88);
+  --glass-border:     rgba(0,0,0,0.07);
+  --glass-border-hi:  rgba(0,0,0,0.13);
   --glass-blur:       blur(48px) saturate(180%);
-  --glass-shadow:     0 8px 40px rgba(0,0,0,0.45), 0 1px 0 rgba(255,255,255,0.06) inset;
+  --glass-shadow:     0 4px 24px rgba(0,0,0,0.07), 0 1px 0 rgba(255,255,255,0.9) inset;
 
   /* Accent */
-  --accent:           #8b5cf6;
-  --accent-hi:        #a78bfa;
-  --accent-glow:      rgba(139,92,246,0.4);
-  --accent-glow-sm:   rgba(139,92,246,0.18);
+  --accent:           #7c3aed;
+  --accent-hi:        #8b5cf6;
+  --accent-glow:      rgba(124,58,237,0.35);
+  --accent-glow-sm:   rgba(124,58,237,0.14);
 
   /* Sidebar */
   --sidebar-w: 220px;
@@ -41,8 +41,8 @@ body {
 /* ─── Subtle tech grid overlay ───────────────────────────────────────────────── */
 .tech-grid {
   background-image:
-    linear-gradient(rgba(139,92,246,0.025) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(139,92,246,0.025) 1px, transparent 1px);
+    linear-gradient(rgba(124,58,237,0.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(124,58,237,0.06) 1px, transparent 1px);
   background-size: 32px 32px;
 }
 
@@ -130,7 +130,7 @@ body {
 
 /* ─── Shimmer skeleton ───────────────────────────────────────────────────────── */
 .shimmer {
-  background: linear-gradient(90deg, rgba(255,255,255,0.04) 25%, rgba(255,255,255,0.08) 50%, rgba(255,255,255,0.04) 75%);
+  background: linear-gradient(90deg, rgba(0,0,0,0.04) 25%, rgba(0,0,0,0.08) 50%, rgba(0,0,0,0.04) 75%);
   background-size: 200% 100%;
   animation: shimmer 1.8s ease-in-out infinite;
 }
@@ -206,3 +206,39 @@ body {
   background: inherit;
   opacity: 0.6;
 }
+
+/* ─── Landing page light theme ───────────────────────────────────────────────── */
+/* text-white → dark on the light landing page; exceptions for gradient-bg elements */
+.landing-light .text-white                              { color: #1a1625 !important; }
+.landing-light [style*="linear-gradient"].text-white    { color: #fff    !important; }
+.landing-light [style*="linear-gradient"] > .text-white { color: #fff    !important; }
+/* hover:text-white → hover to dark purple on light bg */
+.landing-light .hover\:text-white:hover                 { color: #4c1d95 !important; }
+
+/* ─── Light-theme zinc text inversions ───────────────────────────────────────── */
+/* Map the dark-mode zinc scale to readable values on white/light backgrounds */
+.text-zinc-50  { color: #09090b !important; }
+.text-zinc-100 { color: #18181b !important; }
+.text-zinc-200 { color: #27272a !important; }
+.text-zinc-300 { color: #3f3f46 !important; }
+.text-zinc-400 { color: #52525b !important; }
+/* zinc-500 (#71717a) remains readable on both themes — no override */
+.text-zinc-600 { color: #a1a1aa !important; }
+.text-zinc-700 { color: #c4c4c8 !important; }
+
+/* Invert glass card borders and subtle bg classes used as inline fallback */
+.border-white\/5  { border-color: rgba(0,0,0,0.05)  !important; }
+.border-white\/7  { border-color: rgba(0,0,0,0.07)  !important; }
+.border-white\/8  { border-color: rgba(0,0,0,0.08)  !important; }
+.border-white\/10 { border-color: rgba(0,0,0,0.10)  !important; }
+
+/* Translucent dark overlays used in tooltips / dropdowns → lighten */
+.bg-zinc-800 { background-color: #f4f4f5 !important; }
+.bg-zinc-900 { background-color: #e4e4e7 !important; }
+.bg-zinc-950 { background-color: #d4d4d8 !important; }
+
+/* Invert white/5 and white/10 bg helpers */
+.bg-white\/5   { background-color: rgba(0,0,0,0.04)  !important; }
+.bg-white\/10  { background-color: rgba(0,0,0,0.07)  !important; }
+.hover\:bg-white\/5:hover  { background-color: rgba(0,0,0,0.04)  !important; }
+.hover\:bg-white\/10:hover { background-color: rgba(0,0,0,0.07)  !important; }

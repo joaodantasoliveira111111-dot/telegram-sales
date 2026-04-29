@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState, useCallback } from 'react'
 import { toast } from 'sonner'
@@ -87,7 +87,7 @@ function PostForm({ bots, groups, onSave, onCancel }: {
   const minDatetime = new Date(Date.now() + 5 * 60000).toISOString().slice(0, 16)
 
   return (
-    <div className="rounded-2xl p-5 space-y-4" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.09)' }}>
+    <div className="rounded-2xl p-5 space-y-4" style={{ background: 'rgba(255,255,255,0.72)', border: '1px solid rgba(255,255,255,0.86)' }}>
       <div className="flex items-center justify-between">
         <h3 className="text-sm font-semibold text-slate-200">Novo post agendado</h3>
         <button onClick={onCancel} className="text-slate-500 hover:text-slate-300"><X className="h-4 w-4" /></button>
@@ -97,7 +97,7 @@ function PostForm({ bots, groups, onSave, onCancel }: {
           <Label>Bot</Label>
           <select value={form.bot_id} onChange={e => set('bot_id', e.target.value)} required
             className="w-full rounded-xl px-3 py-2.5 text-sm text-slate-200 outline-none"
-            style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)' }}>
+            style={{ background: 'rgba(255,255,255,0.78)', border: '1px solid rgba(255,255,255,0.88)' }}>
             <option value="">— Selecione —</option>
             {bots.map(b => <option key={b.id} value={b.id}>{b.name}</option>)}
           </select>
@@ -107,7 +107,7 @@ function PostForm({ bots, groups, onSave, onCancel }: {
           {groups.length > 0 ? (
             <select value={form.chat_id} onChange={e => handleGroupChange(e.target.value)} required
               className="w-full rounded-xl px-3 py-2.5 text-sm text-slate-200 outline-none"
-              style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)' }}>
+              style={{ background: 'rgba(255,255,255,0.78)', border: '1px solid rgba(255,255,255,0.88)' }}>
               <option value="">— Selecione —</option>
               {groups.map(g => <option key={g.telegram_chat_id} value={g.telegram_chat_id}>{g.title}</option>)}
             </select>
@@ -123,7 +123,7 @@ function PostForm({ bots, groups, onSave, onCancel }: {
             placeholder="Texto da mensagem (suporta HTML: <b>, <i>, <code>)"
             rows={4}
             className="w-full rounded-xl px-3 py-2.5 text-sm text-slate-200 outline-none resize-none"
-            style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)' }}
+            style={{ background: 'rgba(255,255,255,0.78)', border: '1px solid rgba(255,255,255,0.88)' }}
           />
         </div>
         <div className="space-y-1.5">
@@ -134,7 +134,7 @@ function PostForm({ bots, groups, onSave, onCancel }: {
           <Label>Tipo de mídia</Label>
           <select value={form.media_type} onChange={e => set('media_type', e.target.value)}
             className="w-full rounded-xl px-3 py-2.5 text-sm text-slate-200 outline-none"
-            style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)' }}>
+            style={{ background: 'rgba(255,255,255,0.78)', border: '1px solid rgba(255,255,255,0.88)' }}>
             <option value="">— Nenhuma —</option>
             <option value="photo">Foto</option>
             <option value="video">Vídeo</option>
@@ -195,7 +195,7 @@ export function ScheduledPostsClient({ initialPosts, bots, groups }: Props) {
             className="text-xs px-3 py-1.5 rounded-lg transition-all"
             style={filter === f
               ? { background: 'rgba(59,130,246,0.15)', border: '1px solid rgba(59,130,246,0.3)', color: '#93c5fd' }
-              : { background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)', color: '#64748b' }}>
+              : { background: 'rgba(255,255,255,0.75)', border: '1px solid rgba(255,255,255,0.82)', color: '#64748b' }}>
             {f === 'pending' ? `Agendados (${pendingCount})` : f === 'sent' ? 'Enviados' : 'Todos'}
           </button>
         ))}
@@ -204,7 +204,7 @@ export function ScheduledPostsClient({ initialPosts, bots, groups }: Props) {
       {creating && <PostForm bots={bots} groups={groups} onSave={handleCreate} onCancel={() => setCreating(false)} />}
 
       {filtered.length === 0 && !creating ? (
-        <div className="flex flex-col items-center justify-center rounded-2xl py-16 text-center" style={{ background: 'rgba(255,255,255,0.02)', border: '1px dashed rgba(255,255,255,0.08)' }}>
+        <div className="flex flex-col items-center justify-center rounded-2xl py-16 text-center" style={{ background: 'rgba(255,255,255,0.68)', border: '1px dashed rgba(255,255,255,0.84)' }}>
           <CalendarClock className="h-10 w-10 text-slate-700 mb-3" />
           <p className="text-slate-400 font-medium">Nenhum post agendado</p>
           <p className="text-sm text-slate-600 mt-1">Agende conteúdo para seus grupos com antecedência</p>
@@ -214,7 +214,7 @@ export function ScheduledPostsClient({ initialPosts, bots, groups }: Props) {
         <div className="space-y-3">
           {filtered.map(post => (
             <div key={post.id} className="rounded-2xl p-4 space-y-3"
-              style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)' }}>
+              style={{ background: 'rgba(255,255,255,0.68)', border: '1px solid rgba(255,255,255,0.80)' }}>
               <div className="flex items-start justify-between gap-3">
                 <div className="min-w-0">
                   <div className="flex items-center gap-2 flex-wrap">
@@ -232,7 +232,7 @@ export function ScheduledPostsClient({ initialPosts, bots, groups }: Props) {
                 {post.status === 'pending' && (
                   <button onClick={() => handleDelete(post.id)}
                     className="flex h-7 w-7 items-center justify-center rounded-lg text-slate-500 hover:text-red-400"
-                    style={{ background: 'rgba(255,255,255,0.04)' }}>
+                    style={{ background: 'rgba(255,255,255,0.75)' }}>
                     <Trash2 className="h-3.5 w-3.5" />
                   </button>
                 )}

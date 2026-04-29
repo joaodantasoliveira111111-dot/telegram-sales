@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState, useEffect } from 'react'
 import { toast } from 'sonner'
@@ -17,8 +17,8 @@ const TRIGGER_LABELS: Record<string, string> = {
 }
 
 const glass = {
-  card: { background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)' } as React.CSSProperties,
-  input: { background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)' } as React.CSSProperties,
+  card: { background: 'rgba(255,255,255,0.72)', border: '1px solid rgba(255,255,255,0.84)' } as React.CSSProperties,
+  input: { background: 'rgba(255,255,255,0.78)', border: '1px solid rgba(255,255,255,0.88)' } as React.CSSProperties,
 }
 
 interface Props { bots: { id: string; name: string }[] }
@@ -141,7 +141,7 @@ export function RemarketingClient({ bots }: Props) {
           <div className="space-y-3">
             <p className="text-xs text-zinc-500">Mensagens da sequência</p>
             {steps.map((step, i) => (
-              <div key={i} className="rounded-xl p-4 space-y-2" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)' }}>
+              <div key={i} className="rounded-xl p-4 space-y-2" style={{ background: 'rgba(255,255,255,0.68)', border: '1px solid rgba(255,255,255,0.80)' }}>
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <Clock className="h-3.5 w-3.5 text-violet-400" />

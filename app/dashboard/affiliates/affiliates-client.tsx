@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState, useCallback } from 'react'
 import { toast } from 'sonner'
@@ -30,7 +30,7 @@ interface Props {
 function glass(active = false) {
   return active
     ? { background: 'rgba(59,130,246,0.1)', border: '1px solid rgba(59,130,246,0.2)' }
-    : { background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.07)' }
+    : { background: 'rgba(255,255,255,0.68)', border: '1px solid rgba(255,255,255,0.82)' }
 }
 
 function AffiliateForm({ bots, initial, onSave, onCancel }: {
@@ -82,7 +82,7 @@ function AffiliateForm({ bots, initial, onSave, onCancel }: {
           <Label>Bot vinculado</Label>
           <select value={form.bot_id} onChange={e => set('bot_id', e.target.value)} required
             className="w-full rounded-xl px-3 py-2.5 text-sm text-slate-200 outline-none"
-            style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)' }}>
+            style={{ background: 'rgba(255,255,255,0.78)', border: '1px solid rgba(255,255,255,0.88)' }}>
             <option value="">— Selecione —</option>
             {bots.map(b => <option key={b.id} value={b.id}>{b.name}</option>)}
           </select>
@@ -140,18 +140,18 @@ function AffiliateCard({ affiliate, baseUrl, bots, onUpdate, onDelete }: {
           <div className="flex items-center gap-2 flex-wrap">
             <p className="text-sm font-semibold text-slate-200">{affiliate.name}</p>
             <span className="text-[10px] px-2 py-0.5 rounded-full font-mono" style={{ background: 'rgba(139,92,246,0.15)', color: '#a78bfa' }}>{affiliate.code}</span>
-            <span className="text-[10px] px-2 py-0.5 rounded-full" style={{ background: 'rgba(255,255,255,0.05)', color: '#64748b' }}>{botName}</span>
+            <span className="text-[10px] px-2 py-0.5 rounded-full" style={{ background: 'rgba(255,255,255,0.78)', color: '#64748b' }}>{botName}</span>
           </div>
           <p className="text-xs text-slate-500 mt-0.5">{affiliate.commission_pct}% de comissão por venda</p>
         </div>
         <div className="flex items-center gap-1.5">
-          <button onClick={copy} className="flex h-8 w-8 items-center justify-center rounded-lg text-slate-500 hover:text-slate-200" style={{ background: 'rgba(255,255,255,0.04)' }} title="Copiar link">
+          <button onClick={copy} className="flex h-8 w-8 items-center justify-center rounded-lg text-slate-500 hover:text-slate-200" style={{ background: 'rgba(255,255,255,0.75)' }} title="Copiar link">
             {copied ? <Check className="h-3.5 w-3.5 text-emerald-400" /> : <Copy className="h-3.5 w-3.5" />}
           </button>
-          <button onClick={() => setEditing(true)} className="flex h-8 w-8 items-center justify-center rounded-lg text-slate-500 hover:text-slate-200" style={{ background: 'rgba(255,255,255,0.04)' }}>
+          <button onClick={() => setEditing(true)} className="flex h-8 w-8 items-center justify-center rounded-lg text-slate-500 hover:text-slate-200" style={{ background: 'rgba(255,255,255,0.75)' }}>
             <Pencil className="h-3.5 w-3.5" />
           </button>
-          <button onClick={del} className="flex h-8 w-8 items-center justify-center rounded-lg text-slate-500 hover:text-red-400" style={{ background: 'rgba(255,255,255,0.04)' }}>
+          <button onClick={del} className="flex h-8 w-8 items-center justify-center rounded-lg text-slate-500 hover:text-red-400" style={{ background: 'rgba(255,255,255,0.75)' }}>
             <Trash2 className="h-3.5 w-3.5" />
           </button>
         </div>
@@ -163,7 +163,7 @@ function AffiliateCard({ affiliate, baseUrl, bots, onUpdate, onDelete }: {
           { icon: DollarSign, label: 'Ganhou', value: `R$ ${Number(affiliate.total_earned).toFixed(2).replace('.', ',')}`, color: 'text-emerald-400' },
           { icon: DollarSign, label: 'A pagar', value: `R$ ${Number(balance).toFixed(2).replace('.', ',')}`, color: balance > 0 ? 'text-yellow-400' : 'text-slate-600' },
         ].map(({ icon: Icon, label, value, color }) => (
-          <div key={label} className="rounded-xl px-3 py-2.5 text-center" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.05)' }}>
+          <div key={label} className="rounded-xl px-3 py-2.5 text-center" style={{ background: 'rgba(255,255,255,0.72)', border: '1px solid rgba(255,255,255,0.78)' }}>
             <Icon className={`h-3.5 w-3.5 mx-auto mb-1 ${color}`} />
             <p className={`text-sm font-bold ${color}`}>{value}</p>
             <p className="text-[10px] text-slate-600">{label}</p>
@@ -211,7 +211,7 @@ export function AffiliatesClient({ initialAffiliates, bots, baseUrl }: Props) {
             { label: 'Total pago em comissões', value: `R$ ${totalEarned.toFixed(2).replace('.', ',')}`, color: 'text-emerald-400' },
             { label: 'A pagar agora', value: `R$ ${totalOwed.toFixed(2).replace('.', ',')}`, color: totalOwed > 0 ? 'text-yellow-400' : 'text-slate-500' },
           ].map(({ label, value, color }) => (
-            <div key={label} className="rounded-2xl p-4" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)' }}>
+            <div key={label} className="rounded-2xl p-4" style={{ background: 'rgba(255,255,255,0.68)', border: '1px solid rgba(255,255,255,0.80)' }}>
               <p className="text-[11px] text-slate-500">{label}</p>
               <p className={`text-xl font-bold mt-1 ${color}`}>{value}</p>
             </div>
@@ -222,7 +222,7 @@ export function AffiliatesClient({ initialAffiliates, bots, baseUrl }: Props) {
       {creating && <AffiliateForm bots={bots} onSave={handleCreate} onCancel={() => setCreating(false)} />}
 
       {affiliates.length === 0 && !creating ? (
-        <div className="flex flex-col items-center justify-center rounded-2xl py-16 text-center" style={{ background: 'rgba(255,255,255,0.02)', border: '1px dashed rgba(255,255,255,0.08)' }}>
+        <div className="flex flex-col items-center justify-center rounded-2xl py-16 text-center" style={{ background: 'rgba(255,255,255,0.68)', border: '1px dashed rgba(255,255,255,0.84)' }}>
           <Users className="h-10 w-10 text-slate-700 mb-3" />
           <p className="text-slate-400 font-medium">Nenhum afiliado cadastrado</p>
           <p className="text-sm text-slate-600 mt-1">Crie afiliados para ampliar suas vendas automaticamente</p>

@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
@@ -48,8 +48,8 @@ export function BotDetailShell({ bot, children }: BotDetailShellProps) {
             style={{
               background: bot.is_active
                 ? 'linear-gradient(135deg, rgba(59,130,246,0.3), rgba(99,102,241,0.2))'
-                : 'rgba(255,255,255,0.05)',
-              border: bot.is_active ? '1px solid rgba(59,130,246,0.4)' : '1px solid rgba(255,255,255,0.1)',
+                : 'rgba(255,255,255,0.78)',
+              border: bot.is_active ? '1px solid rgba(59,130,246,0.4)' : '1px solid rgba(255,255,255,0.88)',
               boxShadow: bot.is_active ? '0 0 24px rgba(59,130,246,0.2)' : undefined,
             }}
           >
@@ -83,7 +83,7 @@ export function BotDetailShell({ bot, children }: BotDetailShellProps) {
       {/* Tabs */}
       <div
         className="flex gap-1 overflow-x-auto rounded-2xl p-1.5"
-        style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)' }}
+        style={{ background: 'rgba(255,255,255,0.72)', border: '1px solid rgba(255,255,255,0.82)' }}
       >
         {tabs.map(({ href, label, icon: Icon, exact }) => {
           const active = exact ? pathname === href : pathname.startsWith(href)

@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState, useCallback, useRef } from 'react'
 import { toast } from 'sonner'
@@ -303,7 +303,7 @@ function PageForm({
       {/* Form */}
       <div
         className="rounded-2xl p-5 space-y-4"
-        style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.09)' }}
+        style={{ background: 'rgba(255,255,255,0.72)', border: '1px solid rgba(255,255,255,0.86)' }}
       >
         <div className="flex items-center justify-between">
           <h3 className="text-sm font-semibold text-slate-200">
@@ -330,7 +330,7 @@ function PageForm({
                 ) : (
                   <div
                     className="h-16 w-16 rounded-full flex items-center justify-center flex-shrink-0"
-                    style={{ background: 'rgba(255,255,255,0.05)', border: '2px dashed rgba(255,255,255,0.12)' }}
+                    style={{ background: 'rgba(255,255,255,0.78)', border: '2px dashed rgba(255,255,255,0.90)' }}
                   >
                     <ImageIcon className="h-6 w-6 text-slate-600" />
                   </div>
@@ -354,7 +354,7 @@ function PageForm({
                       type="button"
                       onClick={() => set('photo_url', '')}
                       className="flex items-center justify-center h-7 w-7 rounded-lg text-slate-500 hover:text-red-400 transition-colors"
-                      style={{ background: 'rgba(255,255,255,0.05)' }}
+                      style={{ background: 'rgba(255,255,255,0.78)' }}
                       title="Remover foto"
                     >
                       <X className="h-3.5 w-3.5" />
@@ -404,7 +404,7 @@ function PageForm({
                 value={form.bot_id}
                 onChange={e => set('bot_id', e.target.value)}
                 className="w-full rounded-xl px-3 py-2.5 text-sm text-slate-200 outline-none"
-                style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)' }}
+                style={{ background: 'rgba(255,255,255,0.78)', border: '1px solid rgba(255,255,255,0.88)' }}
               >
                 <option value="">— Nenhum —</option>
                 {bots.map(b => <option key={b.id} value={b.id}>{b.name}</option>)}
@@ -431,7 +431,7 @@ function PageForm({
                 onChange={e => set('bio', e.target.value)}
                 rows={2}
                 className="w-full rounded-xl px-3 py-2.5 text-sm text-slate-200 outline-none resize-none"
-                style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)' }}
+                style={{ background: 'rgba(255,255,255,0.78)', border: '1px solid rgba(255,255,255,0.88)' }}
               />
             </div>
 
@@ -470,7 +470,7 @@ function PageForm({
                     className="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all"
                     style={form.theme === key
                       ? { background: t.accent, color: t.btnText ?? '#fff', boxShadow: `0 0 12px ${t.glow}` }
-                      : { background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: '#64748b' }
+                      : { background: 'rgba(255,255,255,0.78)', border: '1px solid rgba(255,255,255,0.88)', color: '#64748b' }
                     }
                   >
                     {t.label}
@@ -624,10 +624,10 @@ function PageCard({
     <div
       className="rounded-2xl p-5 space-y-3 transition-all duration-200"
       style={{
-        background: 'rgba(255,255,255,0.02)',
+        background: 'rgba(255,255,255,0.68)',
         border: page.is_active
           ? `1px solid rgba(${hexToRgb(theme.accent)},0.2)`
-          : '1px solid rgba(255,255,255,0.06)',
+          : '1px solid rgba(255,255,255,0.80)',
       }}
     >
       <div className="flex items-start justify-between gap-3">
@@ -646,7 +646,7 @@ function PageCard({
               className="text-[10px] font-semibold px-2 py-0.5 rounded-full"
               style={page.is_active
                 ? { background: 'rgba(52,211,153,0.12)', color: '#34d399' }
-                : { background: 'rgba(255,255,255,0.05)', color: '#64748b' }
+                : { background: 'rgba(255,255,255,0.78)', color: '#64748b' }
               }
             >
               {page.is_active ? 'Ativo' : 'Inativo'}
@@ -666,7 +666,7 @@ function PageCard({
           {/* Clicks */}
           <div
             className="flex items-center gap-1 rounded-lg px-2 py-1.5"
-            style={{ background: 'rgba(255,255,255,0.04)' }}
+            style={{ background: 'rgba(255,255,255,0.75)' }}
           >
             <MousePointerClick className="h-3 w-3 text-slate-500" />
             <span className="text-xs text-slate-400 font-medium">{page.clicks}</span>
@@ -675,7 +675,7 @@ function PageCard({
           <button
             onClick={copy}
             className="flex h-8 w-8 items-center justify-center rounded-lg text-slate-500 hover:text-slate-200 transition-colors"
-            style={{ background: 'rgba(255,255,255,0.04)' }}
+            style={{ background: 'rgba(255,255,255,0.75)' }}
             title="Copiar link"
           >
             {copied ? <Check className="h-3.5 w-3.5 text-emerald-400" /> : <Copy className="h-3.5 w-3.5" />}
@@ -686,7 +686,7 @@ function PageCard({
             target="_blank"
             rel="noreferrer"
             className="flex h-8 w-8 items-center justify-center rounded-lg text-slate-500 hover:text-slate-200 transition-colors"
-            style={{ background: 'rgba(255,255,255,0.04)' }}
+            style={{ background: 'rgba(255,255,255,0.75)' }}
             title="Ver página"
           >
             <Eye className="h-3.5 w-3.5" />
@@ -696,7 +696,7 @@ function PageCard({
             onClick={toggleActive}
             disabled={toggling}
             className="flex h-8 w-8 items-center justify-center rounded-lg text-slate-500 hover:text-slate-200 transition-colors"
-            style={{ background: 'rgba(255,255,255,0.04)' }}
+            style={{ background: 'rgba(255,255,255,0.75)' }}
             title={page.is_active ? 'Desativar' : 'Ativar'}
           >
             {page.is_active
@@ -708,7 +708,7 @@ function PageCard({
           <button
             onClick={() => setEditing(true)}
             className="flex h-8 w-8 items-center justify-center rounded-lg text-slate-500 hover:text-slate-200 transition-colors"
-            style={{ background: 'rgba(255,255,255,0.04)' }}
+            style={{ background: 'rgba(255,255,255,0.75)' }}
             title="Editar"
           >
             <Pencil className="h-3.5 w-3.5" />
@@ -717,7 +717,7 @@ function PageCard({
           <button
             onClick={handleDelete}
             className="flex h-8 w-8 items-center justify-center rounded-lg text-slate-500 hover:text-red-400 transition-colors"
-            style={{ background: 'rgba(255,255,255,0.04)' }}
+            style={{ background: 'rgba(255,255,255,0.75)' }}
             title="Excluir"
           >
             <Trash2 className="h-3.5 w-3.5" />
@@ -779,7 +779,7 @@ export function RedirectPageClient({ initialPages, bots, baseUrl }: Props) {
       {pages.length === 0 && !creating ? (
         <div
           className="flex flex-col items-center justify-center rounded-2xl py-16 text-center"
-          style={{ background: 'rgba(255,255,255,0.02)', border: '1px dashed rgba(255,255,255,0.08)' }}
+          style={{ background: 'rgba(255,255,255,0.68)', border: '1px dashed rgba(255,255,255,0.84)' }}
         >
           <ExternalLink className="h-10 w-10 text-slate-700 mb-3" />
           <p className="text-slate-400 font-medium">Nenhuma página criada</p>

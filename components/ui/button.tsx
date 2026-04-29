@@ -22,14 +22,11 @@ const buttonVariants = cva(
           'hover:from-red-400 hover:to-red-600',
         ].join(' '),
         outline: [
-          'border text-slate-200',
-          'hover:text-white',
+          'border',
         ].join(' '),
-        secondary: [
-          'text-slate-200',
-        ].join(' '),
-        ghost: 'text-slate-300 hover:text-slate-100',
-        link: 'text-violet-400 underline-offset-4 hover:underline',
+        secondary: '',
+        ghost: '',
+        link: 'underline-offset-4 hover:underline',
         success: [
           'text-white shadow-lg',
           'bg-gradient-to-br from-emerald-500 to-emerald-700',
@@ -55,20 +52,26 @@ const buttonVariants = cva(
 function getVariantStyle(variant?: string | null): React.CSSProperties {
   if (variant === 'outline') {
     return {
-      background: 'rgba(255,255,255,0.04)',
-      borderColor: 'rgba(255,255,255,0.12)',
+      background: 'rgba(255,255,255,0.75)',
+      borderColor: 'rgba(0,0,0,0.12)',
+      color: '#3f3f46',
     }
   }
   if (variant === 'secondary') {
     return {
-      background: 'rgba(255,255,255,0.08)',
-      border: '1px solid rgba(255,255,255,0.1)',
+      background: 'rgba(0,0,0,0.05)',
+      border: '1px solid rgba(0,0,0,0.09)',
+      color: '#3f3f46',
     }
   }
   if (variant === 'ghost') {
     return {
       background: 'transparent',
+      color: '#52525b',
     }
+  }
+  if (variant === 'link') {
+    return { color: '#7c3aed' }
   }
   return {}
 }

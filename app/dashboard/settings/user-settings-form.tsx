@@ -1,8 +1,8 @@
-'use client'
+﻿'use client'
 
 import { useState } from 'react'
 import { toast } from 'sonner'
-import { Loader2, Save, Eye, EyeOff, CreditCard, TrendingUp, Copy, CheckCircle2, RefreshCw } from 'lucide-react'
+import { Loader2, Save, Eye, EyeOff, CreditCard, TrendingUp, Copy, CheckCircle2, RefreshCw, User, Lock, Banknote } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Label } from '@/components/ui/label'
 import { Input } from '@/components/ui/input'
@@ -31,6 +31,16 @@ interface Props {
 }
 
 export function UserSettingsForm({ userId: _userId, initial }: Props) {
+  // Profile state
+  const [profileName, setProfileName] = useState(initial.name ?? '')
+  const [currentPassword, setCurrentPassword] = useState('')
+  const [newPassword, setNewPassword] = useState('')
+  const [savingProfile, setSavingProfile] = useState(false)
+
+  // Withdrawal state
+  const [pixKey, setPixKey] = useState('')
+  const [requestingWithdrawal, setRequestingWithdrawal] = useState(false)
+
   const [gateway, setGateway] = useState({
     gateway_type: initial.gateway_type ?? '',
     gateway_token: initial.gateway_token ?? '',
@@ -56,6 +66,38 @@ export function UserSettingsForm({ userId: _userId, initial }: Props) {
   const [copied, setCopied] = useState(false)
 
   const upgradablePlans = PLAN_ORDER.filter(p => PLAN_ORDER.indexOf(p) > PLAN_ORDER.indexOf(currentPlan))
+
+  async function saveProfile(e: React.FormEvent) {
+    e.preventDefault()
+    setSavingProfile(true)
+    try {
+      const body: Record<string, string> = {}
+      if (profileName.trim() !== (initial.name ?? '')) body.name = profileName.trim()
+      if (newPassword) {
+        body.current_password = currentPassword
+        body.new_password = newPassword
+      }
+      if (Object.keys(body).length === 0) { toast.info('Nenhuma alteração detectada'); return }
+      const res = await fetch('/api/saas/profile', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
+      const data = await res.json()
+      if (!res.ok) { toast.error(data.error ?? 'Erro ao salvar'); return }
+      toast.success('Perfil atualizado!')
+      setCurrentPassword('')
+      setNewPassword('')
+    } finally { setSavingProfile(false) }
+  }
+
+  async function requestWithdrawal(e: React.FormEvent) {
+    e.preventDefault()
+    setRequestingWithdrawal(true)
+    try {
+      const res = await fetch('/api/saas/withdrawal', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ pix_key: pixKey }) })
+      const data = await res.json()
+      if (!res.ok) { toast.error(data.error ?? 'Erro ao solicitar saque'); return }
+      toast.success('Solicitação de saque enviada! Você será contatado em breve.')
+      setPixKey('')
+    } finally { setRequestingWithdrawal(false) }
+  }
 
   async function saveGateway(e: React.FormEvent) {
     e.preventDefault()
@@ -113,15 +155,49 @@ export function UserSettingsForm({ userId: _userId, initial }: Props) {
     </Card>
   )
 
+  const isMarketplace = !gateway.gateway_type
+
   return (
     <div className="max-w-2xl space-y-5">
+
+      {/* Profile: name + password */}
+      {sectionCard('Meu Perfil', <User className="h-4 w-4 text-violet-400" />, (
+        <form onSubmit={saveProfile} className="space-y-4">
+          <div className="space-y-1.5">
+            <Label htmlFor="profile-name">Nome</Label>
+            <Input id="profile-name" value={profileName} onChange={e => setProfileName(e.target.value)} placeholder="Seu nome" />
+          </div>
+          <div className="pt-1">
+            <p className="text-xs font-semibold text-zinc-500 mb-3 flex items-center gap-1.5">
+              <Lock className="h-3 w-3" /> Alterar senha
+            </p>
+            <div className="space-y-3">
+              <div className="space-y-1.5">
+                <Label htmlFor="current-pw">Senha atual</Label>
+                <SecretInput id="current-pw" value={currentPassword} onChange={setCurrentPassword} placeholder="Digite sua senha atual" />
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="new-pw">Nova senha</Label>
+                <SecretInput id="new-pw" value={newPassword} onChange={setNewPassword} placeholder="Mínimo 6 caracteres" />
+              </div>
+            </div>
+          </div>
+          <div className="flex justify-end">
+            <Button type="submit" disabled={savingProfile}>
+              {savingProfile ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+              Salvar Perfil
+            </Button>
+          </div>
+        </form>
+      ))}
+
       {/* Current plan + upgrade */}
       {sectionCard('Plano Atual', <TrendingUp className="h-4 w-4 text-violet-400" />, (
         <div className="space-y-4">
           <div className="flex items-center justify-between rounded-xl p-4"
             style={{ background: 'rgba(139,92,246,0.08)', border: '1px solid rgba(139,92,246,0.2)' }}>
             <div>
-              <p className="font-semibold text-violet-300">{PLAN_LABELS[currentPlan]}</p>
+              <p className="font-semibold" style={{ color: '#7c3aed' }}>{PLAN_LABELS[currentPlan]}</p>
               <p className="text-xs text-zinc-500 mt-0.5">{PLAN_FEE[currentPlan]}</p>
             </div>
             <span className="text-xs text-zinc-500">Plano ativo</span>
@@ -144,9 +220,9 @@ export function UserSettingsForm({ userId: _userId, initial }: Props) {
           )}
 
           {pixData && (
-            <div className="rounded-2xl p-5 space-y-4" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.09)' }}>
-              <p className="text-sm font-semibold text-zinc-200">
-                Pague R$ {pixData.amount},00 para ativar o plano <span className="text-violet-400">{PLAN_LABELS[pixData.plan]}</span>
+            <div className="rounded-2xl p-5 space-y-4" style={{ background: 'rgba(255,255,255,0.75)', border: '1px solid rgba(255,255,255,0.86)' }}>
+              <p className="text-sm font-semibold" style={{ color: '#27272a' }}>
+                Pague R$ {pixData.amount},00 para ativar o plano <span style={{ color: '#7c3aed' }}>{PLAN_LABELS[pixData.plan]}</span>
               </p>
               {pixData.pix_qr && (
                 <div className="flex justify-center">
@@ -155,7 +231,7 @@ export function UserSettingsForm({ userId: _userId, initial }: Props) {
                   </div>
                 </div>
               )}
-              <div className="rounded-xl p-3" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }}>
+              <div className="rounded-xl p-3" style={{ background: 'rgba(255,255,255,0.75)', border: '1px solid rgba(255,255,255,0.84)' }}>
                 <p className="text-xs text-zinc-500 mb-1">Código PIX Copia e Cola</p>
                 <p className="text-xs text-zinc-300 font-mono break-all">{pixData.pix_code}</p>
               </div>
@@ -184,8 +260,8 @@ export function UserSettingsForm({ userId: _userId, initial }: Props) {
             <select
               value={gateway.gateway_type}
               onChange={e => setGateway(g => ({ ...g, gateway_type: e.target.value }))}
-              className="w-full rounded-xl border px-4 py-3 text-sm text-zinc-100 bg-white/5 outline-none transition-all"
-              style={{ borderColor: 'rgba(255,255,255,0.1)' }}>
+              className="w-full rounded-xl border px-4 py-3 text-sm outline-none transition-all"
+              style={{ borderColor: 'rgba(0,0,0,0.12)', background: 'rgba(255,255,255,0.80)', color: '#1a1625' }}>
               <option value="">Usar gateway da FlowBot (marketplace)</option>
               <option value="amplopay">AmploPay</option>
               <option value="pushinpay">PushinPay</option>
@@ -237,6 +313,31 @@ export function UserSettingsForm({ userId: _userId, initial }: Props) {
           </div>
         </form>
       ))}
+
+      {/* Withdrawal — only for FlowBot marketplace users */}
+      {isMarketplace && sectionCard('Solicitar Saque', <Banknote className="h-4 w-4 text-violet-400" />, (
+        <form onSubmit={requestWithdrawal} className="space-y-4">
+          <p className="text-xs text-zinc-500">
+            Você está usando o gateway da FlowBot (marketplace). Quando quiser sacar seus saldos, informe sua chave PIX e clique em solicitar.
+          </p>
+          <div className="space-y-1.5">
+            <Label htmlFor="pix-key">Chave PIX</Label>
+            <Input
+              id="pix-key"
+              value={pixKey}
+              onChange={e => setPixKey(e.target.value)}
+              placeholder="CPF, e-mail, telefone ou chave aleatória"
+            />
+          </div>
+          <div className="flex justify-end">
+            <Button type="submit" disabled={requestingWithdrawal || !pixKey.trim()}>
+              {requestingWithdrawal ? <Loader2 className="h-4 w-4 animate-spin" /> : <Banknote className="h-4 w-4" />}
+              Solicitar Saque
+            </Button>
+          </div>
+        </form>
+      ))}
+
     </div>
   )
 }

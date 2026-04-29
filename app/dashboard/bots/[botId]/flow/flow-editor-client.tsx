@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState, useCallback, useRef, useEffect } from 'react'
 import {
@@ -161,7 +161,7 @@ function DeletableEdge(props: {
   return (
     <>
       <BaseEdge path={edgePath} markerEnd={props.markerEnd}
-        style={{ stroke: selected ? '#f87171' : 'rgba(148,163,184,0.35)', strokeWidth: selected ? 2 : 1.5, transition: 'stroke 0.12s' }}
+        style={{ stroke: selected ? '#f87171' : 'rgba(148,163,184,0.5)', strokeWidth: selected ? 2 : 1.5, transition: 'stroke 0.12s' }}
       />
       <EdgeLabelRenderer>
         <div style={{ position: 'absolute', transform: `translate(-50%,-50%) translate(${lx}px,${ly}px)`, pointerEvents: 'all', opacity: selected ? 1 : 0, transition: 'opacity 0.12s' }} className="nodrag nopan">
@@ -190,7 +190,7 @@ function Shell({ type, selected, hasTarget = true, hasSource = true, children }:
       border: `1px solid rgba(${c.rgb},${selected ? 0.65 : 0.28})`,
       borderRadius: 14,
       minWidth: 176,
-      boxShadow: selected ? `0 0 0 2px rgba(${c.rgb},0.2), 0 8px 28px rgba(0,0,0,0.5)` : '0 2px 10px rgba(0,0,0,0.35)',
+      boxShadow: selected ? `0 0 0 2px rgba(${c.rgb},0.2), 0 8px 28px rgba(0,0,0,0.12)` : '0 2px 10px rgba(0,0,0,0.06)',
       transition: 'all 0.12s',
     }}>
       {hasTarget && <Handle type="target" position={Position.Top}
@@ -210,8 +210,8 @@ function Header({ type, sub }: { type: FlowNodeType; sub?: string }) {
         <span style={{ color: `rgb(${c.rgb})` }}>{c.icon}</span>
       </div>
       <div>
-        <p className="text-xs font-bold text-slate-200 leading-none">{c.label}</p>
-        {sub && <p className="text-[10px] text-slate-500 mt-0.5 leading-tight max-w-[140px]" style={{ wordBreak: 'break-word' }}>{sub}</p>}
+        <p className="text-xs font-bold leading-none" style={{ color: '#1e1b2e' }}>{c.label}</p>
+        {sub && <p className="text-[10px] mt-0.5 leading-tight max-w-[140px]" style={{ wordBreak: 'break-word', color: '#6b7280' }}>{sub}</p>}
       </div>
     </div>
   )
@@ -281,7 +281,7 @@ function ConditionNode({ data, selected }: { data: NodeData; selected?: boolean 
   const c = C.condition
   const sub: Record<string, string> = { has_paid: 'Já pagou?', has_plan: 'Plano ativo?', custom_var: data.condition_var ? `${data.condition_var} = ?` : 'Variável personalizada' }
   return (
-    <div style={{ background: selected ? `rgba(${c.rgb},0.16)` : `rgba(${c.rgb},0.05)`, border: `1px solid rgba(${c.rgb},${selected ? 0.65 : 0.28})`, borderRadius: 14, minWidth: 186, boxShadow: selected ? `0 0 0 2px rgba(${c.rgb},0.2), 0 8px 28px rgba(0,0,0,0.5)` : '0 2px 10px rgba(0,0,0,0.35)', transition: 'all 0.12s' }}>
+    <div style={{ background: selected ? `rgba(${c.rgb},0.16)` : `rgba(${c.rgb},0.05)`, border: `1px solid rgba(${c.rgb},${selected ? 0.65 : 0.28})`, borderRadius: 14, minWidth: 186, boxShadow: selected ? `0 0 0 2px rgba(${c.rgb},0.2), 0 8px 28px rgba(0,0,0,0.12)` : '0 2px 10px rgba(0,0,0,0.06)', transition: 'all 0.12s' }}>
       <Handle type="target" position={Position.Top} style={{ background: `rgb(${c.rgb})`, border: `2px solid rgba(${c.rgb},0.35)`, width: 10, height: 10, top: -5 }} />
       <div className="px-3.5 py-3">
         <Header type="condition" sub={sub[data.condition_type ?? 'has_paid']} />
@@ -302,15 +302,15 @@ function ButtonsNode({ data, selected }: { data: NodeData; selected?: boolean })
   const c = C.buttons
   const btns = (data.buttons ?? []) as { label: string; value: string }[]
   return (
-    <div style={{ background: selected ? `rgba(${c.rgb},0.16)` : `rgba(${c.rgb},0.05)`, border: `1px solid rgba(${c.rgb},${selected ? 0.65 : 0.28})`, borderRadius: 14, minWidth: 196, boxShadow: selected ? `0 0 0 2px rgba(${c.rgb},0.2), 0 8px 28px rgba(0,0,0,0.5)` : '0 2px 10px rgba(0,0,0,0.35)', transition: 'all 0.12s' }}>
+    <div style={{ background: selected ? `rgba(${c.rgb},0.16)` : `rgba(${c.rgb},0.05)`, border: `1px solid rgba(${c.rgb},${selected ? 0.65 : 0.28})`, borderRadius: 14, minWidth: 196, boxShadow: selected ? `0 0 0 2px rgba(${c.rgb},0.2), 0 8px 28px rgba(0,0,0,0.12)` : '0 2px 10px rgba(0,0,0,0.06)', transition: 'all 0.12s' }}>
       <Handle type="target" position={Position.Top} style={{ background: `rgb(${c.rgb})`, border: `2px solid rgba(${c.rgb},0.35)`, width: 10, height: 10, top: -5 }} />
       <div className="px-3.5 pt-3 pb-2">
         <Header type="buttons" sub={data.text ? String(data.text).slice(0, 30) : 'Escolha uma opção'} />
         <div className="mt-2.5 space-y-1.5">
           {btns.map((b, i) => (
             <div key={i} style={{ position: 'relative' }}>
-              <div className="flex items-center justify-between rounded-lg px-2.5 py-1.5 text-[11px] font-medium text-slate-300"
-                style={{ background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.1)', paddingRight: 20 }}>
+              <div className="flex items-center justify-between rounded-lg px-2.5 py-1.5 text-[11px] font-medium"
+                style={{ background: 'rgba(255,255,255,0.82)', border: '1px solid rgba(0,0,0,0.10)', paddingRight: 20, color: '#374151' }}>
                 <span className="truncate max-w-[120px]">{b.label || `Botão ${i + 1}`}</span>
               </div>
               <Handle type="source" id={`btn_${i}`} position={Position.Right}
@@ -329,7 +329,7 @@ function RandomizerNode({ data, selected }: { data: NodeData; selected?: boolean
   const n = Math.max(2, Math.min(5, Number(data.paths ?? 2)))
   const pct = Math.round(100 / n)
   return (
-    <div style={{ background: selected ? `rgba(${c.rgb},0.16)` : `rgba(${c.rgb},0.05)`, border: `1px solid rgba(${c.rgb},${selected ? 0.65 : 0.28})`, borderRadius: 14, minWidth: 196, boxShadow: selected ? `0 0 0 2px rgba(${c.rgb},0.2), 0 8px 28px rgba(0,0,0,0.5)` : '0 2px 10px rgba(0,0,0,0.35)', transition: 'all 0.12s' }}>
+    <div style={{ background: selected ? `rgba(${c.rgb},0.16)` : `rgba(${c.rgb},0.05)`, border: `1px solid rgba(${c.rgb},${selected ? 0.65 : 0.28})`, borderRadius: 14, minWidth: 196, boxShadow: selected ? `0 0 0 2px rgba(${c.rgb},0.2), 0 8px 28px rgba(0,0,0,0.12)` : '0 2px 10px rgba(0,0,0,0.06)', transition: 'all 0.12s' }}>
       <Handle type="target" position={Position.Top} style={{ background: `rgb(${c.rgb})`, border: `2px solid rgba(${c.rgb},0.35)`, width: 10, height: 10, top: -5 }} />
       <div className="px-3.5 py-3">
         <Header type="randomizer" sub={`${n} caminhos · ~${pct}% cada`} />
@@ -363,7 +363,7 @@ function NoteNode({ data, selected }: { data: NodeData; selected?: boolean }) {
       minWidth: 160,
       maxWidth: 220,
       padding: '10px 14px',
-      boxShadow: selected ? `0 0 0 2px rgba(${rgb},0.2)` : '0 2px 10px rgba(0,0,0,0.3)',
+      boxShadow: selected ? `0 0 0 2px rgba(${rgb},0.2)` : '0 2px 10px rgba(0,0,0,0.05)',
       transition: 'all 0.12s',
     }}>
       <div className="flex items-center gap-2 mb-2">
@@ -423,10 +423,10 @@ function ConfigPanel({ node, plans, onChange, onDelete }: {
   return (
     <div className="flex h-full flex-col">
       {/* Header */}
-      <div className="flex items-center justify-between px-4 py-3.5" style={{ borderBottom: '1px solid rgba(255,255,255,0.07)' }}>
+      <div className="flex items-center justify-between px-4 py-3.5" style={{ borderBottom: '1px solid rgba(0,0,0,0.08)' }}>
         <div className="flex items-center gap-2.5">
           <div className="h-2.5 w-2.5 rounded-full" style={{ background: `rgb(${c.rgb})`, boxShadow: `0 0 8px rgba(${c.rgb},0.7)` }} />
-          <p className="text-sm font-bold text-slate-200">{c.label}</p>
+          <p className="text-sm font-bold" style={{ color: '#1e1b2e' }}>{c.label}</p>
         </div>
         <button onClick={() => onDelete(node.id)}
           className="rounded-lg p-1.5 text-slate-600 hover:text-red-400 hover:bg-red-500/10 transition-all">
@@ -435,7 +435,7 @@ function ConfigPanel({ node, plans, onChange, onDelete }: {
       </div>
 
       {/* Node ID badge */}
-      <div className="mx-4 mt-2.5 rounded-lg px-2.5 py-1 text-[10px] text-slate-700 font-mono" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.05)' }}>
+      <div className="mx-4 mt-2.5 rounded-lg px-2.5 py-1 text-[10px] font-mono" style={{ background: 'rgba(139,92,246,0.06)', border: '1px solid rgba(139,92,246,0.12)', color: '#374151' }}>
         id: <span className="text-slate-500">{node.id}</span>
       </div>
 
@@ -631,8 +631,8 @@ function ConfigPanel({ node, plans, onChange, onDelete }: {
                   className="w-full rounded-xl p-3 text-left transition-all mb-1.5"
                   style={(d.smart_delay_condition ?? 'no_response') === opt.v
                     ? { background: `rgba(${c.rgb},0.12)`, border: `1px solid rgba(${c.rgb},0.45)` }
-                    : { background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)' }}>
-                  <p className="text-[11px] font-semibold text-slate-300">{opt.l}</p>
+                    : { background: 'rgba(255,255,255,0.72)', border: '1px solid rgba(255,255,255,0.82)' }}>
+                  <p className="text-[11px] font-semibold text-slate-700">{opt.l}</p>
                   <p className="text-[10px] text-slate-500 mt-0.5">{opt.desc}</p>
                 </button>
               ))}
@@ -652,8 +652,8 @@ function ConfigPanel({ node, plans, onChange, onDelete }: {
                 className="w-full rounded-xl p-3 text-left transition-all mb-1.5"
                 style={(d.trigger_event ?? 'message') === opt.v
                   ? { background: `rgba(${c.rgb},0.12)`, border: `1px solid rgba(${c.rgb},0.45)` }
-                  : { background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)' }}>
-                <p className="text-[11px] font-semibold text-slate-300">{opt.l}</p>
+                  : { background: 'rgba(255,255,255,0.72)', border: '1px solid rgba(255,255,255,0.82)' }}>
+                <p className="text-[11px] font-semibold text-slate-700">{opt.l}</p>
                 <p className="text-[10px] text-slate-500 mt-0.5">{opt.desc}</p>
               </button>
             ))}
@@ -673,8 +673,8 @@ function ConfigPanel({ node, plans, onChange, onDelete }: {
                   className="w-full rounded-xl p-3 text-left transition-all"
                   style={(d.condition_type ?? 'has_paid') === opt.v
                     ? { background: `rgba(${c.rgb},0.12)`, border: `1px solid rgba(${c.rgb},0.45)` }
-                    : { background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)' }}>
-                  <p className="text-[11px] font-semibold text-slate-300">{opt.l}</p>
+                    : { background: 'rgba(255,255,255,0.72)', border: '1px solid rgba(255,255,255,0.82)' }}>
+                  <p className="text-[11px] font-semibold text-slate-700">{opt.l}</p>
                   <p className="text-[10px] text-slate-500 mt-0.5">{opt.desc}</p>
                 </button>
               ))}
@@ -698,7 +698,7 @@ function ConfigPanel({ node, plans, onChange, onDelete }: {
                 <Chip key={n} active={(d.paths ?? 2) === n} color={c.rgb} onClick={() => set({ paths: n })}>{n}</Chip>
               ))}
             </div>
-            <div className="rounded-xl p-2.5" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)' }}>
+            <div className="rounded-xl p-2.5" style={{ background: 'rgba(255,255,255,0.72)', border: '1px solid rgba(255,255,255,0.82)' }}>
               <p className="text-[10px] text-slate-500">
                 Cada saída recebe ~{Math.round(100 / (d.paths ?? 2))}% do tráfego aleatoriamente.
                 Ideal para testes A/B de mensagens ou fluxos diferentes.
@@ -721,7 +721,7 @@ function ConfigPanel({ node, plans, onChange, onDelete }: {
           <Field label="Plano a cobrar">
             <div className="space-y-1.5">
               {plans.length === 0 ? (
-                <div className="rounded-xl p-3 text-center" style={{ background: 'rgba(255,255,255,0.03)', border: '1px dashed rgba(255,255,255,0.08)' }}>
+                <div className="rounded-xl p-3 text-center" style={{ background: 'rgba(255,255,255,0.72)', border: '1px dashed rgba(255,255,255,0.84)' }}>
                   <p className="text-[11px] text-slate-500">Nenhum plano cadastrado.</p>
                   <p className="text-[10px] text-slate-600 mt-0.5">Crie planos na aba Planos primeiro.</p>
                 </div>
@@ -730,10 +730,10 @@ function ConfigPanel({ node, plans, onChange, onDelete }: {
                   className="w-full rounded-xl px-3 py-2.5 flex items-center justify-between text-left transition-all"
                   style={d.plan_id === plan.id
                     ? { background: `rgba(${c.rgb},0.12)`, border: `1px solid rgba(${c.rgb},0.45)` }
-                    : { background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)' }}>
+                    : { background: 'rgba(255,255,255,0.72)', border: '1px solid rgba(255,255,255,0.82)' }}>
                   <div className="flex items-center gap-2">
                     {d.plan_id === plan.id && <CheckCircle2 className="h-3.5 w-3.5 shrink-0" style={{ color: `rgb(${c.rgb})` }} />}
-                    <p className="text-[11px] font-semibold text-slate-300">{plan.name}</p>
+                    <p className="text-[11px] font-semibold text-slate-700">{plan.name}</p>
                   </div>
                   <p className="text-[11px] font-bold" style={{ color: `rgb(${c.rgb})` }}>
                     R$ {Number(plan.price).toFixed(2).replace('.', ',')}
@@ -775,8 +775,8 @@ function ConfigPanel({ node, plans, onChange, onDelete }: {
                       className="w-full rounded-xl px-3 py-2 flex items-center justify-between text-left transition-all"
                       style={d.upsell_plan_id === plan.id
                         ? { background: `rgba(${c.rgb},0.12)`, border: `1px solid rgba(${c.rgb},0.45)` }
-                        : { background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)' }}>
-                      <p className="text-[11px] font-semibold text-slate-300">{plan.name}</p>
+                        : { background: 'rgba(255,255,255,0.72)', border: '1px solid rgba(255,255,255,0.82)' }}>
+                      <p className="text-[11px] font-semibold text-slate-700">{plan.name}</p>
                       <p className="text-[11px] font-bold" style={{ color: `rgb(${c.rgb})` }}>R$ {Number(plan.price).toFixed(2).replace('.', ',')}</p>
                     </button>
                   ))}
@@ -801,8 +801,8 @@ function ConfigPanel({ node, plans, onChange, onDelete }: {
                       className="w-full rounded-xl px-3 py-2 flex items-center justify-between text-left transition-all"
                       style={d.downsell_plan_id === plan.id
                         ? { background: `rgba(${c.rgb},0.12)`, border: `1px solid rgba(${c.rgb},0.45)` }
-                        : { background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)' }}>
-                      <p className="text-[11px] font-semibold text-slate-300">{plan.name}</p>
+                        : { background: 'rgba(255,255,255,0.72)', border: '1px solid rgba(255,255,255,0.82)' }}>
+                      <p className="text-[11px] font-semibold text-slate-700">{plan.name}</p>
                       <p className="text-[11px] font-bold" style={{ color: `rgb(${c.rgb})` }}>R$ {Number(plan.price).toFixed(2).replace('.', ',')}</p>
                     </button>
                   ))}
@@ -845,8 +845,8 @@ function ConfigPanel({ node, plans, onChange, onDelete }: {
                   className="w-full rounded-xl p-3 text-left transition-all"
                   style={(d.deliver_type ?? 'channel_link') === opt.v
                     ? { background: `rgba(${c.rgb},0.12)`, border: `1px solid rgba(${c.rgb},0.45)` }
-                    : { background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)' }}>
-                  <p className="text-[11px] font-semibold text-slate-300">{opt.l}</p>
+                    : { background: 'rgba(255,255,255,0.72)', border: '1px solid rgba(255,255,255,0.82)' }}>
+                  <p className="text-[11px] font-semibold text-slate-700">{opt.l}</p>
                   <p className="text-[10px] text-slate-500 mt-0.5">{opt.desc}</p>
                 </button>
               ))}
@@ -883,7 +883,7 @@ function Chip({ active, color, onClick, children }: { active: boolean; color: st
       className="rounded-lg px-2.5 py-1.5 text-[11px] font-medium transition-all"
       style={active
         ? { background: `rgba(${color},0.2)`, border: `1px solid rgba(${color},0.5)`, color: `rgb(${color})` }
-        : { background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', color: '#64748b' }}>
+        : { background: 'rgba(255,255,255,0.75)', border: '1px solid rgba(255,255,255,0.84)', color: '#64748b' }}>
       {children}
     </button>
   )
@@ -1070,7 +1070,7 @@ function EditorInner({ botId, initialFlowConfig, plans }: { botId: string; initi
         {/* Palette sidebar */}
         <div className="w-52 shrink-0 flex flex-col overflow-hidden">
           <p className="text-[10px] font-bold uppercase tracking-widest text-slate-600 px-1 pb-2 shrink-0">Blocos</p>
-          <div className="flex-1 overflow-y-auto space-y-3 pr-0.5" style={{ scrollbarWidth: 'thin', scrollbarColor: 'rgba(255,255,255,0.08) transparent' }}>
+          <div className="flex-1 overflow-y-auto space-y-3 pr-0.5" style={{ scrollbarWidth: 'thin', scrollbarColor: 'rgba(139,92,246,0.2) transparent' }}>
             {PALETTE_CATEGORIES.map(cat => (
               <div key={cat.label}>
                 <p className="text-[9px] font-bold uppercase tracking-widest px-0.5 pb-1.5" style={{ color: `rgba(${cat.rgb},0.65)` }}>{cat.label}</p>
@@ -1085,7 +1085,7 @@ function EditorInner({ botId, initialFlowConfig, plans }: { botId: string; initi
                           <span style={{ color: `rgb(${c.rgb})` }}>{c.icon}</span>
                         </div>
                         <div className="min-w-0">
-                          <p className="text-[11px] font-semibold text-slate-300 truncate">{c.label}</p>
+                          <p className="text-[11px] font-semibold text-slate-700 truncate">{c.label}</p>
                           <p className="text-[9px] text-slate-600 leading-tight truncate">{item.desc}</p>
                         </div>
                       </button>
@@ -1096,7 +1096,7 @@ function EditorInner({ botId, initialFlowConfig, plans }: { botId: string; initi
             ))}
           </div>
 
-          <div className="mt-2 shrink-0 rounded-xl p-2.5 space-y-1" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)' }}>
+          <div className="mt-2 shrink-0 rounded-xl p-2.5 space-y-1" style={{ background: 'rgba(255,255,255,0.68)', border: '1px solid rgba(255,255,255,0.80)' }}>
             <p className="text-[9px] font-bold uppercase tracking-wider text-slate-600 flex items-center gap-1">
               <Keyboard className="h-2.5 w-2.5" /> Atalhos
             </p>
@@ -1107,7 +1107,7 @@ function EditorInner({ botId, initialFlowConfig, plans }: { botId: string; initi
         </div>
 
         {/* Canvas */}
-        <div className="flex-1 rounded-2xl overflow-hidden" style={{ background: 'rgba(8,13,26,0.99)', border: '1px solid rgba(255,255,255,0.07)' }}>
+        <div className="flex-1 rounded-2xl overflow-hidden" style={{ background: '#f8f6ff', border: '1px solid rgba(139,92,246,0.15)' }}>
           <ReactFlow
             nodes={nodes} edges={edges}
             onNodesChange={onNodesChange} onEdgesChange={onEdgesChange}
@@ -1120,27 +1120,27 @@ function EditorInner({ botId, initialFlowConfig, plans }: { botId: string; initi
             defaultEdgeOptions={{ type: 'deletable', markerEnd: { type: MarkerType.ArrowClosed } }}
             proOptions={{ hideAttribution: true }}
           >
-            <Background color="rgba(255,255,255,0.022)" gap={24} size={1} />
+            <Background color="rgba(139,92,246,0.06)" gap={24} size={1} />
             <Controls showInteractive={false}
-              style={{ background: 'rgba(13,19,33,0.96)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 10, boxShadow: '0 4px 16px rgba(0,0,0,0.4)' }} />
+              style={{ background: 'rgba(255,255,255,0.92)', border: '1px solid rgba(0,0,0,0.08)', borderRadius: 10, boxShadow: '0 4px 16px rgba(0,0,0,0.06)' }} />
             <MiniMap nodeColor={n => `rgb(${C[n.type as FlowNodeType]?.rgb ?? '100,116,139'})`}
-              maskColor="rgba(0,0,0,0.55)"
-              style={{ background: 'rgba(8,13,26,0.99)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 10 }} />
+              maskColor="rgba(139,92,246,0.08)"
+              style={{ background: 'rgba(255,255,255,0.85)', border: '1px solid rgba(0,0,0,0.08)', borderRadius: 10 }} />
           </ReactFlow>
         </div>
 
         {/* Config panel */}
         <div className="w-64 shrink-0">
           {selectedNode ? (
-            <div className="h-full rounded-2xl overflow-hidden" style={{ background: 'rgba(11,17,30,0.99)', border: '1px solid rgba(255,255,255,0.09)' }}>
+            <div className="h-full rounded-2xl overflow-hidden" style={{ background: 'rgba(255,255,255,0.88)', border: '1px solid rgba(0,0,0,0.08)' }}>
               <ConfigPanel node={selectedNode} plans={plans}
                 onChange={(id, data) => setNodes(ns => ns.map(n => n.id === id ? { ...n, data } : n))}
                 onDelete={deleteNode} />
             </div>
           ) : (
             <div className="h-full rounded-2xl flex flex-col items-center justify-center gap-4 p-5 text-center"
-              style={{ background: 'rgba(255,255,255,0.01)', border: '1px dashed rgba(255,255,255,0.06)' }}>
-              <div className="h-12 w-12 rounded-2xl flex items-center justify-center" style={{ background: 'rgba(255,255,255,0.04)' }}>
+              style={{ background: 'rgba(255,255,255,0.01)', border: '1px dashed rgba(255,255,255,0.80)' }}>
+              <div className="h-12 w-12 rounded-2xl flex items-center justify-center" style={{ background: 'rgba(255,255,255,0.75)' }}>
                 <MousePointer2 className="h-5 w-5 text-slate-700" />
               </div>
               <div>
