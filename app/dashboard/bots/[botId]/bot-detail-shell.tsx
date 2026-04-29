@@ -93,15 +93,15 @@ export function BotDetailShell({ bot, children }: BotDetailShellProps) {
               href={href}
               className={cn(
                 'flex shrink-0 items-center gap-2 rounded-xl px-4 py-2 text-sm font-medium transition-all duration-150 whitespace-nowrap',
-                active ? 'text-white' : 'text-slate-500 hover:text-slate-200'
+                ''
               )}
               style={active ? {
-                background: 'linear-gradient(135deg, rgba(59,130,246,0.25), rgba(99,102,241,0.15))',
-                border: '1px solid rgba(59,130,246,0.3)',
-                boxShadow: '0 4px 16px rgba(59,130,246,0.15)',
-              } : undefined}
+                background: 'linear-gradient(135deg, rgba(59,130,246,0.12), rgba(99,102,241,0.08))',
+                border: '1px solid rgba(59,130,246,0.22)',
+                color: '#1d4ed8',
+              } : { color: '#71717a' }}
             >
-              <Icon className={cn('h-4 w-4', active ? 'text-blue-400' : 'text-slate-600')} />
+              <Icon className="h-4 w-4" style={{ color: active ? '#2563eb' : '#a1a1aa' }} />
               {label}
             </Link>
           )

@@ -18,7 +18,8 @@ function SecretInput({ value, onChange, placeholder }: { value: string; onChange
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
-        className="w-full rounded-xl border border-zinc-700/60 bg-zinc-800/60 px-4 py-2.5 pr-11 text-sm text-zinc-100 placeholder-zinc-600 outline-none transition-all focus:border-blue-500/60 focus:ring-2 focus:ring-blue-500/10"
+        className="w-full rounded-xl border px-4 py-2.5 pr-11 text-sm outline-none transition-all focus:border-violet-500/60 focus:ring-2 focus:ring-violet-500/10"
+        style={{ background: 'rgba(255,255,255,0.80)', borderColor: 'rgba(0,0,0,0.12)', color: '#1a1625' }}
       />
       <button
         type="button"
@@ -38,7 +39,8 @@ function TextInput({ value, onChange, placeholder }: { value: string; onChange: 
       value={value}
       onChange={(e) => onChange(e.target.value)}
       placeholder={placeholder}
-      className="w-full rounded-xl border border-zinc-700/60 bg-zinc-800/60 px-4 py-2.5 text-sm text-zinc-100 placeholder-zinc-600 outline-none transition-all focus:border-blue-500/60 focus:ring-2 focus:ring-blue-500/10"
+      className="w-full rounded-xl border px-4 py-2.5 text-sm outline-none transition-all focus:border-violet-500/60 focus:ring-2 focus:ring-violet-500/10"
+      style={{ background: 'rgba(255,255,255,0.80)', borderColor: 'rgba(0,0,0,0.12)', color: '#1a1625' }}
     />
   )
 }
@@ -62,7 +64,7 @@ function Toggle({ checked, onChange, label }: { checked: boolean; onChange: (v: 
         onClick={() => onChange(!checked)}
         className={[
           'relative h-5 w-9 rounded-full transition-colors',
-          checked ? 'bg-blue-600' : 'bg-zinc-700',
+          checked ? 'bg-violet-600' : 'bg-zinc-300',
         ].join(' ')}
       >
         <div className={[
@@ -261,7 +263,7 @@ export function SettingsForm({ initial }: Props) {
                   className="relative flex items-center gap-4 rounded-xl border p-4 text-left transition-all disabled:cursor-wait"
                   style={active
                     ? { background: 'rgba(139,92,246,0.12)', borderColor: 'rgba(139,92,246,0.4)', boxShadow: '0 0 20px rgba(139,92,246,0.1)' }
-                    : { background: 'rgba(255,255,255,0.72)', borderColor: 'rgba(255,255,255,0.84)' }
+                    : { background: 'rgba(255,255,255,0.72)', borderColor: 'rgba(0,0,0,0.09)' }
                   }
                 >
                   {isSaving && active && (
@@ -285,7 +287,7 @@ export function SettingsForm({ initial }: Props) {
                   </div>
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-2">
-                      <p className={['text-sm font-semibold', active ? 'text-violet-300' : 'text-zinc-300'].join(' ')}>{label}</p>
+                      <p className="text-sm font-semibold" style={{ color: active ? '#6d28d9' : '#52525b' }}>{label}</p>
                       {active && (
                         <span className="rounded-full px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider"
                           style={{ background: 'rgba(139,92,246,0.25)', color: '#c4b5fd' }}>ATIVO</span>
