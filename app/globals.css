@@ -222,9 +222,7 @@ body {
 .text-zinc-200 { color: #27272a !important; }
 .text-zinc-300 { color: #3f3f46 !important; }
 .text-zinc-400 { color: #52525b !important; }
-/* zinc-500 (#71717a) remains readable on both themes — no override */
-.text-zinc-600 { color: #a1a1aa !important; }
-.text-zinc-700 { color: #c4c4c8 !important; }
+/* zinc-500 through zinc-700 remain at their natural Tailwind values — already readable on light */
 
 /* Invert glass card borders and subtle bg classes used as inline fallback */
 .border-white\/5  { border-color: rgba(0,0,0,0.05)  !important; }

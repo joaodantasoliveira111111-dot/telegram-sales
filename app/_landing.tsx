@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
@@ -109,12 +109,12 @@ function Navbar() {
 
           <div className="hidden md:flex items-center gap-7">
             {[['Recursos', '#recursos'], ['Exemplos', '#como-funciona'], ['Templates', '#templates'], ['Preços', '#precos']].map(([l, h]) => (
-              <a key={h} href={h} className="text-sm text-zinc-400 hover:text-white transition-colors font-medium">{l}</a>
+              <a key={h} href={h} className="text-sm font-medium transition-colors" style={{ color: '#4b5563' }} onMouseEnter={e => (e.currentTarget.style.color = '#6d28d9')} onMouseLeave={e => (e.currentTarget.style.color = '#4b5563')}>{l}</a>
             ))}
           </div>
 
           <div className="hidden md:flex items-center gap-3">
-            <Link href="/login" className="text-sm text-zinc-400 hover:text-white transition-colors px-3 py-2">Entrar</Link>
+            <Link href="/login" className="text-sm transition-colors px-3 py-2" style={{ color: '#4b5563' }}>Entrar</Link>
             <Link href="/login"
               className="text-sm font-bold text-white rounded-xl px-4 py-2 transition-all hover:scale-[1.03] hover:brightness-110"
               style={{ background: 'linear-gradient(135deg,#8b5cf6,#6d28d9)', boxShadow: '0 4px 16px rgba(139,92,246,0.4)' }}>
@@ -122,7 +122,7 @@ function Navbar() {
             </Link>
           </div>
 
-          <button className="md:hidden p-1.5 text-zinc-400 hover:text-white" onClick={() => setOpen(v => !v)}>
+          <button className="md:hidden p-1.5" style={{ color: '#4b5563' }} onClick={() => setOpen(v => !v)}>
             {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
           </button>
         </nav>
@@ -131,11 +131,11 @@ function Navbar() {
           <div className="md:hidden mt-2 rounded-2xl p-4 space-y-1"
             style={{ background: 'rgba(245,243,255,0.97)', border: '1px solid rgba(139,92,246,0.15)', backdropFilter: 'blur(24px)' }}>
             {[['Recursos', '#recursos'], ['Exemplos', '#como-funciona'], ['Templates', '#templates'], ['Preços', '#precos']].map(([l, h]) => (
-              <a key={h} href={h} onClick={() => setOpen(false)} className="block text-sm text-zinc-400 px-3 py-2.5 rounded-xl hover:text-white hover:bg-white/[0.04] transition-all">{l}</a>
+              <a key={h} href={h} onClick={() => setOpen(false)} className="block text-sm px-3 py-2.5 rounded-xl hover:bg-violet-50 transition-all" style={{ color: '#4b5563' }}>{l}</a>
             ))}
             <div className="pt-2 space-y-2">
-              <Link href="/login" className="block text-center rounded-xl border py-2.5 text-sm text-zinc-300"
-                style={{ borderColor: 'rgba(139,92,246,0.2)' }}>Entrar</Link>
+              <Link href="/login" className="block text-center rounded-xl border py-2.5 text-sm"
+                style={{ borderColor: 'rgba(139,92,246,0.2)', color: '#4b5563' }}>Entrar</Link>
               <Link href="/login" className="block text-center rounded-xl py-2.5 text-sm font-bold text-white"
                 style={{ background: 'linear-gradient(135deg,#8b5cf6,#6d28d9)' }}>Começar grátis</Link>
             </div>
@@ -316,8 +316,8 @@ function Hero() {
                 Criar meu bot grátis
               </Link>
               <a href="#como-funciona"
-                className="flex items-center gap-2 rounded-2xl px-7 py-4 text-base font-semibold text-zinc-300 transition-all hover:text-white"
-                style={{ border: '1px solid rgba(139,92,246,0.2)', background: 'rgba(139,92,246,0.05)' }}>
+                className="flex items-center gap-2 rounded-2xl px-7 py-4 text-base font-semibold transition-all"
+                style={{ border: '1px solid rgba(139,92,246,0.25)', background: 'rgba(139,92,246,0.06)', color: '#4c1d95' }}>
                 Ver como funciona <ChevronRight className="h-4 w-4" />
               </a>
             </div>
@@ -1270,7 +1270,7 @@ function Footer() {
           <p className="text-[10px] font-bold uppercase tracking-widest text-zinc-600 mb-4">Produto</p>
           <div className="space-y-2.5">
             {[['Recursos','#recursos'],['Templates','#templates'],['Como funciona','#como-funciona'],['Preços','#precos']].map(([l,h]) => (
-              <a key={h} href={h} className="block text-sm text-zinc-500 hover:text-white transition-colors">{l}</a>
+              <a key={h} href={h} className="block text-sm transition-colors" style={{ color: '#4b5563' }}>{l}</a>
             ))}
           </div>
         </div>
@@ -1278,17 +1278,17 @@ function Footer() {
           <p className="text-[10px] font-bold uppercase tracking-widest text-zinc-600 mb-4">Legal</p>
           <div className="space-y-2.5">
             {[['Termos de uso','#'],['Política de privacidade','#'],['Contato','#']].map(([l,h]) => (
-              <a key={l} href={h} className="block text-sm text-zinc-500 hover:text-white transition-colors">{l}</a>
+              <a key={l} href={h} className="block text-sm transition-colors" style={{ color: '#4b5563' }}>{l}</a>
             ))}
           </div>
         </div>
         <div>
           <p className="text-[10px] font-bold uppercase tracking-widest text-zinc-600 mb-4">Contato</p>
           <div className="space-y-3">
-            <a href="https://t.me/flowbot_suporte" className="flex items-center gap-2 text-sm text-zinc-500 hover:text-white transition-colors">
+            <a href="https://t.me/flowbot_suporte" className="flex items-center gap-2 text-sm transition-colors" style={{ color: '#4b5563' }}>
               <Send className="h-3.5 w-3.5 text-violet-500 shrink-0" /> Telegram
             </a>
-            <a href="mailto:contato@flowbot.com.br" className="flex items-center gap-2 text-sm text-zinc-500 hover:text-white transition-colors">
+            <a href="mailto:contato@flowbot.com.br" className="flex items-center gap-2 text-sm transition-colors" style={{ color: '#4b5563' }}>
               <Mail className="h-3.5 w-3.5 text-purple-500 shrink-0" /> E-mail
             </a>
           </div>
