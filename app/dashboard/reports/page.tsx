@@ -1,7 +1,9 @@
 export const dynamic = 'force-dynamic'
 
 import { Suspense } from 'react'
+import { cookies } from 'next/headers'
 import { supabaseAdmin } from '@/lib/supabase'
+import { getSessionFromCookies, getUserBotIds } from '@/lib/session'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { formatCurrency, getPeriodRange } from '@/lib/utils'
@@ -12,35 +14,29 @@ interface PageProps {
   searchParams: Promise<{ period?: string }>
 }
 
-async function getData(period: string) {
+async function getData(period: string, botIds?: string[]) {
   const { since, until } = getPeriodRange(period)
 
-  function addUntil<T extends { lt: (col: string, val: string) => T }>(q: T): T {
-    return until ? q.lt('created_at', until) : q
+  let botsQuery = supabaseAdmin.from('bots').select('id, name').eq('is_active', true)
+  if (botIds?.length) botsQuery = botsQuery.in('id', botIds)
+
+  let paidQ = supabaseAdmin.from('payments').select('plan_id, bot_id, created_at, plan_name, plan_price, plan:plans(name, price)').eq('status', 'paid').gte('created_at', since)
+  let allQ  = supabaseAdmin.from('payments').select('plan_id, bot_id, status').gte('created_at', since)
+  let usersQ = supabaseAdmin.from('telegram_users').select('bot_id').gte('created_at', since)
+
+  if (botIds?.length) {
+    paidQ  = paidQ.in('bot_id', botIds)
+    allQ   = allQ.in('bot_id', botIds)
+    usersQ = usersQ.in('bot_id', botIds)
   }
 
-  const [paidPayments, allPayments, telegramUsers, bots] = await Promise.all([
-    addUntil(
-      supabaseAdmin
-        .from('payments')
-        .select('plan_id, bot_id, created_at, plan_name, plan_price, plan:plans(name, price)')
-        .eq('status', 'paid')
-        .gte('created_at', since)
-    ),
-    addUntil(
-      supabaseAdmin
-        .from('payments')
-        .select('plan_id, bot_id, status')
-        .gte('created_at', since)
-    ),
-    addUntil(
-      supabaseAdmin
-        .from('telegram_users')
-        .select('bot_id')
-        .gte('created_at', since)
-    ),
-    supabaseAdmin.from('bots').select('id, name').eq('is_active', true),
-  ])
+  if (until) {
+    paidQ  = paidQ.lt('created_at', until)
+    allQ   = allQ.lt('created_at', until)
+    usersQ = usersQ.lt('created_at', until)
+  }
+
+  const [paidPayments, allPayments, telegramUsers, bots] = await Promise.all([paidQ, allQ, usersQ, botsQuery])
 
   const paid = paidPayments.data ?? []
   const all = allPayments.data ?? []
@@ -101,7 +97,16 @@ async function getData(period: string) {
 export default async function ReportsPage({ searchParams }: PageProps) {
   const { period: periodParam } = await searchParams
   const period = periodParam ?? '30d'
-  const { totalRevenue, totalSales, avgTicket, byPlan, maxRevenue, conversionByBot, topProducts } = await getData(period)
+
+  const cookieStore = await cookies()
+  const session = await getSessionFromCookies(cookieStore)
+  let scopedBotIds: string[] | undefined
+  if (session?.type === 'user') {
+    const ids = await getUserBotIds(session.userId!)
+    scopedBotIds = ids // empty array → Supabase .in('bot_id', []) returns no rows
+  }
+
+  const { totalRevenue, totalSales, avgTicket, byPlan, maxRevenue, conversionByBot, topProducts } = await getData(period, scopedBotIds)
 
   const summaryCards = [
     { title: 'Receita Total', value: formatCurrency(totalRevenue), icon: DollarSign, color: 'text-emerald-400', iconBg: 'bg-emerald-500/10', topBorder: 'border-t-emerald-500' },

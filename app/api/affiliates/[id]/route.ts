@@ -1,8 +1,21 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase'
+import { getSessionFromRequest, getUserBotIds } from '@/lib/session'
+
+async function canAccessAffiliate(session: Awaited<ReturnType<typeof getSessionFromRequest>>, id: string): Promise<boolean> {
+  if (!session) return false
+  if (session.type === 'admin') return true
+  const botIds = await getUserBotIds(session.userId!)
+  if (botIds.length === 0) return false
+  const { data } = await supabaseAdmin.from('affiliates').select('id').eq('id', id).in('bot_id', botIds).maybeSingle()
+  return !!data
+}
 
 export async function PATCH(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const session = await getSessionFromRequest(request)
   const { id } = await params
+  if (!(await canAccessAffiliate(session, id))) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+
   const body = await request.json()
   const allowed = ['name', 'commission_pct', 'telegram_id', 'is_active']
   const update: Record<string, unknown> = {}
@@ -12,8 +25,11 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
   return NextResponse.json(data)
 }
 
-export async function DELETE(_: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+export async function DELETE(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const session = await getSessionFromRequest(request)
   const { id } = await params
+  if (!(await canAccessAffiliate(session, id))) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+
   const { error } = await supabaseAdmin.from('affiliates').delete().eq('id', id)
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
   return NextResponse.json({ ok: true })
@@ -21,11 +37,10 @@ export async function DELETE(_: NextRequest, { params }: { params: Promise<{ id:
 
 export async function GET(_: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
-  // Return affiliate sales detail
   const { data: payments, error } = await supabaseAdmin
     .from('payments')
     .select('id, plan_name, plan_price, created_at, status')
-    .eq('affiliate_code', id) // we pass code here via query
+    .eq('affiliate_code', id)
     .eq('status', 'paid')
     .order('created_at', { ascending: false })
     .limit(50)

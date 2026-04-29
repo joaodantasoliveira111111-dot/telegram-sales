@@ -1,7 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase'
+import { getSessionFromRequest } from '@/lib/session'
+
+function adminOnly(session: Awaited<ReturnType<typeof getSessionFromRequest>>) {
+  if (!session || session.type !== 'admin') return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+  return null
+}
 
 export async function GET(request: NextRequest) {
+  const session = await getSessionFromRequest(request)
+  const deny = adminOnly(session)
+  if (deny) return deny
+
   const { searchParams } = request.nextUrl
   const status = searchParams.get('status')
   const plan_id = searchParams.get('plan_id')
@@ -20,6 +30,10 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
+  const session = await getSessionFromRequest(request)
+  const deny = adminOnly(session)
+  if (deny) return deny
+
   const body = await request.json()
   const { product_name, login, password, extra_info, notes, bot_id, plan_id, warranty_days } = body
 
@@ -33,16 +47,7 @@ export async function POST(request: NextRequest) {
 
   const { data, error } = await supabaseAdmin
     .from('account_stocks')
-    .insert({
-      product_name,
-      login,
-      password,
-      extra_info: extra_info || null,
-      notes: notes || null,
-      bot_id: bot_id || null,
-      plan_id: plan_id || null,
-      warranty_until,
-    })
+    .insert({ product_name, login, password, extra_info: extra_info || null, notes: notes || null, bot_id: bot_id || null, plan_id: plan_id || null, warranty_until })
     .select()
     .single()
 

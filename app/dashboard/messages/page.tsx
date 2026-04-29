@@ -1,23 +1,23 @@
 export const dynamic = 'force-dynamic'
 
+import { cookies } from 'next/headers'
 import { supabaseAdmin } from '@/lib/supabase'
+import { getSessionFromCookies, getUserBotIds } from '@/lib/session'
 import { MESSAGE_KEYS } from '@/lib/messages'
 import { MessagesEditor } from './messages-editor'
 import { MessageSquare } from 'lucide-react'
 
-async function getData() {
-  const { data: bots } = await supabaseAdmin
-    .from('bots')
-    .select('id, name, bot_type, flow_type')
-    .eq('is_active', true)
-    .order('name')
+async function getData(botIds?: string[]) {
+  let botsQuery = supabaseAdmin.from('bots').select('id, name, bot_type, flow_type').eq('is_active', true).order('name')
+  if (botIds) botsQuery = botsQuery.in('id', botIds)
+  const { data: bots } = await botsQuery
 
   if (!bots?.length) return { bots: [] }
 
-  // Fetch all saved messages for all bots in one query
-  const { data: allSaved } = await supabaseAdmin
-    .from('bot_messages')
-    .select('bot_id, message_key, content')
+  let savedQuery = supabaseAdmin.from('bot_messages').select('bot_id, message_key, content')
+  if (botIds) savedQuery = savedQuery.in('bot_id', botIds)
+  // Fetch all saved messages for visible bots in one query
+  const { data: allSaved } = await savedQuery
 
   const savedByBot: Record<string, Record<string, string>> = {}
   for (const row of allSaved ?? []) {
@@ -43,7 +43,30 @@ async function getData() {
 }
 
 export default async function MessagesPage() {
-  const { bots } = await getData()
+  const cookieStore = await cookies()
+  const session = await getSessionFromCookies(cookieStore)
+
+  let scopedBotIds: string[] | undefined
+  if (session?.type === 'user') {
+    const ids = await getUserBotIds(session.userId!)
+    if (ids.length === 0) {
+      return (
+        <div className="space-y-6">
+          <div>
+            <h2 className="text-2xl font-bold tracking-tight text-zinc-100">Mensagens do Bot</h2>
+            <p className="text-sm text-zinc-500">Personalize todas as mensagens enviadas pelo bot</p>
+          </div>
+          <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-zinc-700 py-16 text-center">
+            <MessageSquare className="mb-3 h-10 w-10 text-zinc-600" />
+            <p className="text-zinc-400">Nenhum bot cadastrado</p>
+          </div>
+        </div>
+      )
+    }
+    scopedBotIds = ids
+  }
+
+  const { bots } = await getData(scopedBotIds)
 
   if (!bots.length) {
     return (

@@ -1,7 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase'
+import { getSessionFromRequest } from '@/lib/session'
 
 export async function POST(request: NextRequest) {
+  const session = await getSessionFromRequest(request)
+  if (!session || session.type !== 'admin') return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+
   const body = await request.json()
   const { rows, bot_id, plan_id } = body as {
     rows: { product_name: string; login: string; password: string; extra_info?: string; warranty_days?: string; notes?: string }[]
@@ -20,7 +24,6 @@ export async function POST(request: NextRequest) {
     if (!row.login?.trim() || !row.password?.trim()) { skipped++; continue }
     if (!row.product_name?.trim()) { skipped++; continue }
 
-    // Check duplicate login for same plan
     if (plan_id) {
       const { count } = await supabaseAdmin
         .from('account_stocks')

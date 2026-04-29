@@ -1,15 +1,42 @@
-﻿export const dynamic = 'force-dynamic'
+export const dynamic = 'force-dynamic'
 
+import { cookies } from 'next/headers'
 import { supabaseAdmin } from '@/lib/supabase'
+import { getSessionFromCookies, getUserBotIds } from '@/lib/session'
 import Link from 'next/link'
 import { Bot, TrendingUp, ArrowRight } from 'lucide-react'
 
 export default async function OffersPage() {
-  const { data: bots } = await supabaseAdmin
-    .from('bots')
-    .select('id, name, is_active')
-    .eq('is_active', true)
-    .order('name')
+  const cookieStore = await cookies()
+  const session = await getSessionFromCookies(cookieStore)
+
+  let botsQuery = supabaseAdmin.from('bots').select('id, name, is_active').eq('is_active', true).order('name')
+
+  if (session?.type === 'user') {
+    const botIds = await getUserBotIds(session.userId!)
+    if (botIds.length === 0) {
+      return (
+        <div className="max-w-2xl space-y-6">
+          <div>
+            <h2 className="text-lg font-semibold text-slate-100 flex items-center gap-2">
+              <TrendingUp className="h-5 w-5 text-blue-400" />
+              Upsell & Downsell
+            </h2>
+            <p className="text-sm text-slate-500 mt-1">As ofertas são configuradas dentro de cada bot.</p>
+          </div>
+          <div className="flex flex-col items-center justify-center rounded-xl py-12 text-center"
+            style={{ background: 'rgba(255,255,255,0.68)', border: '1px dashed rgba(0,0,0,0.12)' }}>
+            <Bot className="h-8 w-8 text-slate-700 mb-2" />
+            <p className="text-sm text-slate-500">Nenhum bot ativo encontrado</p>
+            <Link href="/dashboard/bots" className="mt-2 text-xs text-blue-400 hover:text-blue-300">Criar um bot →</Link>
+          </div>
+        </div>
+      )
+    }
+    botsQuery = botsQuery.in('id', botIds)
+  }
+
+  const { data: bots } = await botsQuery
 
   return (
     <div className="max-w-2xl space-y-6">
@@ -40,7 +67,7 @@ export default async function OffersPage() {
         ))}
         {(bots ?? []).length === 0 && (
           <div className="flex flex-col items-center justify-center rounded-xl py-12 text-center"
-            style={{ background: 'rgba(255,255,255,0.68)', border: '1px dashed rgba(255,255,255,0.84)' }}>
+            style={{ background: 'rgba(255,255,255,0.68)', border: '1px dashed rgba(0,0,0,0.12)' }}>
             <Bot className="h-8 w-8 text-slate-700 mb-2" />
             <p className="text-sm text-slate-500">Nenhum bot ativo encontrado</p>
             <Link href="/dashboard/bots" className="mt-2 text-xs text-blue-400 hover:text-blue-300">Criar um bot →</Link>
