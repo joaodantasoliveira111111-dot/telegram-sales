@@ -33,7 +33,7 @@ import {
   Plus, Save, Trash2, X, MousePointer2, Loader2, Info, Keyboard, CheckCircle2,
   Layers, Image as ImageIcon, Video, Music, Paperclip, Film, MoreHorizontal,
   MapPin, AlarmClock, Zap, Shuffle, ArrowRightCircle, ShoppingCart,
-  TrendingUp, TrendingDown, Users, Pencil,
+  TrendingUp, TrendingDown, Users, Pencil, CornerDownLeft, ArrowRightToLine,
 } from 'lucide-react'
 
 // ─── Types ─────────────────────────────────────────────────────────────────────
@@ -55,7 +55,9 @@ interface NodeData {
   condition_type?: 'has_paid' | 'has_plan' | 'custom_var'
   condition_var?: string
   condition_value?: string
-  buttons?: { label: string; value: string }[]
+  // newRow: true starts a new keyboard row; false/undefined keeps it side-by-side
+  // with the previous button (ignored for the first button, which always starts row 1)
+  buttons?: { label: string; value: string; newRow?: boolean }[]
   plan_id?: string
   plan_name?: string
   deliver_type?: 'channel_link' | 'account'
@@ -300,21 +302,29 @@ function ConditionNode({ data, selected }: { data: NodeData; selected?: boolean 
 
 function ButtonsNode({ data, selected }: { data: NodeData; selected?: boolean }) {
   const c = C.buttons
-  const btns = (data.buttons ?? []) as { label: string; value: string }[]
+  const btns = (data.buttons ?? []) as { label: string; value: string; newRow?: boolean }[]
+  // Track each button's original index so its output Handle id (`btn_${i}`) still
+  // matches the edge created from the flat list, even though we render by row here.
+  const indexed = btns.map((b, i) => ({ ...b, i }))
+  const rows = groupButtonRows(indexed)
   return (
     <div style={{ background: selected ? `rgba(${c.rgb},0.16)` : `rgba(${c.rgb},0.05)`, border: `1px solid rgba(${c.rgb},${selected ? 0.65 : 0.28})`, borderRadius: 14, minWidth: 196, boxShadow: selected ? `0 0 0 2px rgba(${c.rgb},0.2), 0 8px 28px rgba(0,0,0,0.12)` : '0 2px 10px rgba(0,0,0,0.06)', transition: 'all 0.12s' }}>
       <Handle type="target" position={Position.Top} style={{ background: `rgb(${c.rgb})`, border: `2px solid rgba(${c.rgb},0.35)`, width: 10, height: 10, top: -5 }} />
       <div className="px-3.5 pt-3 pb-2">
         <Header type="buttons" sub={data.text ? String(data.text).slice(0, 30) : 'Escolha uma opção'} />
         <div className="mt-2.5 space-y-1.5">
-          {btns.map((b, i) => (
-            <div key={i} style={{ position: 'relative' }}>
-              <div className="flex items-center justify-between rounded-lg px-2.5 py-1.5 text-[11px] font-medium"
-                style={{ background: 'rgba(255,255,255,0.82)', border: '1px solid rgba(0,0,0,0.10)', paddingRight: 20, color: '#374151' }}>
-                <span className="truncate max-w-[120px]">{b.label || `Botão ${i + 1}`}</span>
-              </div>
-              <Handle type="source" id={`btn_${i}`} position={Position.Right}
-                style={{ background: `rgb(${c.rgb})`, border: `2px solid rgba(${c.rgb},0.35)`, width: 8, height: 8, right: -10, top: '50%', transform: 'translateY(-50%)' }} />
+          {rows.map((row, ri) => (
+            <div key={ri} className="flex gap-1.5">
+              {row.map((b) => (
+                <div key={b.i} style={{ position: 'relative', flex: 1, minWidth: 0 }}>
+                  <div className="flex items-center justify-between rounded-lg px-2.5 py-1.5 text-[11px] font-medium"
+                    style={{ background: 'rgba(255,255,255,0.82)', border: '1px solid rgba(0,0,0,0.10)', paddingRight: 20, color: '#374151' }}>
+                    <span className="truncate">{b.label || `Botão ${b.i + 1}`}</span>
+                  </div>
+                  <Handle type="source" id={`btn_${b.i}`} position={Position.Right}
+                    style={{ background: `rgb(${c.rgb})`, border: `2px solid rgba(${c.rgb},0.35)`, width: 8, height: 8, right: -10, top: '50%', transform: 'translateY(-50%)' }} />
+                </div>
+              ))}
             </div>
           ))}
           {btns.length === 0 && <p className="text-[10px] text-slate-600 italic">Sem botões — adicione no painel</p>}
@@ -485,13 +495,20 @@ function ConfigPanel({ node, plans, onChange, onDelete }: {
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <span className="text-xs font-semibold text-slate-400">Botões (opcional)</span>
-                <button type="button" onClick={() => set({ buttons: [...(d.buttons ?? []), { label: `Botão ${(d.buttons?.length ?? 0) + 1}`, value: `b${Date.now()}` }] })}
+                <button type="button" onClick={() => set({ buttons: [...(d.buttons ?? []), { label: `Botão ${(d.buttons?.length ?? 0) + 1}`, value: `b${Date.now()}`, newRow: true }] })}
                   className="flex items-center gap-1 text-[11px] font-semibold transition-colors" style={{ color: `rgb(${c.rgb})` }}>
                   <Plus className="h-3 w-3" /> Adicionar
                 </button>
               </div>
               {(d.buttons ?? []).map((btn, i) => (
                 <div key={i} className="flex items-center gap-2">
+                  {i > 0 && (
+                    <RowToggle newRow={btn.newRow ?? false} color={c.rgb} onToggle={() => {
+                      const nb = [...(d.buttons ?? [])]
+                      nb[i] = { ...nb[i], newRow: !nb[i].newRow }
+                      set({ buttons: nb })
+                    }} />
+                  )}
                   <Input value={btn.label} onChange={e => {
                     const nb = [...(d.buttons ?? [])]
                     nb[i] = { ...nb[i], label: e.target.value }
@@ -501,6 +518,9 @@ function ConfigPanel({ node, plans, onChange, onDelete }: {
                     className="text-slate-700 hover:text-red-400 transition-colors"><X className="h-3.5 w-3.5" /></button>
                 </div>
               ))}
+              {(d.buttons ?? []).length > 1 && (
+                <p className="text-[10px] text-slate-600 leading-relaxed">Use &ldquo;Ao lado&rdquo; / &ldquo;Abaixo&rdquo; pra organizar o layout dos botões no Telegram.</p>
+              )}
             </div>
           </>
         )}
@@ -573,7 +593,7 @@ function ConfigPanel({ node, plans, onChange, onDelete }: {
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <span className="text-xs font-semibold text-slate-400">Botões</span>
-                <button type="button" onClick={() => set({ buttons: [...(d.buttons ?? []), { label: `Botão ${(d.buttons?.length ?? 0) + 1}`, value: `btn_${Date.now()}` }] })}
+                <button type="button" onClick={() => set({ buttons: [...(d.buttons ?? []), { label: `Botão ${(d.buttons?.length ?? 0) + 1}`, value: `btn_${Date.now()}`, newRow: true }] })}
                   className="flex items-center gap-1 text-[11px] font-semibold transition-colors" style={{ color: `rgb(${c.rgb})` }}>
                   <Plus className="h-3 w-3" /> Adicionar
                 </button>
@@ -582,6 +602,13 @@ function ConfigPanel({ node, plans, onChange, onDelete }: {
                 <div key={i} className="flex items-center gap-2">
                   <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded text-[9px] font-bold"
                     style={{ background: `rgba(${c.rgb},0.15)`, color: `rgb(${c.rgb})` }}>{i + 1}</span>
+                  {i > 0 && (
+                    <RowToggle newRow={btn.newRow ?? false} color={c.rgb} onToggle={() => {
+                      const nb = [...(d.buttons ?? [])]
+                      nb[i] = { ...nb[i], newRow: !nb[i].newRow }
+                      set({ buttons: nb })
+                    }} />
+                  )}
                   <Input value={btn.label} onChange={e => {
                     const nb = [...(d.buttons ?? [])]
                     nb[i] = { ...nb[i], label: e.target.value }
@@ -592,7 +619,7 @@ function ConfigPanel({ node, plans, onChange, onDelete }: {
                 </div>
               ))}
               {(d.buttons ?? []).length > 0 && (
-                <p className="text-[10px] text-slate-600 leading-relaxed">A seta lateral direita de cada botão é uma saída independente.</p>
+                <p className="text-[10px] text-slate-600 leading-relaxed">A seta lateral direita de cada botão é uma saída independente. Use &ldquo;Ao lado&rdquo;/&ldquo;Abaixo&rdquo; pra organizar o layout no Telegram.</p>
               )}
             </div>
           </>
@@ -867,6 +894,30 @@ function ConfigPanel({ node, plans, onChange, onDelete }: {
 }
 
 // ─── Micro components ──────────────────────────────────────────────────────────
+
+// Groups a flat button list into keyboard rows based on each button's `newRow` flag.
+function groupButtonRows<T extends { newRow?: boolean }>(buttons: T[]): T[][] {
+  const rows: T[][] = []
+  for (const btn of buttons) {
+    if (btn.newRow || rows.length === 0) rows.push([btn])
+    else rows[rows.length - 1].push(btn)
+  }
+  return rows
+}
+
+function RowToggle({ newRow, color, onToggle }: { newRow: boolean; color: string; onToggle: () => void }) {
+  return (
+    <button type="button" onClick={onToggle}
+      title={newRow ? 'Nova linha — clique para colocar ao lado do botão anterior' : 'Ao lado do anterior — clique para começar nova linha'}
+      className="flex h-8 shrink-0 items-center gap-1 rounded-lg px-2 text-[10px] font-semibold transition-all"
+      style={newRow
+        ? { background: 'rgba(0,0,0,0.05)', color: '#71717a' }
+        : { background: `rgba(${color},0.15)`, color: `rgb(${color})` }}>
+      {newRow ? <CornerDownLeft className="h-3 w-3" /> : <ArrowRightToLine className="h-3 w-3" />}
+      {newRow ? 'Abaixo' : 'Ao lado'}
+    </button>
+  )
+}
 
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (

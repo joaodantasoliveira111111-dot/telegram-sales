@@ -1,5 +1,5 @@
 import { supabaseAdmin } from './supabase'
-import { sendMessage, sendPhoto, sendVideo, sendAudio, sendButtons } from './telegram'
+import { sendMessage, sendPhoto, sendVideo, sendAudio, sendButtons, sendPhotoWithButtons } from './telegram'
 
 interface FlowNode {
   id: string
@@ -29,6 +29,18 @@ interface FlowSession {
 
 function findNode(flow: FlowConfig, id: string): FlowNode | undefined {
   return flow.nodes.find(n => n.id === id)
+}
+
+// Groups a flat button list into keyboard rows based on each button's `newRow` flag
+// (set in the flow editor's "Ao lado" / "Abaixo" toggle). Mirrors the same helper
+// used client-side in flow-editor-client.tsx for the live preview.
+function groupButtonRows<T extends { newRow?: boolean }>(buttons: T[]): T[][] {
+  const rows: T[][] = []
+  for (const btn of buttons) {
+    if (btn.newRow || rows.length === 0) rows.push([btn])
+    else rows[rows.length - 1].push(btn)
+  }
+  return rows
 }
 
 function nextNodeId(flow: FlowConfig, fromId: string, sourceHandle?: string): string | null {
@@ -188,11 +200,37 @@ export async function executeFlowStep(
 
     if (node.type === 'buttons') {
       const text = String(node.data.text ?? 'Escolha uma opção:')
-      const buttons = (node.data.buttons ?? []) as { label: string; value: string }[]
-      const kb = [buttons.map(b => ({ text: b.label, callback_data: b.value }))]
+      const buttons = (node.data.buttons ?? []) as { label: string; value: string; newRow?: boolean }[]
+      const kb = groupButtonRows(buttons).map(row => row.map(b => ({ text: b.label, callback_data: b.value })))
       await sendButtons(token, chatId, text, kb)
       // Stay on this node waiting for callback
       break
+    }
+
+    if (node.type === 'composite') {
+      const text = String(node.data.text ?? '')
+      const mediaUrl = node.data.file_url as string | undefined
+      const buttons = (node.data.buttons ?? []) as { label: string; value: string; newRow?: boolean }[]
+      const opts = { protect_content: protectContent }
+
+      // Composite has a single outgoing edge (unlike the 'buttons' node type, whose
+      // buttons each drive their own edge) — buttons here are informational/decorative
+      // and don't block the flow, so we always continue after sending.
+      if (buttons.length > 0) {
+        const kb = groupButtonRows(buttons).map(row => row.map(b => ({ text: b.label, callback_data: b.value })))
+        if (mediaUrl) await sendPhotoWithButtons(token, chatId, mediaUrl, text, kb)
+        else await sendButtons(token, chatId, text, kb)
+      } else if (mediaUrl) {
+        await sendPhoto(token, chatId, mediaUrl, text, opts)
+      } else {
+        await sendMessage(token, chatId, text, opts)
+      }
+
+      const nextId = nextNodeId(flow, node.id)
+      if (!nextId) break
+      session.current_node_id = nextId
+      await supabaseAdmin.from('flow_sessions').update({ current_node_id: nextId, updated_at: new Date().toISOString() }).eq('id', session.id)
+      continue
     }
 
     if (node.type === 'payment') {
