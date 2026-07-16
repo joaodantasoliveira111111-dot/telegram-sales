@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Bot, ListOrdered, MessageSquare, Package, Sparkles, ArrowLeft, Cpu, BarChart2, TrendingUp, GitBranch } from 'lucide-react'
+import { Bot, ListOrdered, MessageSquare, Package, Sparkles, ArrowLeft, Cpu, BarChart2, TrendingUp, GitBranch, Smartphone } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Breadcrumbs } from '@/components/breadcrumbs'
 
@@ -23,6 +23,7 @@ export function BotDetailShell({ bot, children }: BotDetailShellProps) {
     { href: `${base}/offers`,   label: 'Upsell',         icon: TrendingUp,    exact: false },
     ...(isAccountBot ? [{ href: `${base}/accounts`, label: 'Estoque', icon: Package, exact: false }] : []),
     { href: `${base}/flow`,     label: 'Fluxo Visual',   icon: GitBranch,  exact: false },
+    { href: `${base}/miniapp`,  label: 'Mini App',       icon: Smartphone, exact: false },
     { href: `${base}/pixel`,    label: 'Pixel',          icon: Sparkles,   exact: false },
     { href: `${base}/funnel`,   label: 'Funil',          icon: BarChart2,  exact: false },
   ]

@@ -27,7 +27,51 @@ export interface Plan {
   telegram_chat_id: string | null
   plan_role: PlanRole
   product_type_id: string | null
+  miniapp_visible: boolean
+  miniapp_category: string | null
+  miniapp_icon: string | null
+  miniapp_featured_label: string | null
+  miniapp_sort: number
   created_at: string
+}
+
+// ── Mini App storefront ────────────────────────────────────────────────────
+export type MiniAppTheme = 'aurora' | 'neon' | 'mono' | 'glass' | 'sunset'
+
+export interface MiniAppConfig {
+  enabled: boolean
+  app_short_name: string
+  store_name: string
+  tagline: string
+  theme: MiniAppTheme
+  accent: string
+  accent_2: string
+  logo_emoji: string
+  logo_url: string | null
+  layout: 'grid' | 'list'
+  show_categories: boolean
+  show_rating: boolean
+  show_trust_badges: boolean
+  rating_value: string
+  rating_count_label: string
+}
+
+export const DEFAULT_MINIAPP_CONFIG: MiniAppConfig = {
+  enabled: false,
+  app_short_name: 'loja',
+  store_name: '',
+  tagline: 'Catálogo digital · entrega automática',
+  theme: 'aurora',
+  accent: '#7c3aed',
+  accent_2: '#a78bfa',
+  logo_emoji: '🛍️',
+  logo_url: null,
+  layout: 'grid',
+  show_categories: true,
+  show_rating: true,
+  show_trust_badges: true,
+  rating_value: '4.9',
+  rating_count_label: '+2.400 vendas',
 }
 
 // ── Custom product types (arbitrary delivery fields for account_stock plans) ──

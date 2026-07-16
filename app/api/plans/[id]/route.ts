@@ -5,6 +5,7 @@ import { getSessionFromRequest, getUserBotIds } from '@/lib/session'
 const ALLOWED_FIELDS = [
   'bot_id', 'name', 'price', 'duration_days', 'button_text',
   'content_type', 'content_url', 'telegram_chat_id', 'plan_role', 'product_type_id',
+  'miniapp_visible', 'miniapp_category', 'miniapp_icon', 'miniapp_featured_label', 'miniapp_sort',
 ] as const
 
 async function assertOwnsPlan(session: NonNullable<Awaited<ReturnType<typeof getSessionFromRequest>>>, planId: string) {
