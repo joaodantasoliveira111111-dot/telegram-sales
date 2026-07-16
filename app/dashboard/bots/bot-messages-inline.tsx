@@ -78,7 +78,7 @@ export function BotMessagesInline({ botId }: { botId: string }) {
           )}
 
           {!loading && messages.map((msg) => (
-            <div key={msg.key} className="space-y-1.5 rounded-lg border border-zinc-800 bg-zinc-950/60 p-3">
+            <div key={msg.key} className="space-y-1.5 rounded-lg border p-3" style={{ borderColor: 'rgba(0,0,0,0.08)', background: 'rgba(0,0,0,0.03)' }}>
               <div className="flex items-center justify-between gap-2">
                 <div>
                   <div className="flex items-center gap-1.5">

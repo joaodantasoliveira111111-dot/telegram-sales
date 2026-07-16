@@ -20,12 +20,12 @@ interface DataPoint {
 function CustomTooltip({ active, payload, label }: any) {
   if (!active || !payload?.length) return null
   return (
-    <div className="rounded-xl border border-zinc-700/60 bg-zinc-900 px-4 py-3 shadow-xl">
-      <p className="mb-1.5 text-xs text-zinc-400">{label}</p>
-      <p className="text-sm font-bold text-emerald-400">
+    <div className="rounded-xl border px-4 py-3 shadow-xl" style={{ background: 'rgba(255,255,255,0.97)', borderColor: 'rgba(0,0,0,0.08)', backdropFilter: 'blur(24px)' }}>
+      <p className="mb-1.5 text-xs" style={{ color: '#71717a' }}>{label}</p>
+      <p className="text-sm font-bold" style={{ color: '#059669' }}>
         {formatCurrency(payload[0]?.value ?? 0)}
       </p>
-      <p className="text-xs text-zinc-500">{payload[1]?.value ?? 0} venda(s)</p>
+      <p className="text-xs" style={{ color: '#a1a1aa' }}>{payload[1]?.value ?? 0} venda(s)</p>
     </div>
   )
 }
@@ -71,17 +71,16 @@ export function RevenueChart() {
               <span className="text-xs text-zinc-500">{totalSales} vendas</span>
             </div>
           </div>
-          <div className="flex gap-0.5 rounded-xl border border-zinc-800/60 bg-zinc-900/60 p-1">
+          <div className="flex gap-0.5 rounded-xl p-1" style={{ background: 'rgba(0,0,0,0.04)', border: '1px solid rgba(0,0,0,0.08)' }}>
             {periods.map((p) => (
               <button
                 key={p.value}
                 onClick={() => setPeriod(p.value)}
                 className={cn(
                   'rounded-lg px-3 py-1.5 text-xs font-medium transition-all duration-150',
-                  period === p.value
-                    ? 'bg-zinc-700 text-zinc-100 shadow-sm'
-                    : 'text-zinc-500 hover:text-zinc-200'
+                  period === p.value ? 'shadow-sm' : 'text-zinc-500 hover:text-zinc-700'
                 )}
+                style={period === p.value ? { background: '#ffffff', color: '#1a1625' } : undefined}
               >
                 {p.label}
               </button>

@@ -79,7 +79,8 @@ export function MediaUpload({ value, mediaType, onChange, onClear }: MediaUpload
         type="button"
         onClick={() => inputRef.current?.click()}
         disabled={loading}
-        className="flex w-full cursor-pointer flex-col items-center justify-center gap-2 rounded-lg border border-dashed border-zinc-700 bg-zinc-900/40 py-6 text-sm text-zinc-500 transition-colors hover:border-zinc-500 hover:text-zinc-300 disabled:cursor-not-allowed"
+        className="flex w-full cursor-pointer flex-col items-center justify-center gap-2 rounded-lg border border-dashed py-6 text-sm transition-colors disabled:cursor-not-allowed"
+        style={{ borderColor: 'rgba(0,0,0,0.15)', background: 'rgba(0,0,0,0.03)', color: '#71717a' }}
       >
         {loading ? (
           <Loader2 className="h-6 w-6 animate-spin" />
@@ -87,9 +88,9 @@ export function MediaUpload({ value, mediaType, onChange, onClear }: MediaUpload
           <Upload className="h-6 w-6" />
         )}
         {loading ? 'Enviando...' : 'Clique para enviar foto ou vídeo'}
-        <span className="text-xs text-zinc-600">PNG, JPG, GIF, MP4 • Máx 50MB</span>
+        <span className="text-xs" style={{ color: '#a1a1aa' }}>PNG, JPG, GIF, MP4 • Máx 50MB</span>
       </button>
-      {error && <p className="mt-1 text-xs text-red-400">{error}</p>}
+      {error && <p className="mt-1 text-xs" style={{ color: '#dc2626' }}>{error}</p>}
     </div>
   )
 }

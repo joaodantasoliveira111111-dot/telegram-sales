@@ -238,7 +238,7 @@ export function ScheduledPostsClient({ initialPosts, bots, groups }: Props) {
                 )}
               </div>
               {post.message_text && (
-                <p className="text-xs text-slate-400 bg-black/20 rounded-lg px-3 py-2 line-clamp-2">{post.message_text}</p>
+                <p className="text-xs rounded-lg px-3 py-2 line-clamp-2" style={{ color: '#52525b', background: 'rgba(0,0,0,0.04)' }}>{post.message_text}</p>
               )}
               {post.media_url && (
                 <p className="text-[11px] text-slate-600 flex items-center gap-1">

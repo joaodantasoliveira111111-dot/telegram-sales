@@ -187,14 +187,14 @@ export default async function ReportsPage({ searchParams }: PageProps) {
             ) : (
               <div className="space-y-2">
                 {topProducts.slice(0, 8).map((plan, i) => (
-                  <div key={plan.name} className="flex items-center gap-3 rounded-xl bg-zinc-800/40 px-3 py-2.5">
-                    <span className={[
-                      'flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-xs font-bold',
-                      i === 0 ? 'bg-yellow-500/20 text-yellow-400' :
-                      i === 1 ? 'bg-zinc-600/40 text-zinc-300' :
-                      i === 2 ? 'bg-orange-500/20 text-orange-400' :
-                      'bg-zinc-700/40 text-zinc-500',
-                    ].join(' ')}>
+                  <div key={plan.name} className="flex items-center gap-3 rounded-xl px-3 py-2.5" style={{ background: 'rgba(0,0,0,0.03)' }}>
+                    <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-xs font-bold"
+                      style={
+                        i === 0 ? { background: 'rgba(234,179,8,0.15)', color: '#a16207' } :
+                        i === 1 ? { background: 'rgba(0,0,0,0.08)', color: '#3f3f46' } :
+                        i === 2 ? { background: 'rgba(249,115,22,0.15)', color: '#c2410c' } :
+                        { background: 'rgba(0,0,0,0.05)', color: '#71717a' }
+                      }>
                       {i + 1}
                     </span>
                     <span className="flex-1 truncate text-sm text-zinc-200">{plan.name}</span>
@@ -230,7 +230,7 @@ export default async function ReportsPage({ searchParams }: PageProps) {
                 {conversionByBot.length === 0 ? (
                   <tr><td colSpan={6} className="px-5 py-10 text-center text-sm text-zinc-600">Nenhum dado no período</td></tr>
                 ) : conversionByBot.map((bot) => (
-                  <tr key={bot.id} className="border-b border-zinc-800/40 transition-colors hover:bg-zinc-800/20">
+                  <tr key={bot.id} className="border-b transition-colors hover:bg-black/[0.02]" style={{ borderColor: 'rgba(0,0,0,0.05)' }}>
                     <td className="px-5 py-3.5 font-medium text-zinc-200">{bot.name}</td>
                     <td className="px-5 py-3.5 text-right text-zinc-400">{bot.started}</td>
                     <td className="hidden px-5 py-3.5 text-right text-zinc-400 sm:table-cell">{bot.checkout}</td>

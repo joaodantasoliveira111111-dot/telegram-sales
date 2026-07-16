@@ -49,8 +49,8 @@ export default async function SubscriptionsPage({
   return (
     <div>
       <div className="mb-6">
-        <h2 className="text-2xl font-bold">Assinaturas</h2>
-        <p className="text-sm text-zinc-400">{total} assinatura(s) encontrada(s)</p>
+        <h2 className="text-2xl font-bold" style={{ color: '#1a1625' }}>Assinaturas</h2>
+        <p className="text-sm" style={{ color: '#71717a' }}>{total} assinatura(s) encontrada(s)</p>
       </div>
 
       <div className="mb-4 flex gap-2">
@@ -58,27 +58,28 @@ export default async function SubscriptionsPage({
           <a
             key={s}
             href={s ? `?status=${s}` : '?'}
-            className={`rounded-full border px-3 py-1 text-xs transition-colors ${
+            className="rounded-full border px-3 py-1 text-xs transition-colors"
+            style={
               params.status === s || (!params.status && !s)
-                ? 'border-blue-600 bg-blue-600 text-white'
-                : 'border-zinc-700 text-zinc-400 hover:bg-zinc-800'
-            }`}
+                ? { borderColor: '#2563eb', background: '#2563eb', color: '#fff' }
+                : { borderColor: 'rgba(0,0,0,0.12)', color: '#71717a' }
+            }
           >
             {s === '' ? 'Todas' : statusConfig[s]?.label ?? s}
           </a>
         ))}
       </div>
 
-      <div className="overflow-x-auto rounded-xl border border-zinc-800">
+      <div className="overflow-x-auto rounded-xl border" style={{ borderColor: 'rgba(0,0,0,0.08)' }}>
         <table className="w-full text-sm">
           <thead>
-            <tr className="border-b border-zinc-800 bg-zinc-900/50">
-              <th className="px-4 py-3 text-left font-medium text-zinc-400">Telegram ID</th>
-              <th className="px-4 py-3 text-left font-medium text-zinc-400">Bot</th>
-              <th className="px-4 py-3 text-left font-medium text-zinc-400">Plano</th>
-              <th className="px-4 py-3 text-left font-medium text-zinc-400">Status</th>
-              <th className="px-4 py-3 text-left font-medium text-zinc-400">Expira em</th>
-              <th className="px-4 py-3 text-left font-medium text-zinc-400">Criado em</th>
+            <tr className="border-b" style={{ borderColor: 'rgba(0,0,0,0.08)', background: 'rgba(0,0,0,0.03)' }}>
+              <th className="px-4 py-3 text-left font-medium" style={{ color: '#71717a' }}>Telegram ID</th>
+              <th className="px-4 py-3 text-left font-medium" style={{ color: '#71717a' }}>Bot</th>
+              <th className="px-4 py-3 text-left font-medium" style={{ color: '#71717a' }}>Plano</th>
+              <th className="px-4 py-3 text-left font-medium" style={{ color: '#71717a' }}>Status</th>
+              <th className="px-4 py-3 text-left font-medium" style={{ color: '#71717a' }}>Expira em</th>
+              <th className="px-4 py-3 text-left font-medium" style={{ color: '#71717a' }}>Criado em</th>
             </tr>
           </thead>
           <tbody>
@@ -90,28 +91,28 @@ export default async function SubscriptionsPage({
                 new Date(s.expires_at) < new Date(Date.now() + 3 * 24 * 60 * 60 * 1000)
 
               return (
-                <tr key={s.id} className="border-b border-zinc-800/60 hover:bg-zinc-900/40">
-                  <td className="px-4 py-3 font-mono text-xs text-zinc-300">{s.telegram_id}</td>
-                  <td className="px-4 py-3 text-zinc-300">
+                <tr key={s.id} className="border-b transition-colors hover:bg-black/[0.02]" style={{ borderColor: 'rgba(0,0,0,0.05)' }}>
+                  <td className="px-4 py-3 font-mono text-xs" style={{ color: '#3f3f46' }}>{s.telegram_id}</td>
+                  <td className="px-4 py-3" style={{ color: '#3f3f46' }}>
                     {(s.bot as { name: string } | null)?.name ?? '—'}
                   </td>
-                  <td className="px-4 py-3 text-zinc-300">
+                  <td className="px-4 py-3" style={{ color: '#3f3f46' }}>
                     {(s.plan as { name: string } | null)?.name ?? '—'}
                   </td>
                   <td className="px-4 py-3">
                     <Badge variant={cfg.variant}>{cfg.label}</Badge>
                   </td>
-                  <td className={`px-4 py-3 ${isExpiringSoon ? 'text-yellow-400 font-medium' : 'text-zinc-400'}`}>
+                  <td className="px-4 py-3" style={{ color: isExpiringSoon ? '#b45309' : '#52525b', fontWeight: isExpiringSoon ? 500 : 400 }}>
                     {formatDate(s.expires_at)}
                     {isExpiringSoon && ' ⚠️'}
                   </td>
-                  <td className="px-4 py-3 text-zinc-400">{formatDate(s.created_at)}</td>
+                  <td className="px-4 py-3" style={{ color: '#52525b' }}>{formatDate(s.created_at)}</td>
                 </tr>
               )
             })}
             {(subscriptions ?? []).length === 0 && (
               <tr>
-                <td colSpan={6} className="px-4 py-8 text-center text-zinc-500">
+                <td colSpan={6} className="px-4 py-8 text-center" style={{ color: '#a1a1aa' }}>
                   Nenhuma assinatura encontrada
                 </td>
               </tr>
@@ -125,7 +126,8 @@ export default async function SubscriptionsPage({
           {page > 1 && (
             <a
               href={`?page=${page - 1}`}
-              className="rounded-md border border-zinc-700 px-3 py-1 text-sm hover:bg-zinc-800"
+              className="rounded-md border px-3 py-1 text-sm transition-colors hover:bg-black/5"
+              style={{ borderColor: 'rgba(0,0,0,0.12)', color: '#3f3f46' }}
             >
               Anterior
             </a>
@@ -133,7 +135,8 @@ export default async function SubscriptionsPage({
           {offset + limit < total && (
             <a
               href={`?page=${page + 1}`}
-              className="rounded-md border border-zinc-700 px-3 py-1 text-sm hover:bg-zinc-800"
+              className="rounded-md border px-3 py-1 text-sm transition-colors hover:bg-black/5"
+              style={{ borderColor: 'rgba(0,0,0,0.12)', color: '#3f3f46' }}
             >
               Próximo
             </a>
