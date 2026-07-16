@@ -45,7 +45,7 @@ export function RevenueMilestone({ variant = 'compact' }: RevenueMilestoneProps)
           <Trophy className="h-8 w-8 text-violet-400 flex-shrink-0" />
           <div>
             <p className="text-xs font-bold uppercase tracking-widest text-violet-400 mb-0.5">Faturamento Total</p>
-            <p className="text-3xl font-black text-white leading-none">{fmtShort(total)}</p>
+            <p className="text-3xl font-black leading-none" style={{ color: '#4c1d95' }}>{fmtShort(total)}</p>
             <p className="text-xs text-zinc-500 mt-1">
               {allDone
                 ? 'Todas as metas atingidas'
@@ -78,7 +78,7 @@ export function RevenueMilestone({ variant = 'compact' }: RevenueMilestoneProps)
           </div>
 
           {/* Progress bar */}
-          <div className="h-2 rounded-full overflow-hidden" style={{ background: 'rgba(255,255,255,0.08)' }}>
+          <div className="h-2 rounded-full overflow-hidden" style={{ background: 'rgba(0,0,0,0.08)' }}>
             <div
               className="h-full rounded-full transition-all duration-700"
               style={{ width: `${pct}%`, background: 'linear-gradient(90deg, #8b5cf6, #a78bfa)' }}

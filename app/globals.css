@@ -320,6 +320,29 @@ body {
 .text-red-300 { color: #b91c1c !important; }
 .text-red-400 { color: #dc2626 !important; }
 
+/* ─── Landing page: genuinely dark sub-sections (stats bar, footer CTA) ──────── */
+/* These sit on a near-black background inside the otherwise-light landing page,
+   so the blanket .landing-light inversions above must NOT apply here. */
+.landing-light .landing-dark-section.text-white,
+.landing-light .landing-dark-section .text-white { color: #ffffff !important; }
+.landing-light .landing-dark-section.text-zinc-400,
+.landing-light .landing-dark-section .text-zinc-400 { color: #a1a1aa !important; }
+.landing-light .landing-dark-section.text-zinc-500,
+.landing-light .landing-dark-section .text-zinc-500 { color: #71717a !important; }
+.landing-light .landing-dark-section.text-zinc-600,
+.landing-light .landing-dark-section .text-zinc-600 { color: #71717a !important; }
+
+/* ─── Dashboard: Telegram chat-preview mockup (intentionally dark) ──────────── */
+/* postagens-client.tsx renders a dark Telegram-style preview inside the light
+   dashboard; the blanket slate/blue/emerald inversions above must not apply here. */
+.chat-preview-dark .text-slate-200,
+.chat-preview-dark .text-slate-300 { color: #e2e8f0 !important; }
+.chat-preview-dark .text-slate-500 { color: #94a3b8 !important; }
+.chat-preview-dark .text-slate-600 { color: #64748b !important; }
+.chat-preview-dark .text-slate-700 { color: #475569 !important; }
+.chat-preview-dark .text-blue-300  { color: #93c5fd !important; }
+.chat-preview-dark .text-emerald-400 { color: #34d399 !important; }
+
 /* ─── Preserve white text on intentionally colored/gradient backgrounds ─────── */
 /* Ensure white text survives on dark Tailwind utility bg classes                 */
 .bg-blue-600   .text-white, .bg-blue-600.text-white   { color: #ffffff !important; }

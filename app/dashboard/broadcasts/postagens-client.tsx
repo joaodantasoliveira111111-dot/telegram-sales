@@ -676,7 +676,7 @@ export function PostagensClient({ broadcasts: init, scheduledPosts: initSched, b
             <div className="sticky top-6">
               <p className="mb-3 text-xs font-bold uppercase tracking-wider text-slate-600">Preview ao vivo</p>
 
-              <div className="overflow-hidden rounded-2xl"
+              <div className="chat-preview-dark overflow-hidden rounded-2xl"
                 style={{ background: 'rgba(255,255,255,0.68)', border: '1px solid rgba(255,255,255,0.82)' }}>
                 {/* Chat header */}
                 <div className="flex items-center gap-3 px-4 py-3"

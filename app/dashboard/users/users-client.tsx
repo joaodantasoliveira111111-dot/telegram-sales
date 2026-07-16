@@ -221,8 +221,8 @@ export function UsersClient({ users, total, page, limit, stats, filters }: Props
                       <button
                         onClick={() => releasePayout(user.id, user.payout_pending)}
                         disabled={actionLoading === `payout-${user.id}`}
-                        className="rounded-lg px-2 py-0.5 text-xs font-medium text-white transition-all hover:opacity-80 disabled:opacity-50"
-                        style={{ background: 'rgba(34,197,94,0.2)', border: '1px solid rgba(34,197,94,0.3)' }}
+                        className="rounded-lg px-2 py-0.5 text-xs font-medium transition-all hover:opacity-80 disabled:opacity-50"
+                        style={{ background: 'rgba(34,197,94,0.2)', border: '1px solid rgba(34,197,94,0.3)', color: '#15803d' }}
                         title="Marcar como liberado"
                       >
                         <Send className="h-3 w-3" />

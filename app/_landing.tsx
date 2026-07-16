@@ -1006,7 +1006,7 @@ function BigNumbers() {
     { n: '5 min', l: 'para o primeiro bot', sub: 'do zero ao ar' },
   ]
   return (
-    <section className="py-24 relative overflow-hidden" style={{ background: '#110e20' }}>
+    <section className="landing-dark-section py-24 relative overflow-hidden" style={{ background: '#110e20' }}>
       <div className="blob-1 absolute inset-0 pointer-events-none"
         style={{ background: 'radial-gradient(circle at 50% 50%, rgba(139,92,246,0.12) 0%, transparent 60%)', filter: 'blur(60px)' }} />
       <div className="relative z-10 mx-auto max-w-7xl px-6">
@@ -1176,7 +1176,7 @@ function Pricing() {
                 className="block text-center rounded-2xl py-3.5 text-sm font-black transition-all hover:scale-[1.02] hover:brightness-110"
                 style={p.highlight
                   ? { background: 'linear-gradient(135deg,#8b5cf6,#6d28d9)', color: '#fff', boxShadow: '0 8px 24px rgba(139,92,246,0.45)' }
-                  : { background: 'rgba(255,255,255,0.80)', color: '#d4d4d8', border: '1px solid rgba(255,255,255,0.88)' }}>
+                  : { background: 'rgba(124,58,237,0.08)', color: '#4c1d95', border: '1px solid rgba(124,58,237,0.25)' }}>
                 {p.cta}
               </Link>
             </div>
@@ -1232,7 +1232,7 @@ function FAQ() {
 
 function FooterCTA() {
   return (
-    <section className="relative py-32 overflow-hidden" style={{ background: '#110e20' }}>
+    <section className="landing-dark-section relative py-32 overflow-hidden" style={{ background: '#110e20' }}>
       <div className="blob-1 absolute top-0 left-0 w-full h-full pointer-events-none"
         style={{ background: 'radial-gradient(ellipse 60% 60% at 50% 50%, rgba(139,92,246,0.18) 0%, transparent 70%)', filter: 'blur(40px)' }} />
       <div className="relative z-10 mx-auto max-w-3xl px-6 text-center">
