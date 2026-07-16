@@ -16,20 +16,18 @@ async function getCfg() {
   }
 }
 
-export async function sendKwaiPurchase(data: { eventId: string; value: number; planName: string; planId?: string; telegramId: string }) {
-  const c = await getCfg()
-  if (!c.pixelId || !c.accessToken || !c.trackPurchase) return
+async function fire(pixelId: string, accessToken: string, eventType: string, data: { eventId: string; value?: number; planName: string; planId?: string; telegramId: string }) {
   try {
     const res = await fetch(API_URL, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${c.accessToken}` },
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${accessToken}` },
       body: JSON.stringify({
-        pixel_id: c.pixelId,
-        event_type: 'PURCHASE',
+        pixel_id: pixelId,
+        event_type: eventType,
         event_time: Math.floor(Date.now() / 1000),
         event_id: data.eventId,
         user: { external_id: hash(data.telegramId) },
-        conversion_value: { price: data.value, currency: 'BRL' },
+        conversion_value: { price: data.value ?? 0, currency: 'BRL' },
         content: { content_id: data.planId ?? data.planName, content_name: data.planName, content_type: 'product' },
       }),
     })
@@ -37,4 +35,22 @@ export async function sendKwaiPurchase(data: { eventId: string; value: number; p
     if (!res.ok) console.error('[Kwai Events]', r)
     else console.log('[Kwai Events] ok')
   } catch (e) { console.error('[Kwai Events] fetch error', e) }
+}
+
+export async function sendKwaiPurchase(data: { eventId: string; value: number; planName: string; planId?: string; telegramId: string }) {
+  const c = await getCfg()
+  if (!c.pixelId || !c.accessToken || !c.trackPurchase) return
+  await fire(c.pixelId, c.accessToken, 'PURCHASE', data)
+}
+
+export async function sendKwaiCheckout(data: { eventId: string; value: number; planName: string; planId?: string; telegramId: string }) {
+  const c = await getCfg()
+  if (!c.pixelId || !c.accessToken) return
+  await fire(c.pixelId, c.accessToken, 'INITIATE_CHECKOUT', data)
+}
+
+export async function sendKwaiViewContent(data: { eventId: string; value?: number; planName: string; planId?: string; telegramId: string }) {
+  const c = await getCfg()
+  if (!c.pixelId || !c.accessToken) return
+  await fire(c.pixelId, c.accessToken, 'VIEW_CONTENT', data)
 }

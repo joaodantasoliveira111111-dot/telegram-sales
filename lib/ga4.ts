@@ -56,3 +56,15 @@ export async function sendGA4Checkout(data: { telegramId: string; value: number;
     },
   }])
 }
+
+export async function sendGA4ViewContent(data: { telegramId: string; value?: number; planName: string; planId?: string }) {
+  const c = await getCfg()
+  if (!c.measurementId || !c.apiSecret) return
+  await fire(c.measurementId, c.apiSecret, `telegram_${data.telegramId}`, [{
+    name: 'view_item',
+    params: {
+      value: data.value, currency: 'BRL',
+      items: [{ item_id: data.planId ?? data.planName, item_name: data.planName, price: data.value, quantity: 1 }],
+    },
+  }])
+}

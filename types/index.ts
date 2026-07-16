@@ -30,6 +30,7 @@ export interface Plan {
   miniapp_visible: boolean
   miniapp_category: string | null
   miniapp_icon: string | null
+  miniapp_image_url: string | null
   miniapp_featured_label: string | null
   miniapp_sort: number
   created_at: string
@@ -48,6 +49,7 @@ export interface MiniAppConfig {
   accent_2: string
   logo_emoji: string
   logo_url: string | null
+  banner_url: string | null
   layout: 'grid' | 'list'
   show_categories: boolean
   show_rating: boolean
@@ -66,6 +68,7 @@ export const DEFAULT_MINIAPP_CONFIG: MiniAppConfig = {
   accent_2: '#a78bfa',
   logo_emoji: '🛍️',
   logo_url: null,
+  banner_url: null,
   layout: 'grid',
   show_categories: true,
   show_rating: true,

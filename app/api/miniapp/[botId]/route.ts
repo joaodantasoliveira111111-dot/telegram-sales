@@ -29,7 +29,7 @@ export async function GET(
 
   const { data: plans } = await supabaseAdmin
     .from('plans')
-    .select('id, name, price, duration_days, button_text, content_type, miniapp_category, miniapp_icon, miniapp_featured_label, miniapp_sort')
+    .select('id, name, price, duration_days, button_text, content_type, miniapp_category, miniapp_icon, miniapp_image_url, miniapp_featured_label, miniapp_sort')
     .eq('bot_id', botId)
     .eq('miniapp_visible', true)
     .order('miniapp_sort', { ascending: true })

@@ -4,6 +4,10 @@ import { validateInitData } from '@/lib/telegram-webapp'
 import { createPix, withWebhookToken as withAmplopayWebhookToken } from '@/lib/amplopay'
 import { createPix as pushinpayCreatePix, withWebhookToken as withPushinpayWebhookToken } from '@/lib/pushinpay'
 import { getSetting } from '@/lib/settings'
+import { sendInitiateCheckoutEvent } from '@/lib/meta'
+import { sendTikTokCheckout } from '@/lib/tiktok'
+import { sendGA4Checkout } from '@/lib/ga4'
+import { sendKwaiCheckout } from '@/lib/kwai'
 
 // Creates a pending payment + Pix for a plan bought from the Mini App
 // storefront. Delivery/confirmation still flows through the existing
@@ -23,7 +27,7 @@ export async function POST(
 
   const { data: bot } = await supabaseAdmin
     .from('bots')
-    .select('id, telegram_token, gateway, is_active, miniapp_config')
+    .select('id, telegram_token, gateway, is_active, miniapp_config, meta_pixel_id, meta_access_token, meta_test_event_code')
     .eq('id', botId)
     .single()
 
@@ -56,6 +60,16 @@ export async function POST(
     }).select().single()
 
   if (paymentError || !payment) return NextResponse.json({ error: 'Erro ao criar pagamento' }, { status: 500 })
+
+  const eventId = `miniapp_checkout_${payment.id}`
+  const telegramId = String(user.id)
+  const botPixel = { pixelId: bot.meta_pixel_id ?? undefined, accessToken: bot.meta_access_token ?? undefined, testEventCode: bot.meta_test_event_code ?? undefined }
+  Promise.all([
+    sendInitiateCheckoutEvent({ eventId, value: Number(plan.price), planName: plan.name, planId: plan.id, telegramId, firstName: user.first_name }, botPixel).catch(() => {}),
+    sendTikTokCheckout({ eventId, value: Number(plan.price), planName: plan.name, planId: plan.id, telegramId }).catch(() => {}),
+    sendGA4Checkout({ telegramId, value: Number(plan.price), planName: plan.name, planId: plan.id }).catch(() => {}),
+    sendKwaiCheckout({ eventId, value: Number(plan.price), planName: plan.name, planId: plan.id, telegramId }).catch(() => {}),
+  ]).catch(() => {})
 
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL
   const gateway = (bot.gateway as string | null) || await getSetting('active_gateway') || 'amplopay'

@@ -81,3 +81,19 @@ export async function sendTikTokCheckout(data: { eventId: string; value: number;
     },
   })
 }
+
+export async function sendTikTokViewContent(data: { eventId: string; value?: number; planName: string; planId?: string; telegramId: string }) {
+  const c = await getCfg()
+  if (!c.pixelId || !c.accessToken) return
+  await fire(c.pixelId, c.accessToken, c.testEventCode, {
+    event: 'ViewContent',
+    event_time: Math.floor(Date.now() / 1000),
+    event_id: data.eventId,
+    user: { external_id: [hash(data.telegramId)] },
+    properties: {
+      value: data.value, currency: 'BRL',
+      content_id: data.planId ?? data.planName,
+      content_name: data.planName, content_type: 'product',
+    },
+  })
+}

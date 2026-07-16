@@ -12,7 +12,7 @@ async function ownBot(session: { type: string; userId?: string }, botId: string)
 
 const ALLOWED_KEYS: (keyof MiniAppConfig)[] = [
   'enabled', 'app_short_name', 'store_name', 'tagline', 'theme', 'accent', 'accent_2',
-  'logo_emoji', 'logo_url', 'layout', 'show_categories', 'show_rating', 'show_trust_badges',
+  'logo_emoji', 'logo_url', 'banner_url', 'layout', 'show_categories', 'show_rating', 'show_trust_badges',
   'rating_value', 'rating_count_label',
 ]
 

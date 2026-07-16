@@ -1,6 +1,6 @@
 'use client'
 
-import { useMemo, useState } from 'react'
+import { useMemo, useRef, useState } from 'react'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -8,9 +8,72 @@ import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import {
   Rocket, Copy, Check, ExternalLink, Loader2, Store, Palette, Package2,
-  Eye, EyeOff,
+  Eye, EyeOff, Upload, X,
 } from 'lucide-react'
 import { MiniAppConfig, MiniAppTheme, Plan } from '@/types'
+
+// ─── Compact image upload (banner / logo / product photo) ──────────────────
+
+function CompactImageUpload({ value, onChange, width = 44, height = 44, radius = 10, label }: {
+  value: string | null; onChange: (url: string | null) => void
+  width?: number | string; height?: number; radius?: number; label?: string
+}) {
+  const inputRef = useRef<HTMLInputElement>(null)
+  const [loading, setLoading] = useState(false)
+
+  async function handleFile(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    if (!file) return
+    setLoading(true)
+    try {
+      const formData = new FormData()
+      formData.append('file', file)
+      const res = await fetch('/api/upload', { method: 'POST', body: formData })
+      const data = await res.json()
+      if (!res.ok) { toast.error(data.error ?? 'Erro ao enviar imagem'); return }
+      onChange(data.url)
+    } finally {
+      setLoading(false)
+      if (inputRef.current) inputRef.current.value = ''
+    }
+  }
+
+  return (
+    <div style={{ position: 'relative', width, display: 'inline-block' }}>
+      <input ref={inputRef} type="file" accept="image/*" className="hidden" onChange={handleFile} />
+      <button
+        type="button"
+        onClick={() => inputRef.current?.click()}
+        disabled={loading}
+        className="flex w-full items-center justify-center overflow-hidden transition-colors hover:opacity-90"
+        style={{ height, borderRadius: radius, background: 'rgba(0,0,0,0.04)', border: '1.5px dashed rgba(0,0,0,0.15)' }}
+      >
+        {loading ? (
+          <Loader2 className="h-4 w-4 animate-spin" style={{ color: '#a1a1aa' }} />
+        ) : value ? (
+          // eslint-disable-next-line @next/next/no-img-element -- Supabase storage URL, arbitrary uploaded image
+          <img src={value} alt={label ?? 'Imagem'} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+        ) : (
+          <div className="flex flex-col items-center gap-1" style={{ color: '#a1a1aa' }}>
+            <Upload className="h-3.5 w-3.5" />
+            {label && <span className="text-[9px] font-semibold">{label}</span>}
+          </div>
+        )}
+      </button>
+      {value && !loading && (
+        <button
+          type="button"
+          onClick={() => onChange(null)}
+          className="absolute -right-1.5 -top-1.5 flex h-5 w-5 items-center justify-center rounded-full text-white shadow"
+          style={{ background: '#ef4444' }}
+          title="Remover imagem"
+        >
+          <X className="h-3 w-3" />
+        </button>
+      )}
+    </div>
+  )
+}
 
 // ─── Theme presets ──────────────────────────────────────────────────────────
 
@@ -316,6 +379,16 @@ function CustomizeTab({ config, onSave }: { config: MiniAppConfig; onSave: (patc
           </div>
 
           <div className="space-y-2">
+            <Label>Banner do topo</Label>
+            <div className="flex items-center gap-3">
+              <CompactImageUpload value={local.banner_url} onChange={(url) => update('banner_url', url)} width={140} height={64} radius={12} label="Enviar banner" />
+              <p className="text-xs leading-relaxed" style={{ color: '#a1a1aa' }}>
+                Imagem larga (1600×600 fica ótimo). Sem imagem, usa o gradiente do tema.
+              </p>
+            </div>
+          </div>
+
+          <div className="space-y-2">
             <Label>Cor de destaque</Label>
             <div className="flex flex-wrap gap-2.5">
               {ACCENTS.map((a) => (
@@ -343,17 +416,23 @@ function CustomizeTab({ config, onSave }: { config: MiniAppConfig; onSave: (patc
 
           <div className="space-y-2">
             <Label>Ícone da loja</Label>
-            <div className="flex flex-wrap gap-2">
-              {LOGO_OPTIONS.map((emoji) => (
-                <button
-                  key={emoji}
-                  onClick={() => update('logo_emoji', emoji)}
-                  className="flex h-9 w-9 items-center justify-center rounded-xl text-lg transition-all"
-                  style={{ background: 'rgba(0,0,0,0.04)', border: local.logo_emoji === emoji ? '2px solid #7c3aed' : '2px solid transparent' }}
-                >
-                  {emoji}
-                </button>
-              ))}
+            <div className="flex items-start gap-4">
+              <CompactImageUpload value={local.logo_url} onChange={(url) => update('logo_url', url)} width={52} height={52} radius={14} />
+              <div className="flex-1 space-y-1.5">
+                <p className="text-[10.5px] font-semibold" style={{ color: '#a1a1aa' }}>ou escolha um emoji rápido</p>
+                <div className="flex flex-wrap gap-2">
+                  {LOGO_OPTIONS.map((emoji) => (
+                    <button
+                      key={emoji}
+                      onClick={() => { update('logo_emoji', emoji); update('logo_url', null) }}
+                      className="flex h-9 w-9 items-center justify-center rounded-xl text-lg transition-all"
+                      style={{ background: 'rgba(0,0,0,0.04)', border: !local.logo_url && local.logo_emoji === emoji ? '2px solid #7c3aed' : '2px solid transparent' }}
+                    >
+                      {emoji}
+                    </button>
+                  ))}
+                </div>
+              </div>
             </div>
           </div>
 
@@ -412,11 +491,23 @@ function CustomizeTab({ config, onSave }: { config: MiniAppConfig; onSave: (patc
         >
           <div className="overflow-hidden rounded-[22px]" style={{ background: theme.dark ? '#0e1621' : '#ffffff' }}>
             <div
-              className="flex h-24 flex-col items-center justify-center gap-1.5 text-center text-white"
+              className="relative flex h-24 flex-col items-center justify-center gap-1.5 overflow-hidden text-center text-white"
               style={{ background: `linear-gradient(135deg, ${local.accent}, ${local.accent_2} 60%, ${theme.c})` }}
             >
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-white/95 text-sm">{local.logo_emoji}</div>
-              <p className="text-[13px] font-bold">{local.store_name || 'Minha Loja'}</p>
+              {local.banner_url && (
+                <>
+                  {/* eslint-disable-next-line @next/next/no-img-element -- preview thumbnail of an uploaded image */}
+                  <img src={local.banner_url} alt="" className="absolute inset-0 h-full w-full object-cover" />
+                  <div className="absolute inset-0" style={{ background: `linear-gradient(180deg, ${local.accent}55, rgba(0,0,0,0.5))` }} />
+                </>
+              )}
+              <div className="relative flex h-8 w-8 items-center justify-center overflow-hidden rounded-lg bg-white/95 text-sm">
+                {local.logo_url ? (
+                  // eslint-disable-next-line @next/next/no-img-element -- preview thumbnail of an uploaded image
+                  <img src={local.logo_url} alt="" className="h-full w-full object-cover" />
+                ) : local.logo_emoji}
+              </div>
+              <p className="relative text-[13px] font-bold">{local.store_name || 'Minha Loja'}</p>
             </div>
             <div className="p-3 space-y-2">
               <p className="text-[10px]" style={{ color: theme.dark ? '#7a8a99' : '#a1a1aa' }}>{local.tagline}</p>
@@ -497,6 +588,12 @@ function ProductsTab({ plans, setPlans }: { plans: Plan[]; setPlans: (p: Plan[])
         {plans.map((plan) => (
           <div key={plan.id} className="rounded-xl p-3.5" style={{ background: 'rgba(0,0,0,0.025)', border: '1px solid rgba(0,0,0,0.06)' }}>
             <div className="flex flex-wrap items-center gap-3">
+              <CompactImageUpload
+                value={plan.miniapp_image_url}
+                onChange={(url) => updatePlan(plan.id, { miniapp_image_url: url })}
+                width={40} height={40} radius={10}
+              />
+
               <button
                 onClick={() => updatePlan(plan.id, { miniapp_visible: !plan.miniapp_visible })}
                 className="flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-semibold shrink-0"
