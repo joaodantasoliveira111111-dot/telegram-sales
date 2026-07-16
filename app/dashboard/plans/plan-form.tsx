@@ -7,8 +7,16 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Loader2 } from 'lucide-react'
-import Link from 'next/link'
+import { Loader2, Plus, X } from 'lucide-react'
+import { toast } from 'sonner'
+
+function slugify(label: string) {
+  return label
+    .toLowerCase()
+    .normalize('NFD').replace(/\p{Diacritic}/gu, '')
+    .replace(/[^a-z0-9]+/g, '_')
+    .replace(/^_+|_+$/g, '')
+}
 
 interface PlanFormProps {
   plan?: Plan
@@ -21,6 +29,10 @@ export function PlanForm({ plan, bots, onSaved, onCancel }: PlanFormProps) {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [productTypes, setProductTypes] = useState<ProductType[]>([])
+  const [creatingType, setCreatingType] = useState(false)
+  const [newTypeName, setNewTypeName] = useState('')
+  const [newTypeFields, setNewTypeFields] = useState<string[]>(['Login', 'Senha'])
+  const [creatingTypeLoading, setCreatingTypeLoading] = useState(false)
   const [form, setForm] = useState<CreatePlanForm>({
     bot_id: plan?.bot_id ?? (bots[0]?.id ?? ''),
     name: plan?.name ?? '',
@@ -37,6 +49,37 @@ export function PlanForm({ plan, bots, onSaved, onCancel }: PlanFormProps) {
   useEffect(() => {
     fetch('/api/product-types').then((r) => r.ok ? r.json() : []).then(setProductTypes).catch(() => {})
   }, [])
+
+  async function handleCreateType() {
+    const cleanFields = newTypeFields
+      .map((label) => ({ key: slugify(label), label: label.trim() }))
+      .filter((f) => f.key && f.label)
+
+    if (!newTypeName.trim()) { toast.error('Dá um nome pro tipo de produto'); return }
+    if (cleanFields.length === 0) { toast.error('Adicione ao menos um campo'); return }
+    const keys = cleanFields.map((f) => f.key)
+    if (new Set(keys).size !== keys.length) { toast.error('Dois campos ficaram com o mesmo nome — ajuste'); return }
+
+    setCreatingTypeLoading(true)
+    try {
+      const res = await fetch('/api/product-types', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: newTypeName.trim(), fields: cleanFields }),
+      })
+      const data = await res.json()
+      if (!res.ok) { toast.error(data.error ?? 'Erro ao criar tipo de produto'); return }
+
+      setProductTypes((prev) => [data, ...prev])
+      setForm((f) => ({ ...f, product_type_id: data.id }))
+      setCreatingType(false)
+      setNewTypeName('')
+      setNewTypeFields(['Login', 'Senha'])
+      toast.success('Tipo de produto criado')
+    } finally {
+      setCreatingTypeLoading(false)
+    }
+  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -79,7 +122,7 @@ export function PlanForm({ plan, bots, onSaved, onCancel }: PlanFormProps) {
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-4">
           {error && (
-            <p className="rounded-md bg-red-900/40 px-4 py-2 text-sm text-red-300">{error}</p>
+            <p className="rounded-md px-4 py-2 text-sm" style={{ background: 'rgba(239,68,68,0.1)', color: '#b91c1c' }}>{error}</p>
           )}
 
           <div className="space-y-1.5">
@@ -221,10 +264,14 @@ export function PlanForm({ plan, bots, onSaved, onCancel }: PlanFormProps) {
                 📦 Após o pagamento, o sistema entregará automaticamente um item disponível do estoque vinculado a este plano. Cadastre os itens em <b>Estoque de Contas</b>.
               </div>
               <div className="space-y-1.5">
-                <Label>Tipo de Produto</Label>
+                <Label>O que vai ser entregue?</Label>
                 <Select
-                  value={form.product_type_id ?? 'default'}
-                  onValueChange={(v) => setForm({ ...form, product_type_id: v === 'default' ? null : v })}
+                  value={creatingType ? 'new' : (form.product_type_id ?? 'default')}
+                  onValueChange={(v) => {
+                    if (v === 'new') { setCreatingType(true); return }
+                    setCreatingType(false)
+                    setForm({ ...form, product_type_id: v === 'default' ? null : v })
+                  }}
                 >
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>
@@ -232,13 +279,50 @@ export function PlanForm({ plan, bots, onSaved, onCancel }: PlanFormProps) {
                     {productTypes.map((pt) => (
                       <SelectItem key={pt.id} value={pt.id}>{pt.name}</SelectItem>
                     ))}
+                    <SelectItem value="new">+ Criar novo tipo de produto...</SelectItem>
                   </SelectContent>
                 </Select>
                 <p className="text-xs text-zinc-500">
-                  Precisa de campos diferentes (banco, chave, código...)? Crie em{' '}
-                  <Link href="/dashboard/product-types" className="underline" style={{ color: '#7c3aed' }}>Tipos de Produto</Link>.
+                  Vendendo algo com mais campos que login/senha (banco, chave, código de recuperação...)? Crie um tipo de produto personalizado.
                 </p>
               </div>
+
+              {creatingType && (
+                <div className="space-y-3 rounded-lg border px-4 py-3" style={{ borderColor: 'rgba(124,58,237,0.2)', background: 'rgba(124,58,237,0.04)' }}>
+                  <div className="space-y-1.5">
+                    <Label>Nome do tipo de produto</Label>
+                    <Input placeholder="Ex: Conta de Streaming, Chave de Licença..." value={newTypeName} onChange={(e) => setNewTypeName(e.target.value)} />
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label>Campos que serão entregues ao cliente</Label>
+                    <div className="space-y-2">
+                      {newTypeFields.map((label, i) => (
+                        <div key={i} className="flex items-center gap-2">
+                          <Input
+                            placeholder="Ex: Contra-senha"
+                            value={label}
+                            onChange={(e) => setNewTypeFields((f) => f.map((x, idx) => idx === i ? e.target.value : x))}
+                          />
+                          <button type="button" onClick={() => setNewTypeFields((f) => f.filter((_, idx) => idx !== i))} className="shrink-0 text-zinc-400 hover:text-red-500">
+                            <X className="h-4 w-4" />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                    <Button type="button" variant="outline" size="sm" onClick={() => setNewTypeFields((f) => [...f, ''])}>
+                      <Plus className="mr-1.5 h-3 w-3" />
+                      Adicionar campo
+                    </Button>
+                  </div>
+                  <div className="flex justify-end gap-2 pt-1">
+                    <Button type="button" variant="outline" size="sm" onClick={() => setCreatingType(false)}>Cancelar</Button>
+                    <Button type="button" size="sm" onClick={handleCreateType} disabled={creatingTypeLoading}>
+                      {creatingTypeLoading && <Loader2 className="mr-2 h-3 w-3 animate-spin" />}
+                      Criar e usar neste plano
+                    </Button>
+                  </div>
+                </div>
+              )}
             </div>
           )}
 

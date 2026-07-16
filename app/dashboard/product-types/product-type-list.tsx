@@ -53,15 +53,7 @@ export function ProductTypeList({ initialTypes }: ProductTypeListProps) {
   function updateFieldLabel(index: number, label: string) {
     setForm((f) => {
       const fields = [...f.fields]
-      fields[index] = { key: fields[index].key || slugify(label), label }
-      return { ...f, fields }
-    })
-  }
-
-  function updateFieldKey(index: number, key: string) {
-    setForm((f) => {
-      const fields = [...f.fields]
-      fields[index] = { ...fields[index], key: slugify(key) }
+      fields[index] = { key: slugify(label), label }
       return { ...f, fields }
     })
   }
@@ -146,18 +138,14 @@ export function ProductTypeList({ initialTypes }: ProductTypeListProps) {
                 <div className="space-y-2">
                   {form.fields.map((field, i) => (
                     <div key={i} className="flex items-center gap-2">
-                      <Input
-                        placeholder="Rótulo (ex: Contra-senha)"
-                        value={field.label}
-                        onChange={(e) => updateFieldLabel(i, e.target.value)}
-                        className="flex-1"
-                      />
-                      <Input
-                        placeholder="chave_planilha"
-                        value={field.key}
-                        onChange={(e) => updateFieldKey(i, e.target.value)}
-                        className="w-40 font-mono text-xs"
-                      />
+                      <div className="flex-1">
+                        <Input
+                          placeholder="Nome do campo (ex: Contra-senha)"
+                          value={field.label}
+                          onChange={(e) => updateFieldLabel(i, e.target.value)}
+                        />
+                        {field.key && <p className="mt-1 font-mono text-[10px] text-zinc-400">coluna na planilha: {field.key}</p>}
+                      </div>
                       <button type="button" onClick={() => removeField(i)} className="shrink-0 text-zinc-400 hover:text-red-500" title="Remover campo">
                         <X className="h-4 w-4" />
                       </button>
