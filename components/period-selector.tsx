@@ -21,7 +21,7 @@ export function PeriodSelector({ defaultValue = '30d' }: PeriodSelectorProps) {
   const current = params.get('period') ?? defaultValue
 
   return (
-    <div className="flex gap-0.5 rounded-xl border border-zinc-800/60 bg-zinc-900/60 p-1">
+    <div className="flex gap-0.5 rounded-xl p-1" style={{ background: 'rgba(0,0,0,0.04)', border: '1px solid rgba(0,0,0,0.08)' }}>
       {PERIODS.map((p) => (
         <button
           key={p.value}
@@ -33,9 +33,10 @@ export function PeriodSelector({ defaultValue = '30d' }: PeriodSelectorProps) {
           className={cn(
             'rounded-lg px-3 py-1.5 text-xs font-medium transition-all duration-150',
             current === p.value
-              ? 'bg-zinc-700 text-zinc-100 shadow-sm'
-              : 'text-zinc-500 hover:text-zinc-200'
+              ? 'shadow-sm'
+              : 'text-zinc-500 hover:text-zinc-700'
           )}
+          style={current === p.value ? { background: '#ffffff', color: '#1a1625' } : undefined}
         >
           {p.label}
         </button>

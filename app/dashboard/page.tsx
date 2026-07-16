@@ -291,7 +291,7 @@ export default async function DashboardPage({ searchParams }: PageProps) {
           style={{ background: 'radial-gradient(ellipse 60% 80% at 50% 0%, rgba(96,165,250,0.08) 0%, transparent 70%)' }} />
         <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-zinc-500 mb-1.5">Painel de Controle</p>
         <h1 className="text-2xl font-black tracking-tight"
-          style={{ background: 'linear-gradient(135deg, #fff 30%, #93c5fd 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+          style={{ background: 'linear-gradient(135deg, #1a1625 30%, #4c1d95 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
           BEM-VINDO, {stats.adminName.toUpperCase()}
         </h1>
         <p className="text-[11px] text-zinc-600 mt-1.5">
@@ -411,7 +411,7 @@ export default async function DashboardPage({ searchParams }: PageProps) {
                   <a.Icon className="h-3.5 w-3.5" style={{ color: a.unlocked ? `rgb(${a.rgb})` : '#3f3f46' }} />
                 </div>
                 <p className="text-[8px] font-bold text-center leading-tight"
-                  style={{ color: a.unlocked ? '#d4d4d8' : '#3f3f46', wordBreak: 'break-word', maxWidth: 44 }}>
+                  style={{ color: '#3f3f46', wordBreak: 'break-word', maxWidth: 44 }}>
                   {a.name}
                 </p>
               </div>
