@@ -70,7 +70,8 @@ export default async function BotAccountsPage({ params }: PageProps) {
         stats={stats}
         lowStockPlans={lowStockPlans}
         bots={[{ id: bot.id, name: bot.name }]}
-        plans={plans ?? []}
+        plans={(plans ?? []).map((p) => ({ ...p, product_type_id: null }))}
+        productTypes={[]}
       />
     </div>
   )

@@ -1,13 +1,14 @@
 'use client'
 
-import { useState } from 'react'
-import { Plan, CreatePlanForm, PlanRole } from '@/types'
+import { useEffect, useState } from 'react'
+import { Plan, CreatePlanForm, PlanRole, ProductType } from '@/types'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Loader2 } from 'lucide-react'
+import Link from 'next/link'
 
 interface PlanFormProps {
   plan?: Plan
@@ -19,6 +20,7 @@ interface PlanFormProps {
 export function PlanForm({ plan, bots, onSaved, onCancel }: PlanFormProps) {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [productTypes, setProductTypes] = useState<ProductType[]>([])
   const [form, setForm] = useState<CreatePlanForm>({
     bot_id: plan?.bot_id ?? (bots[0]?.id ?? ''),
     name: plan?.name ?? '',
@@ -29,7 +31,12 @@ export function PlanForm({ plan, bots, onSaved, onCancel }: PlanFormProps) {
     content_url: plan?.content_url ?? '',
     telegram_chat_id: plan?.telegram_chat_id ?? '',
     plan_role: plan?.plan_role ?? 'main',
+    product_type_id: plan?.product_type_id ?? null,
   })
+
+  useEffect(() => {
+    fetch('/api/product-types').then((r) => r.ok ? r.json() : []).then(setProductTypes).catch(() => {})
+  }, [])
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -209,8 +216,29 @@ export function PlanForm({ plan, bots, onSaved, onCancel }: PlanFormProps) {
           )}
 
           {form.content_type === 'account_stock' && (
-            <div className="rounded-lg border border-blue-500/20 bg-blue-500/5 px-4 py-3 text-sm text-blue-300">
-              📦 Após o pagamento, o sistema entregará automaticamente uma conta disponível do estoque vinculada a este plano. Cadastre as contas em <b>Estoque de Contas</b>.
+            <div className="space-y-3">
+              <div className="rounded-lg border border-blue-500/20 bg-blue-500/5 px-4 py-3 text-sm text-blue-300">
+                📦 Após o pagamento, o sistema entregará automaticamente um item disponível do estoque vinculado a este plano. Cadastre os itens em <b>Estoque de Contas</b>.
+              </div>
+              <div className="space-y-1.5">
+                <Label>Tipo de Produto</Label>
+                <Select
+                  value={form.product_type_id ?? 'default'}
+                  onValueChange={(v) => setForm({ ...form, product_type_id: v === 'default' ? null : v })}
+                >
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="default">Padrão (login e senha)</SelectItem>
+                    {productTypes.map((pt) => (
+                      <SelectItem key={pt.id} value={pt.id}>{pt.name}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <p className="text-xs text-zinc-500">
+                  Precisa de campos diferentes (banco, chave, código...)? Crie em{' '}
+                  <Link href="/dashboard/product-types" className="underline" style={{ color: '#7c3aed' }}>Tipos de Produto</Link>.
+                </p>
+              </div>
             </div>
           )}
 

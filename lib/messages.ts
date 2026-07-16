@@ -1,4 +1,5 @@
 import { supabaseAdmin } from './supabase'
+import { AccountStock, ProductType } from '@/types'
 
 export interface MessageMeta {
   label: string
@@ -161,4 +162,42 @@ export async function getBotMessage(
 
   const template = data?.content ?? MESSAGE_KEYS[key]?.default ?? ''
   return vars ? replaceVars(template, vars) : template
+}
+
+function escapeHtml(value: string): string {
+  return value
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+}
+
+// Build the delivery message for an account_stock item that belongs to a
+// custom product type (arbitrary fields instead of the fixed login/password).
+// Falls back to an auto-generated field list when the product type has no
+// custom message_template.
+export function buildAccountStockMessage(
+  productType: ProductType,
+  account: AccountStock,
+  planName: string,
+  warrantyDays: number | null
+): string {
+  const values = account.custom_fields ?? {}
+  const garantia = warrantyDays ? `\n⚠️ Garantia de funcionamento por <b>${warrantyDays} dias</b>` : ''
+
+  if (productType.message_template) {
+    const vars: Record<string, string> = { plano: planName, garantia: garantia.trim() }
+    for (const f of productType.fields) vars[f.key] = escapeHtml(values[f.key] ?? '')
+    return replaceVars(productType.message_template, vars)
+  }
+
+  const lines = productType.fields
+    .map((f) => `🔹 <b>${escapeHtml(f.label)}:</b> <code>${escapeHtml(values[f.key] ?? '—')}</code>`)
+    .join('\n')
+
+  return (
+    `✅ <b>Pagamento confirmado!</b>\n\n` +
+    `Seu acesso ao plano <b>${escapeHtml(planName)}</b> foi liberado:\n\n` +
+    `${lines}${garantia}\n\n` +
+    `Qualquer problema, chame o suporte.`
+  )
 }

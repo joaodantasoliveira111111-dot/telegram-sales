@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase'
 import { sendMessage, createInviteLink, sendButtons } from '@/lib/telegram'
-import { reserveAccountForPlan, markAccountDelivered } from '@/lib/accounts'
+import { reserveAccountForPlan, markAccountDelivered, buildAccountDeliveryMessage } from '@/lib/accounts'
 import { validateWebhookToken } from '@/lib/amplopay'
 import { addDays } from '@/lib/utils'
 import { sendPurchaseEvent } from '@/lib/meta'
@@ -139,18 +139,7 @@ export async function POST(request: NextRequest) {
       }
 
       if (account) {
-        const warrantyDays = account.warranty_until
-          ? Math.ceil((new Date(account.warranty_until).getTime() - Date.now()) / 86400000)
-          : null
-
-        const msg = await getBotMessage(payment.bot_id, 'payment_confirmed_account', {
-          nome: '',
-          plano: plan.name,
-          login: account.login,
-          senha: account.password,
-          extra: account.extra_info ? `📋 Extra: <code>${account.extra_info}</code>` : '',
-          garantia: warrantyDays ? `- Garantia de funcionamento por <b>${warrantyDays} dias</b>` : '',
-        })
+        const msg = await buildAccountDeliveryMessage(payment.bot_id, plan, account)
 
         try {
           await sendMessage(botToken, chatId, msg)

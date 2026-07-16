@@ -45,6 +45,7 @@ export async function POST(request: NextRequest) {
       content_type: body.content_type,
       content_url: body.content_url ?? null,
       telegram_chat_id: body.telegram_chat_id ?? null,
+      product_type_id: body.product_type_id ?? null,
     })
     .select()
     .single()

@@ -7,13 +7,14 @@ import { getSessionFromCookies } from '@/lib/session'
 import { AccountStockList } from './account-stock-list'
 
 async function getData() {
-  const [accounts, bots, plans] = await Promise.all([
+  const [accounts, bots, plans, productTypes] = await Promise.all([
     supabaseAdmin
       .from('account_stocks')
       .select('*, bot:bots(name), plan:plans(name)')
       .order('created_at', { ascending: false }),
     supabaseAdmin.from('bots').select('id, name').eq('is_active', true),
-    supabaseAdmin.from('plans').select('id, name, bot_id'),
+    supabaseAdmin.from('plans').select('id, name, bot_id, product_type_id'),
+    supabaseAdmin.from('product_types').select('*'),
   ])
 
   const all = accounts.data ?? []
@@ -41,6 +42,7 @@ async function getData() {
     lowStockPlans,
     bots: bots.data ?? [],
     plans: plans.data ?? [],
+    productTypes: productTypes.data ?? [],
   }
 }
 
@@ -49,13 +51,13 @@ export default async function AccountStockPage() {
   const session = await getSessionFromCookies(cookieStore)
   if (session?.type === 'user') redirect('/dashboard')
 
-  const { accounts, stats, lowStockPlans, bots, plans } = await getData()
+  const { accounts, stats, lowStockPlans, bots, plans, productTypes } = await getData()
 
   return (
     <div className="space-y-6">
       <div>
         <h2 className="text-2xl font-bold tracking-tight text-zinc-100">Estoque de Contas</h2>
-        <p className="text-sm text-zinc-500">Gerencie logins e senhas entregues automaticamente após pagamento</p>
+        <p className="text-sm text-zinc-500">Gerencie os itens entregues automaticamente após pagamento</p>
       </div>
       <AccountStockList
         initialAccounts={accounts}
@@ -63,6 +65,7 @@ export default async function AccountStockPage() {
         lowStockPlans={lowStockPlans}
         bots={bots}
         plans={plans}
+        productTypes={productTypes}
       />
     </div>
   )

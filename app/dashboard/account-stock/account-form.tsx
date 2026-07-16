@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -8,17 +8,18 @@ import { Textarea } from '@/components/ui/textarea'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Loader2, Eye, EyeOff } from 'lucide-react'
-import { AccountStock } from '@/types'
+import { AccountStock, ProductType } from '@/types'
 
 interface AccountFormProps {
   bots: { id: string; name: string }[]
-  plans: { id: string; name: string; bot_id: string }[]
+  plans: { id: string; name: string; bot_id: string; product_type_id: string | null }[]
+  productTypes: ProductType[]
   account?: AccountStock
   onSaved: (a: AccountStock) => void
   onCancel: () => void
 }
 
-export function AccountForm({ bots, plans, account, onSaved, onCancel }: AccountFormProps) {
+export function AccountForm({ bots, plans, productTypes, account, onSaved, onCancel }: AccountFormProps) {
   const [loading, setLoading] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState('')
@@ -31,9 +32,19 @@ export function AccountForm({ bots, plans, account, onSaved, onCancel }: Account
     extra_info: account?.extra_info ?? '',
     notes: account?.notes ?? '',
     warranty_days: '',
+    custom_fields: account?.custom_fields ?? {} as Record<string, string>,
   })
 
   const botPlans = plans.filter((p) => p.bot_id === form.bot_id)
+  const selectedPlan = plans.find((p) => p.id === form.plan_id)
+  const productType = useMemo(
+    () => selectedPlan?.product_type_id ? productTypes.find((pt) => pt.id === selectedPlan.product_type_id) ?? null : null,
+    [selectedPlan, productTypes]
+  )
+
+  function setCustomField(key: string, value: string) {
+    setForm((f) => ({ ...f, custom_fields: { ...f.custom_fields, [key]: value } }))
+  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -42,6 +53,7 @@ export function AccountForm({ bots, plans, account, onSaved, onCancel }: Account
     try {
       const url = account ? `/api/account-stock/${account.id}` : '/api/account-stock'
       const method = account ? 'PATCH' : 'POST'
+      const usingCustomFields = !!productType
       const res = await fetch(url, {
         method,
         headers: { 'Content-Type': 'application/json' },
@@ -52,6 +64,9 @@ export function AccountForm({ bots, plans, account, onSaved, onCancel }: Account
           extra_info: form.extra_info || null,
           notes: form.notes || null,
           warranty_days: form.warranty_days ? Number(form.warranty_days) : undefined,
+          login: usingCustomFields ? null : form.login,
+          password: usingCustomFields ? null : form.password,
+          custom_fields: usingCustomFields ? form.custom_fields : {},
         }),
       })
       const data = await res.json()
@@ -63,13 +78,13 @@ export function AccountForm({ bots, plans, account, onSaved, onCancel }: Account
   }
 
   return (
-    <Card className="border-zinc-800 bg-zinc-900/60">
+    <Card>
       <CardHeader>
-        <CardTitle className="text-zinc-100">{account ? 'Editar Conta' : 'Nova Conta'}</CardTitle>
+        <CardTitle>{account ? 'Editar Item' : 'Novo Item'}</CardTitle>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-4">
-          {error && <p className="rounded-md bg-red-900/40 px-4 py-2 text-sm text-red-300">{error}</p>}
+          {error && <p className="rounded-md px-4 py-2 text-sm" style={{ background: 'rgba(239,68,68,0.1)', color: '#b91c1c' }}>{error}</p>}
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-1.5">
@@ -99,28 +114,42 @@ export function AccountForm({ bots, plans, account, onSaved, onCancel }: Account
             <p className="text-xs text-zinc-500">Vincular ao plano permite entrega automática após pagamento.</p>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-1.5">
-              <Label>Login / E-mail</Label>
-              <Input placeholder="usuario@email.com" value={form.login} onChange={(e) => setForm({ ...form, login: e.target.value })} required />
-            </div>
-            <div className="space-y-1.5">
-              <Label>Senha</Label>
-              <div className="relative">
-                <Input
-                  type={showPassword ? 'text' : 'password'}
-                  placeholder="••••••••"
-                  value={form.password}
-                  onChange={(e) => setForm({ ...form, password: e.target.value })}
-                  required
-                  className="pr-10"
-                />
-                <button type="button" className="absolute right-3 top-2.5 text-zinc-500 hover:text-zinc-300" onClick={() => setShowPassword(!showPassword)}>
-                  {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                </button>
+          {productType ? (
+            <div className="space-y-3 rounded-lg border px-4 py-3" style={{ borderColor: 'rgba(124,58,237,0.2)', background: 'rgba(124,58,237,0.04)' }}>
+              <p className="text-xs font-semibold" style={{ color: '#6d28d9' }}>Campos de {productType.name}</p>
+              <div className="grid grid-cols-2 gap-4">
+                {productType.fields.map((f) => (
+                  <div key={f.key} className="space-y-1.5">
+                    <Label>{f.label}</Label>
+                    <Input value={form.custom_fields[f.key] ?? ''} onChange={(e) => setCustomField(f.key, e.target.value)} required />
+                  </div>
+                ))}
               </div>
             </div>
-          </div>
+          ) : (
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-1.5">
+                <Label>Login / E-mail</Label>
+                <Input placeholder="usuario@email.com" value={form.login} onChange={(e) => setForm({ ...form, login: e.target.value })} required />
+              </div>
+              <div className="space-y-1.5">
+                <Label>Senha</Label>
+                <div className="relative">
+                  <Input
+                    type={showPassword ? 'text' : 'password'}
+                    placeholder="••••••••"
+                    value={form.password}
+                    onChange={(e) => setForm({ ...form, password: e.target.value })}
+                    required
+                    className="pr-10"
+                  />
+                  <button type="button" className="absolute right-3 top-2.5 text-zinc-500 hover:text-zinc-700" onClick={() => setShowPassword(!showPassword)}>
+                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-1.5">
@@ -135,14 +164,14 @@ export function AccountForm({ bots, plans, account, onSaved, onCancel }: Account
 
           <div className="space-y-1.5">
             <Label>Observações internas</Label>
-            <Textarea placeholder="Notas internas sobre esta conta..." value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} className="min-h-[60px]" />
+            <Textarea placeholder="Notas internas sobre este item..." value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} className="min-h-[60px]" />
           </div>
 
           <div className="flex justify-end gap-3 pt-2">
             <Button type="button" variant="outline" onClick={onCancel}>Cancelar</Button>
             <Button type="submit" disabled={loading}>
               {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              {account ? 'Salvar' : 'Cadastrar Conta'}
+              {account ? 'Salvar' : 'Cadastrar Item'}
             </Button>
           </div>
         </form>

@@ -6,6 +6,7 @@ import {
   LayoutDashboard, Bot, Users2, Megaphone, Handshake,
   Shield, ExternalLink, CreditCard, BarChart2, UserCheck,
   Wand2, Settings, LogOut, Link2, X, UsersRound,
+  Package, LayoutList,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
@@ -44,6 +45,13 @@ const NAV = [
       { href: '/dashboard/subscriptions', label: 'Assinaturas', icon: BarChart2 },
       { href: '/dashboard/crm', label: 'CRM', icon: UserCheck },
       { href: '/dashboard/users', label: 'Usuários SaaS', icon: UsersRound },
+    ],
+  },
+  {
+    label: 'Produtos',
+    items: [
+      { href: '/dashboard/account-stock', label: 'Estoque de Contas', icon: Package },
+      { href: '/dashboard/product-types', label: 'Tipos de Produto', icon: LayoutList },
     ],
   },
   {

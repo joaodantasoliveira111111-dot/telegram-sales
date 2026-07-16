@@ -26,7 +26,23 @@ export interface Plan {
   content_url: string | null
   telegram_chat_id: string | null
   plan_role: PlanRole
+  product_type_id: string | null
   created_at: string
+}
+
+// ── Custom product types (arbitrary delivery fields for account_stock plans) ──
+export interface ProductTypeField {
+  key: string
+  label: string
+}
+
+export interface ProductType {
+  id: string
+  name: string
+  fields: ProductTypeField[]
+  message_template: string | null
+  created_at: string
+  updated_at: string
 }
 
 export interface TelegramUser {
@@ -71,9 +87,10 @@ export interface AccountStock {
   bot_id: string | null
   plan_id: string | null
   product_name: string
-  login: string
-  password: string
+  login: string | null
+  password: string | null
   extra_info: string | null
+  custom_fields: Record<string, string>
   status: AccountStatus
   delivered_to_telegram_id: string | null
   delivered_payment_id: string | null
@@ -83,7 +100,7 @@ export interface AccountStock {
   created_at: string
   updated_at: string
   bot?: { name: string }
-  plan?: { name: string }
+  plan?: { name: string; product_type_id?: string | null }
 }
 
 export interface WebhookLog {
@@ -187,4 +204,5 @@ export interface CreatePlanForm {
   content_url?: string
   telegram_chat_id?: string
   plan_role: PlanRole
+  product_type_id?: string | null
 }

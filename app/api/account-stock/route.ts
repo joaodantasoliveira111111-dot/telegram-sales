@@ -35,10 +35,11 @@ export async function POST(request: NextRequest) {
   if (deny) return deny
 
   const body = await request.json()
-  const { product_name, login, password, extra_info, notes, bot_id, plan_id, warranty_days } = body
+  const { product_name, login, password, extra_info, notes, bot_id, plan_id, warranty_days, custom_fields } = body
 
-  if (!product_name || !login || !password) {
-    return NextResponse.json({ error: 'product_name, login e password são obrigatórios' }, { status: 400 })
+  const hasCustomFields = custom_fields && typeof custom_fields === 'object' && Object.keys(custom_fields).length > 0
+  if (!product_name || (!hasCustomFields && (!login || !password))) {
+    return NextResponse.json({ error: 'product_name e (login/password ou campos personalizados) são obrigatórios' }, { status: 400 })
   }
 
   const warranty_until = warranty_days
@@ -47,7 +48,17 @@ export async function POST(request: NextRequest) {
 
   const { data, error } = await supabaseAdmin
     .from('account_stocks')
-    .insert({ product_name, login, password, extra_info: extra_info || null, notes: notes || null, bot_id: bot_id || null, plan_id: plan_id || null, warranty_until })
+    .insert({
+      product_name,
+      login: login || null,
+      password: password || null,
+      extra_info: extra_info || null,
+      notes: notes || null,
+      bot_id: bot_id || null,
+      plan_id: plan_id || null,
+      warranty_until,
+      custom_fields: hasCustomFields ? custom_fields : {},
+    })
     .select()
     .single()
 
