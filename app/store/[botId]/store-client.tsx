@@ -261,6 +261,105 @@ export function StoreClient({ botId }: { botId: string }) {
           <CheckoutScreen product={selected} theme={theme} accent={accent} checkout={checkout} status={paymentStatus} />
         )}
       </div>
+
+      {data.config.show_social_proof && (
+        <SocialProofToast
+          products={data.products}
+          theme={theme}
+          accent={accent}
+          accent2={accent2}
+          active={screen === 'store'}
+        />
+      )}
+    </div>
+  )
+}
+
+const FAKE_FIRST_NAMES = [
+  'Lucas', 'Mariana', 'Gabriel', 'Ana Clara', 'Pedro', 'Julia', 'Rafael', 'Camila',
+  'Bruno', 'Fernanda', 'Thiago', 'Larissa', 'Diego', 'Beatriz', 'Vinicius', 'Amanda',
+  'Matheus', 'Isabela', 'Gustavo', 'Yasmin',
+]
+const FAKE_CITIES = [
+  'São Paulo', 'Rio de Janeiro', 'Belo Horizonte', 'Curitiba', 'Salvador',
+  'Fortaleza', 'Recife', 'Porto Alegre', 'Brasília', 'Campinas',
+]
+
+// Purchase-notification toast — starts as simulated social proof (randomized
+// name/city + a real product from this store's own catalog), cycling on the
+// store screen only. The shape is deliberately compatible with swapping in
+// real recent payments later (same product + a timestamp), without touching
+// the visual layer.
+function SocialProofToast({ products, theme, accent, accent2, active }: {
+  products: Product[]; theme: ThemeTokens; accent: string; accent2: string; active: boolean
+}) {
+  const [current, setCurrent] = useState<{ id: number; name: string; city: string; product: Product; minsAgo: number } | null>(null)
+  const idRef = useRef(0)
+
+  useEffect(() => {
+    if (!active || products.length === 0) return
+    let cancelled = false
+    let timer: ReturnType<typeof setTimeout>
+
+    function scheduleNext(delay: number) {
+      timer = setTimeout(() => {
+        if (cancelled) return
+        const product = products[Math.floor(Math.random() * products.length)]
+        const name = FAKE_FIRST_NAMES[Math.floor(Math.random() * FAKE_FIRST_NAMES.length)]
+        const city = FAKE_CITIES[Math.floor(Math.random() * FAKE_CITIES.length)]
+        const minsAgo = Math.floor(Math.random() * 12) + 1
+        idRef.current += 1
+        setCurrent({ id: idRef.current, name, city, product, minsAgo })
+
+        timer = setTimeout(() => {
+          if (cancelled) return
+          setCurrent(null)
+          scheduleNext(9000 + Math.random() * 7000)
+        }, 4800)
+      }, delay)
+    }
+
+    scheduleNext(3200)
+    return () => { cancelled = true; clearTimeout(timer) }
+  }, [active, products])
+
+  if (!current) return null
+
+  return (
+    <div
+      key={current.id}
+      className="ma-toast"
+      style={{
+        position: 'fixed', left: 12, right: 12, bottom: 'calc(14px + env(safe-area-inset-bottom, 0px))', zIndex: 40,
+        display: 'flex', alignItems: 'center', gap: 10, maxWidth: 380, margin: '0 auto',
+        background: theme.dark ? 'rgba(17,23,36,0.94)' : 'rgba(255,255,255,0.97)',
+        backdropFilter: 'blur(14px)', WebkitBackdropFilter: 'blur(14px)',
+        borderRadius: 14, padding: '10px 12px',
+        boxShadow: '0 14px 32px -10px rgba(0,0,0,0.4)',
+        border: `1px solid ${theme.dark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)'}`,
+      }}
+    >
+      <div style={{
+        width: 34, height: 34, borderRadius: '50%', flexShrink: 0,
+        background: `linear-gradient(135deg, ${accent}, ${accent2})`,
+        display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: 13, fontWeight: 800,
+      }}>
+        {current.name[0]}
+      </div>
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <p style={{ margin: 0, fontSize: 11.5, fontWeight: 700, color: theme.text }}>
+          {current.name} · {current.city}
+        </p>
+        <p style={{ margin: '1px 0 0', fontSize: 11, color: theme.hint, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+          comprou <b style={{ color: theme.text }}>{current.product.name}</b> há {current.minsAgo} min
+        </p>
+      </div>
+      {current.product.miniapp_image_url ? (
+        // eslint-disable-next-line @next/next/no-img-element -- small product thumbnail inside a toast, not a Next-optimizable local asset
+        <img src={current.product.miniapp_image_url} alt="" style={{ width: 26, height: 26, borderRadius: 7, objectFit: 'cover', flexShrink: 0 }} />
+      ) : (
+        <span style={{ fontSize: 17, flexShrink: 0 }}>{current.product.miniapp_icon || '🛒'}</span>
+      )}
     </div>
   )
 }
@@ -274,12 +373,14 @@ function GlobalFx() {
       @keyframes ma-pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.45; } }
       @keyframes ma-spin { to { transform: rotate(360deg); } }
       @keyframes ma-kenburns { from { transform: scale(1.06); } to { transform: scale(1.14); } }
+      @keyframes ma-toast-in { from { opacity: 0; transform: translateY(16px) scale(0.97); } to { opacity: 1; transform: translateY(0) scale(1); } }
       .ma-enter-right { animation: ma-slide-in-r 0.28s cubic-bezier(0.22,1,0.36,1) both; }
       .ma-enter-left { animation: ma-slide-in-l 0.28s cubic-bezier(0.22,1,0.36,1) both; }
       .ma-card { transition: transform 0.12s ease, box-shadow 0.12s ease; }
       .ma-card:active { transform: scale(0.965); }
+      .ma-toast { animation: ma-toast-in 0.4s cubic-bezier(0.22,1,0.36,1) both; }
       @media (prefers-reduced-motion: reduce) {
-        .ma-enter-right, .ma-enter-left { animation: none; }
+        .ma-enter-right, .ma-enter-left, .ma-toast { animation: none; }
         .ma-kenburns { animation: none !important; }
       }
     `}</style>

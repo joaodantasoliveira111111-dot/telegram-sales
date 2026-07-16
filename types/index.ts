@@ -54,6 +54,7 @@ export interface MiniAppConfig {
   show_categories: boolean
   show_rating: boolean
   show_trust_badges: boolean
+  show_social_proof: boolean
   rating_value: string
   rating_count_label: string
 }
@@ -73,6 +74,7 @@ export const DEFAULT_MINIAPP_CONFIG: MiniAppConfig = {
   show_categories: true,
   show_rating: true,
   show_trust_badges: true,
+  show_social_proof: true,
   rating_value: '4.9',
   rating_count_label: '+2.400 vendas',
 }

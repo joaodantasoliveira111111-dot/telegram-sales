@@ -460,6 +460,7 @@ function CustomizeTab({ config, onSave }: { config: MiniAppConfig; onSave: (patc
               ['show_categories', 'Mostrar categorias'],
               ['show_rating', 'Mostrar selo de avaliação'],
               ['show_trust_badges', 'Mostrar rodapé de confiança'],
+              ['show_social_proof', 'Notificações de "acabou de comprar"'],
             ] as const).map(([key, label]) => (
               <label key={key} className="flex cursor-pointer items-center justify-between rounded-lg px-1 py-2.5 text-sm" style={{ color: '#3f3f46' }}>
                 {label}
