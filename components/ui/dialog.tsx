@@ -32,13 +32,19 @@ const DialogContent = React.forwardRef<
     <DialogPrimitive.Content
       ref={ref}
       className={cn(
-        'fixed left-[50%] top-[50%] z-50 w-full max-w-lg translate-x-[-50%] translate-y-[-50%] rounded-xl border border-zinc-800 bg-zinc-950 p-6 shadow-lg',
+        'fixed left-[50%] top-[50%] z-50 w-full max-w-lg translate-x-[-50%] translate-y-[-50%] rounded-xl border p-6 shadow-lg',
         className
       )}
+      style={{
+        background: 'rgba(255,255,255,0.92)',
+        borderColor: 'rgba(0,0,0,0.08)',
+        backdropFilter: 'blur(24px) saturate(180%)',
+        WebkitBackdropFilter: 'blur(24px) saturate(180%)',
+      }}
       {...props}
     >
       {children}
-      <DialogClose className="absolute right-4 top-4 rounded-sm text-zinc-400 hover:text-zinc-100">
+      <DialogClose className="absolute right-4 top-4 rounded-sm" style={{ color: '#71717a' }}>
         <X className="h-4 w-4" />
       </DialogClose>
     </DialogPrimitive.Content>
