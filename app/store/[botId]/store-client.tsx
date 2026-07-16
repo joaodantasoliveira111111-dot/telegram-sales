@@ -368,7 +368,7 @@ function StoreScreen({ config, theme, accent, accent2, categories, activeCategor
 }) {
   return (
     <div>
-      <div style={{ height: 152, position: 'relative', overflow: 'hidden' }}>
+      <div style={{ height: 174, position: 'relative', overflow: 'hidden' }}>
         {config.banner_url ? (
           <>
             {/* eslint-disable-next-line @next/next/no-img-element -- user-uploaded banner, arbitrary storage URL, background cover treatment */}
@@ -383,9 +383,9 @@ function StoreScreen({ config, theme, accent, accent2, categories, activeCategor
         )}
         <div style={{ position: 'relative', height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', padding: 14 }}>
           <div style={{
-            width: 52, height: 52, borderRadius: 15, background: 'rgba(255,255,255,0.96)', overflow: 'hidden',
-            display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 24,
-            marginBottom: 9, boxShadow: '0 10px 22px rgba(0,0,0,0.28)',
+            width: 76, height: 76, borderRadius: '50%', background: 'rgba(255,255,255,0.96)', overflow: 'hidden',
+            display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 34,
+            marginBottom: 10, boxShadow: '0 10px 24px rgba(0,0,0,0.3), 0 0 0 3px rgba(255,255,255,0.35)',
           }}>
             {config.logo_url ? (
               // eslint-disable-next-line @next/next/no-img-element -- user-uploaded logo, arbitrary storage URL

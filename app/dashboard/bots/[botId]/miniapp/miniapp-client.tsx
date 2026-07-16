@@ -417,7 +417,7 @@ function CustomizeTab({ config, onSave }: { config: MiniAppConfig; onSave: (patc
           <div className="space-y-2">
             <Label>Ícone da loja</Label>
             <div className="flex items-start gap-4">
-              <CompactImageUpload value={local.logo_url} onChange={(url) => update('logo_url', url)} width={52} height={52} radius={14} />
+              <CompactImageUpload value={local.logo_url} onChange={(url) => update('logo_url', url)} width={72} height={72} radius={999} />
               <div className="flex-1 space-y-1.5">
                 <p className="text-[10.5px] font-semibold" style={{ color: '#a1a1aa' }}>ou escolha um emoji rápido</p>
                 <div className="flex flex-wrap gap-2">
@@ -501,7 +501,7 @@ function CustomizeTab({ config, onSave }: { config: MiniAppConfig; onSave: (patc
                   <div className="absolute inset-0" style={{ background: `linear-gradient(180deg, ${local.accent}55, rgba(0,0,0,0.5))` }} />
                 </>
               )}
-              <div className="relative flex h-8 w-8 items-center justify-center overflow-hidden rounded-lg bg-white/95 text-sm">
+              <div className="relative flex h-11 w-11 items-center justify-center overflow-hidden rounded-full bg-white/95 text-base">
                 {local.logo_url ? (
                   // eslint-disable-next-line @next/next/no-img-element -- preview thumbnail of an uploaded image
                   <img src={local.logo_url} alt="" className="h-full w-full object-cover" />
