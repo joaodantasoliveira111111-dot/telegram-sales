@@ -35,12 +35,23 @@ export async function DELETE(request: NextRequest, { params }: { params: Promise
   return NextResponse.json({ ok: true })
 }
 
-export async function GET(_: NextRequest, { params }: { params: Promise<{ id: string }> }) {
-  const { id } = await params
+export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const session = await getSessionFromRequest(request)
+  if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+
+  const { id: code } = await params
+
+  if (session.type === 'user') {
+    const botIds = await getUserBotIds(session.userId!)
+    if (botIds.length === 0) return NextResponse.json([])
+    const { data: affiliate } = await supabaseAdmin.from('affiliates').select('id').eq('code', code).in('bot_id', botIds).maybeSingle()
+    if (!affiliate) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+  }
+
   const { data: payments, error } = await supabaseAdmin
     .from('payments')
     .select('id, plan_name, plan_price, created_at, status')
-    .eq('affiliate_code', id)
+    .eq('affiliate_code', code)
     .eq('status', 'paid')
     .order('created_at', { ascending: false })
     .limit(50)

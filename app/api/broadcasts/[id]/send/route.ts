@@ -1,11 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase'
 import { sendMessage, sendPhoto, sendVideo } from '@/lib/telegram'
+import { getSessionFromRequest, getUserBotIds } from '@/lib/session'
 
 export async function POST(
-  _request: NextRequest,
+  request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const session = await getSessionFromRequest(request)
+  if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+
   const { id } = await params
 
   const { data: broadcast, error: bErr } = await supabaseAdmin
@@ -16,6 +20,11 @@ export async function POST(
 
   if (bErr || !broadcast) {
     return NextResponse.json({ error: 'Broadcast não encontrado' }, { status: 404 })
+  }
+
+  if (session.type === 'user') {
+    const botIds = await getUserBotIds(session.userId!)
+    if (!botIds.includes(broadcast.bot_id)) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
   }
 
   if (broadcast.status === 'sending') {

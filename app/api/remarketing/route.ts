@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase'
-import { getSessionFromRequest } from '@/lib/session'
+import { getSessionFromRequest, getUserBotIds } from '@/lib/session'
 
 export async function GET(request: NextRequest) {
   const session = await getSessionFromRequest(request)
@@ -9,15 +9,23 @@ export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url)
   const botId = searchParams.get('bot_id')
 
+  if (session.type === 'user') {
+    const botIds = await getUserBotIds(session.userId!)
+    if (botIds.length === 0) return NextResponse.json([])
+    if (botId && !botIds.includes(botId)) return NextResponse.json([])
+  }
+
   let query = supabaseAdmin
     .from('remarketing_sequences')
     .select('*, steps:remarketing_steps(*)')
     .order('created_at', { ascending: false })
 
-  if (session.type === 'user') {
-    query = query.eq('bot_id', botId ?? '') // must supply bot_id
+  if (botId) {
+    query = query.eq('bot_id', botId)
+  } else if (session.type === 'user') {
+    const botIds = await getUserBotIds(session.userId!)
+    query = query.in('bot_id', botIds)
   }
-  if (botId) query = query.eq('bot_id', botId)
 
   const { data, error } = await query
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
@@ -36,6 +44,10 @@ export async function POST(request: NextRequest) {
   }
   if (!['no_payment', 'no_interaction'].includes(trigger)) {
     return NextResponse.json({ error: 'trigger inválido' }, { status: 400 })
+  }
+  if (session.type === 'user') {
+    const botIds = await getUserBotIds(session.userId!)
+    if (!botIds.includes(bot_id)) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
   }
 
   const { data: seq, error } = await supabaseAdmin

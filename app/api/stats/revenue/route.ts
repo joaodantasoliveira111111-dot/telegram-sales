@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase'
+import { getSessionFromRequest, getUserBotIds } from '@/lib/session'
 
 export const dynamic = 'force-dynamic'
 
@@ -42,12 +43,21 @@ function getRange(period: string): { since: Date; until: Date; points: { key: st
 }
 
 export async function GET(request: NextRequest) {
+  const session = await getSessionFromRequest(request)
+  if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+
+  const botIds = session.type === 'user' ? await getUserBotIds(session.userId!) : null
+  if (botIds && botIds.length === 0) {
+    return request.nextUrl.searchParams.get('total') === '1'
+      ? NextResponse.json({ total: 0 })
+      : NextResponse.json([])
+  }
+
   // Return total all-time revenue for milestone widget
   if (request.nextUrl.searchParams.get('total') === '1') {
-    const { data } = await supabaseAdmin
-      .from('payments')
-      .select('plan:plans(price)')
-      .eq('status', 'paid')
+    let q = supabaseAdmin.from('payments').select('plan:plans(price)').eq('status', 'paid')
+    if (botIds) q = q.in('bot_id', botIds)
+    const { data } = await q
     const total = (data ?? []).reduce((sum, p) => sum + (((p.plan as unknown) as { price: number } | null)?.price ?? 0), 0)
     return NextResponse.json({ total })
   }
@@ -56,13 +66,16 @@ export async function GET(request: NextRequest) {
   const { since, until, points } = getRange(period)
   const isHourly = period === 'today' || period === 'yesterday'
 
-  const { data, error } = await supabaseAdmin
+  let query = supabaseAdmin
     .from('payments')
     .select('created_at, plan:plans(price)')
     .eq('status', 'paid')
     .gte('created_at', since.toISOString())
     .lt('created_at', until.toISOString())
     .order('created_at', { ascending: true })
+  if (botIds) query = query.in('bot_id', botIds)
+
+  const { data, error } = await query
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
 

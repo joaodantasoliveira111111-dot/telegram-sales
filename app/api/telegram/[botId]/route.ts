@@ -9,8 +9,8 @@ import {
   sendVideoWithButtons,
   answerCallbackQuery,
 } from '@/lib/telegram'
-import { createPix } from '@/lib/amplopay'
-import { createPix as pushinpayCreatePix } from '@/lib/pushinpay'
+import { createPix, withWebhookToken as withAmplopayWebhookToken } from '@/lib/amplopay'
+import { createPix as pushinpayCreatePix, withWebhookToken } from '@/lib/pushinpay'
 import { getSetting } from '@/lib/settings'
 import { TelegramUpdate, Plan } from '@/types'
 import { getBotMessage } from '@/lib/messages'
@@ -301,7 +301,7 @@ async function handleCallbackQuery(bot: Record<string, unknown>, update: Telegra
     if (gateway === 'pushinpay') {
       const r = await pushinpayCreatePix({
         value: Number(plan.price),
-        webhookUrl: baseUrl ? `${baseUrl}/api/pushinpay/webhook` : undefined,
+        webhookUrl: baseUrl ? await withWebhookToken(`${baseUrl}/api/pushinpay/webhook`) : undefined,
       })
       await supabaseAdmin.from('payments').update({
         transaction_id: r.id,
@@ -319,7 +319,7 @@ async function handleCallbackQuery(bot: Record<string, unknown>, update: Telegra
           phone: '11999999999',
           document: '78189144472',
         },
-        callbackUrl: baseUrl ? `${baseUrl}/api/amplopay/webhook` : undefined,
+        callbackUrl: baseUrl ? await withAmplopayWebhookToken(`${baseUrl}/api/amplopay/webhook`) : undefined,
       })
       await supabaseAdmin.from('payments').update({
         transaction_id: r.transactionId,

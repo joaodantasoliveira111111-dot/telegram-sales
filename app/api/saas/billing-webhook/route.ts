@@ -1,9 +1,27 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase'
+import { getSettings } from '@/lib/settings'
 
 // Receives payment notifications for SaaS subscription billing
 // Called by AmloPay/PushinPay after user pays for their plan
 export async function POST(request: NextRequest) {
+  const token =
+    request.headers.get('x-webhook-token') ??
+    request.nextUrl.searchParams.get('token')
+
+  // Accepts either gateway's SaaS-billing-specific token — this single endpoint
+  // serves both AmploPay and PushinPay callbacks depending on which gateway is
+  // configured for SaaS billing. If neither token is configured, requests are
+  // allowed through (matches the lenient default used by the per-gateway routes).
+  const settings = await getSettings(['saas_billing_amplopay_webhook_token', 'saas_billing_pushinpay_webhook_token'])
+  const amploToken = settings.saas_billing_amplopay_webhook_token
+  const pushinToken = settings.saas_billing_pushinpay_webhook_token
+  const anyConfigured = !!amploToken || !!pushinToken
+  const matches = (amploToken && token === amploToken) || (pushinToken && token === pushinToken)
+  if (anyConfigured && !matches) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
+
   let body: Record<string, unknown>
   try { body = await request.json() } catch {
     return NextResponse.json({ error: 'Bad request' }, { status: 400 })

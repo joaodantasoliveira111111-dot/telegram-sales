@@ -190,7 +190,7 @@ export function SettingsForm({ initial }: Props) {
   }
 
   const amplopayKeys = ['amplopay_public_key', 'amplopay_secret_key', 'amplopay_webhook_token']
-  const pushinpayKeys = ['pushinpay_token']
+  const pushinpayKeys = ['pushinpay_token', 'pushinpay_webhook_token']
   const metaKeys = ['meta_pixel_id', 'meta_access_token', 'meta_test_event_code', 'meta_track_lead', 'meta_track_purchase', 'meta_track_initiate_checkout', 'meta_track_view_content']
 
   const activeGateway = values.active_gateway || 'amplopay'
@@ -319,8 +319,8 @@ export function SettingsForm({ initial }: Props) {
                   <SecretInput value={values.amplopay_webhook_token ?? ''} onChange={(v) => set('amplopay_webhook_token', v)} placeholder="Token secreto do webhook" />
                 </FieldRow>
                 <FieldRow label="Webhook URL" description="Configure este endereço no painel da AmploPay">
-                  <div className="rounded-xl border border-zinc-700/60 bg-zinc-900/60 px-4 py-2.5">
-                    <code className="text-xs text-zinc-400">/api/amplopay/webhook</code>
+                  <div className="rounded-xl border px-4 py-2.5" style={{ borderColor: 'rgba(0,0,0,0.1)', background: 'rgba(0,0,0,0.03)' }}>
+                    <code className="text-xs" style={{ color: '#52525b' }}>/api/amplopay/webhook</code>
                   </div>
                 </FieldRow>
               </>
@@ -329,9 +329,12 @@ export function SettingsForm({ initial }: Props) {
                 <FieldRow label="Bearer Token" description="Token de acesso gerado no painel PushinPay">
                   <SecretInput value={values.pushinpay_token ?? ''} onChange={(v) => set('pushinpay_token', v)} placeholder="Seu token de acesso..." />
                 </FieldRow>
-                <FieldRow label="Webhook URL" description="Configure este endereço no painel da PushinPay (campo webhook_url ao criar PIX)">
-                  <div className="rounded-xl border border-zinc-700/60 bg-zinc-900/60 px-4 py-2.5">
-                    <code className="text-xs text-zinc-400">/api/pushinpay/webhook</code>
+                <FieldRow label="Webhook Token" description="Token secreto anexado à URL de callback para validar notificações (opcional, mas recomendado)">
+                  <SecretInput value={values.pushinpay_webhook_token ?? ''} onChange={(v) => set('pushinpay_webhook_token', v)} placeholder="Token secreto do webhook" />
+                </FieldRow>
+                <FieldRow label="Webhook URL" description="Configurada automaticamente a cada Pix gerado (campo webhook_url)">
+                  <div className="rounded-xl border px-4 py-2.5" style={{ borderColor: 'rgba(0,0,0,0.1)', background: 'rgba(0,0,0,0.03)' }}>
+                    <code className="text-xs" style={{ color: '#52525b' }}>/api/pushinpay/webhook</code>
                   </div>
                 </FieldRow>
               </>
@@ -647,7 +650,7 @@ export function SettingsForm({ initial }: Props) {
           const saasGw = values.saas_billing_gateway || 'amplopay'
           const saasKeys = saasGw === 'amplopay'
             ? ['saas_billing_gateway', 'saas_billing_amplopay_public_key', 'saas_billing_amplopay_secret_key', 'saas_billing_amplopay_webhook_token']
-            : ['saas_billing_gateway', 'saas_billing_pushinpay_token']
+            : ['saas_billing_gateway', 'saas_billing_pushinpay_token', 'saas_billing_pushinpay_webhook_token']
           return (
             <div className="rounded-2xl overflow-hidden" style={{ border: '1px solid rgba(255,255,255,0.82)' }}>
               <div className="px-5 py-4" style={{ background: 'rgba(255,255,255,0.72)', borderBottom: '1px solid rgba(255,255,255,0.82)' }}>
@@ -659,7 +662,8 @@ export function SettingsForm({ initial }: Props) {
                   <select
                     value={saasGw}
                     onChange={e => set('saas_billing_gateway', e.target.value)}
-                    className="w-full rounded-xl border border-zinc-700/60 bg-zinc-800/60 px-4 py-2.5 text-sm text-zinc-100 outline-none transition-all focus:border-blue-500/60 focus:ring-2 focus:ring-blue-500/10"
+                    className="w-full rounded-xl border px-4 py-2.5 text-sm outline-none transition-all focus:border-violet-500/60 focus:ring-2 focus:ring-violet-500/10"
+                    style={{ borderColor: 'rgba(0,0,0,0.12)', background: 'rgba(255,255,255,0.80)', color: '#1a1625' }}
                   >
                     <option value="amplopay">AmploPay</option>
                     <option value="pushinpay">PushinPay</option>
@@ -677,17 +681,25 @@ export function SettingsForm({ initial }: Props) {
                     <SecretInput value={values.saas_billing_amplopay_webhook_token ?? ''} onChange={v => set('saas_billing_amplopay_webhook_token', v)} placeholder="Token secreto do webhook" />
                   </FieldRow>
                   <FieldRow label="Webhook URL" description="Configure este endereço no painel da AmploPay">
-                    <div className="flex items-center rounded-xl border border-zinc-700/40 bg-zinc-900/50 px-4 py-2.5">
-                      <code className="text-xs text-zinc-400">/api/saas/billing-webhook</code>
+                    <div className="flex items-center rounded-xl border px-4 py-2.5" style={{ borderColor: 'rgba(0,0,0,0.1)', background: 'rgba(0,0,0,0.03)' }}>
+                      <code className="text-xs" style={{ color: '#52525b' }}>/api/saas/billing-webhook</code>
                     </div>
                   </FieldRow>
                 </>)}
 
-                {saasGw === 'pushinpay' && (
+                {saasGw === 'pushinpay' && (<>
                   <FieldRow label="Token / API Key" description="Token de acesso PushinPay">
                     <SecretInput value={values.saas_billing_pushinpay_token ?? ''} onChange={v => set('saas_billing_pushinpay_token', v)} placeholder="Token PushinPay" />
                   </FieldRow>
-                )}
+                  <FieldRow label="Webhook Token" description="Token secreto anexado à URL de callback para validar notificações">
+                    <SecretInput value={values.saas_billing_pushinpay_webhook_token ?? ''} onChange={v => set('saas_billing_pushinpay_webhook_token', v)} placeholder="Token secreto do webhook" />
+                  </FieldRow>
+                  <FieldRow label="Webhook URL" description="Configurada automaticamente a cada Pix gerado (campo webhook_url)">
+                    <div className="flex items-center rounded-xl border px-4 py-2.5" style={{ borderColor: 'rgba(0,0,0,0.1)', background: 'rgba(0,0,0,0.03)' }}>
+                      <code className="text-xs" style={{ color: '#52525b' }}>/api/saas/billing-webhook</code>
+                    </div>
+                  </FieldRow>
+                </>)}
 
                 <div className="flex justify-end pt-2 border-t border-zinc-800">
                   <button

@@ -1,12 +1,24 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase'
-import { getSessionFromRequest } from '@/lib/session'
+import { getSessionFromRequest, getUserBotIds } from '@/lib/session'
+
+async function assertOwnsSequence(session: NonNullable<Awaited<ReturnType<typeof getSessionFromRequest>>>, id: string) {
+  const { data: seq } = await supabaseAdmin.from('remarketing_sequences').select('bot_id').eq('id', id).single()
+  if (!seq) return { ok: false as const, status: 404, error: 'Sequência não encontrada' }
+  if (session.type === 'admin') return { ok: true as const }
+  const botIds = await getUserBotIds(session.userId!)
+  if (!botIds.includes(seq.bot_id)) return { ok: false as const, status: 403, error: 'Forbidden' }
+  return { ok: true as const }
+}
 
 export async function PATCH(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const session = await getSessionFromRequest(request)
   if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
   const { id } = await params
+  const ownership = await assertOwnsSequence(session, id)
+  if (!ownership.ok) return NextResponse.json({ error: ownership.error }, { status: ownership.status })
+
   const body = await request.json()
   const { name, trigger, is_active, steps } = body
 
@@ -40,6 +52,9 @@ export async function DELETE(request: NextRequest, { params }: { params: Promise
   if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
   const { id } = await params
+  const ownership = await assertOwnsSequence(session, id)
+  if (!ownership.ok) return NextResponse.json({ error: ownership.error }, { status: ownership.status })
+
   // Cancel pending sends first
   await supabaseAdmin.from('remarketing_sends').update({ status: 'cancelled' }).eq('status', 'pending')
     .in('step_id', supabaseAdmin.from('remarketing_steps').select('id').eq('sequence_id', id) as unknown as string[])

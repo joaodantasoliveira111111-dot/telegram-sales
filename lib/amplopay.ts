@@ -11,6 +11,14 @@ async function getKeys() {
   }
 }
 
+// Appends the configured webhook secret as a query param so it round-trips back
+// on the callback even when the gateway is set up to hit a per-transaction URL.
+export async function withWebhookToken(url: string): Promise<string> {
+  const { webhookToken } = await getKeys()
+  if (!webhookToken) return url
+  return `${url}${url.includes('?') ? '&' : '?'}token=${encodeURIComponent(webhookToken)}`
+}
+
 export interface CreatePixRequest {
   identifier: string
   amount: number

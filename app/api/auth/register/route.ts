@@ -81,11 +81,12 @@ export async function POST(request: NextRequest) {
   const amount = PLAN_PRICES[plan_type]
   const settings = await getSettings([
     'saas_billing_gateway',
-    'saas_billing_amplopay_public_key', 'saas_billing_amplopay_secret_key',
-    'saas_billing_pushinpay_token',
+    'saas_billing_amplopay_public_key', 'saas_billing_amplopay_secret_key', 'saas_billing_amplopay_webhook_token',
+    'saas_billing_pushinpay_token', 'saas_billing_pushinpay_webhook_token',
   ])
   const gateway = settings.saas_billing_gateway || 'amplopay'
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL ?? ''
+  const withToken = (url: string, token: string) => token ? `${url}?token=${encodeURIComponent(token)}` : url
 
   try {
     let paymentId = '', pixCode = '', pixQr = ''
@@ -94,7 +95,7 @@ export async function POST(request: NextRequest) {
       const pix = await amlopayCreatePix({
         identifier: `saas-${user.id}-${Date.now()}`,
         amount,
-        callbackUrl: `${baseUrl}/api/saas/billing-webhook`,
+        callbackUrl: withToken(`${baseUrl}/api/saas/billing-webhook`, settings.saas_billing_amplopay_webhook_token),
         client: { name: user.name, email: user.email, phone: phone ?? '', document: cpf_cnpj ?? undefined },
       }, {
         publicKey: settings.saas_billing_amplopay_public_key,
@@ -106,7 +107,7 @@ export async function POST(request: NextRequest) {
     } else {
       const { createPix: pushinCreatePix } = await import('@/lib/pushinpay')
       const pix = await pushinCreatePix(
-        { value: amount, webhookUrl: `${baseUrl}/api/saas/billing-webhook` },
+        { value: amount, webhookUrl: withToken(`${baseUrl}/api/saas/billing-webhook`, settings.saas_billing_pushinpay_webhook_token) },
         settings.saas_billing_pushinpay_token
       )
       paymentId = pix.id

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase'
 import { FUNNEL_TEMPLATES } from '@/lib/funnel-templates'
+import { getSessionFromRequest, getUserBotIds } from '@/lib/session'
 
 export async function GET() {
   return NextResponse.json(FUNNEL_TEMPLATES)
@@ -8,8 +9,16 @@ export async function GET() {
 
 // Apply a template to a bot — creates messages + plans
 export async function POST(request: NextRequest) {
+  const session = await getSessionFromRequest(request)
+  if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+
   const { bot_id, template_id } = await request.json()
   if (!bot_id || !template_id) return NextResponse.json({ error: 'bot_id e template_id obrigatórios' }, { status: 400 })
+
+  if (session.type === 'user') {
+    const botIds = await getUserBotIds(session.userId!)
+    if (!botIds.includes(bot_id)) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+  }
 
   const template = FUNNEL_TEMPLATES.find(t => t.id === template_id)
   if (!template) return NextResponse.json({ error: 'Template não encontrado' }, { status: 404 })

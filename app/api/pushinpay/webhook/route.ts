@@ -8,6 +8,7 @@ import { sendTikTokPurchase } from '@/lib/tiktok'
 import { sendGA4Purchase } from '@/lib/ga4'
 import { sendKwaiPurchase } from '@/lib/kwai'
 import { getBotMessage } from '@/lib/messages'
+import { validateWebhookToken } from '@/lib/pushinpay'
 
 interface PushinPayWebhookPayload {
   id: string
@@ -18,6 +19,14 @@ interface PushinPayWebhookPayload {
 }
 
 export async function POST(request: NextRequest) {
+  const token =
+    request.headers.get('x-webhook-token') ??
+    request.nextUrl.searchParams.get('token')
+
+  if (!await validateWebhookToken(token)) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
+
   let payload: PushinPayWebhookPayload
   try {
     payload = await request.json()

@@ -1,12 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase'
 import { createConnectedClient } from '@/lib/telegram-client'
+import { getSessionFromRequest, getUserBotIds } from '@/lib/session'
 
 export const runtime = 'nodejs'
 export const maxDuration = 30
 
 // Send message to a group/channel OR via a bot token to a specific chat_id
 export async function POST(request: NextRequest) {
+  const session = await getSessionFromRequest(request)
+  if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+
   const body = await request.json()
   const { target, chatId, message, parse_html, via_bot_id } = body
 
@@ -16,7 +20,7 @@ export async function POST(request: NextRequest) {
   if (target === 'account' && chatId) {
     let client
     try {
-      client = await createConnectedClient()
+      client = await createConnectedClient(session.type === 'user' ? session.userId : undefined)
       await client.sendMessage(chatId, {
         message,
         parseMode: parse_html ? 'html' : undefined,
@@ -32,6 +36,11 @@ export async function POST(request: NextRequest) {
 
   // Option B: send via bot token
   if (via_bot_id && chatId) {
+    if (session.type === 'user') {
+      const botIds = await getUserBotIds(session.userId!)
+      if (!botIds.includes(via_bot_id)) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+    }
+
     const { data: bot } = await supabaseAdmin
       .from('bots')
       .select('telegram_token')

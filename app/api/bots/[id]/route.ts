@@ -10,6 +10,16 @@ async function ownBot(session: { type: string; userId?: string }, botId: string)
   return !!data
 }
 
+const ALLOWED_FIELDS = [
+  'name', 'telegram_token', 'welcome_message', 'welcome_media_url', 'welcome_media_type',
+  'is_active', 'bot_type', 'flow_type', 'flow_type_b', 'ab_test_enabled', 'protect_content',
+  'gateway', 'flow_config',
+  'meta_pixel_id', 'meta_access_token', 'meta_test_event_code',
+  'tiktok_pixel_id', 'tiktok_access_token',
+  'ga4_measurement_id', 'ga4_api_secret', 'gtm_container_id',
+  'kwai_pixel_id', 'kwai_access_token',
+] as const
+
 export async function PATCH(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
@@ -21,8 +31,13 @@ export async function PATCH(
   if (!(await ownBot(session, id))) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
 
   const body = await request.json()
+  const update: Record<string, unknown> = {}
+  for (const key of ALLOWED_FIELDS) {
+    if (key in body) update[key] = body[key]
+  }
+
   const { data, error } = await supabaseAdmin
-    .from('bots').update(body).eq('id', id).select().single()
+    .from('bots').update(update).eq('id', id).select().single()
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
 

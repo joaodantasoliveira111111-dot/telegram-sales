@@ -25,6 +25,8 @@ const ADMIN_SETTING_KEYS = [
   'saas_billing_amplopay_secret_key',
   'saas_billing_amplopay_webhook_token',
   'saas_billing_pushinpay_token',
+  'saas_billing_pushinpay_webhook_token',
+  'pushinpay_webhook_token',
 ]
 
 export default async function SettingsPage() {

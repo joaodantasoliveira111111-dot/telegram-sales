@@ -7,6 +7,25 @@ async function getToken(): Promise<string> {
   return s.pushinpay_token || process.env.PUSHINPAY_TOKEN || ''
 }
 
+async function getWebhookToken(): Promise<string> {
+  const s = await getSettings(['pushinpay_webhook_token'])
+  return s.pushinpay_webhook_token || process.env.PUSHINPAY_WEBHOOK_TOKEN || ''
+}
+
+// Appends the configured webhook secret as a query param so PushinPay echoes it
+// back on every callback — same pattern as AmploPay's x-webhook-token/?token=.
+export async function withWebhookToken(url: string): Promise<string> {
+  const webhookToken = await getWebhookToken()
+  if (!webhookToken) return url
+  return `${url}${url.includes('?') ? '&' : '?'}token=${encodeURIComponent(webhookToken)}`
+}
+
+export async function validateWebhookToken(token: string | null): Promise<boolean> {
+  const webhookToken = await getWebhookToken()
+  if (!webhookToken) return true
+  return token === webhookToken
+}
+
 export interface PushinPayTransaction {
   id: string
   qr_code: string
